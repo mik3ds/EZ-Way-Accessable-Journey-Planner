@@ -12,7 +12,8 @@ import android.widget.TextView;
 public class Main1Activity extends AppCompatActivity {
 
     private SharedPreferences mPreferences;
-
+   //comment
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
