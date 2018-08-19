@@ -24,6 +24,13 @@ public class Main1Activity extends AppCompatActivity {
         configureProfileData();
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        finish();
+        startActivity(getIntent());
+    }
+
     private void configureHomeButton1() {
         Button homebutton1 = (Button) findViewById(R.id.homebuttonmain1);
         homebutton1.setOnClickListener(new View.OnClickListener() {
