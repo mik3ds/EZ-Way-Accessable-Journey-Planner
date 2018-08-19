@@ -18,19 +18,30 @@
         android:id="@+id/navbutton1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/navbutton2"
-        android:layout_marginStart="72dp"
+        android:layout_marginBottom="93dp"
+        android:layout_marginStart="71dp"
         android:text="Activity 1" />
 
     <Button
         android:id="@+id/navbutton2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="67dp"
-        android:layout_marginTop="211dp"
+        android:layout_marginBottom="121dp"
+        android:layout_marginEnd="44dp"
         android:text="Activity 2" />
+
+    <TextView
+        android:id="@+id/homeWeatherText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="160dp"
+        android:text="Weather Display" />
 
 </RelativeLayout>
