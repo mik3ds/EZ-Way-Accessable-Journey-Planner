@@ -2,8 +2,10 @@ package com.example.user.testnav2;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,12 +24,13 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView weatherdisplay;
+    private SharedPreferences mPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -35,6 +38,14 @@ public class MainActivity extends AppCompatActivity {
         configureNavButton1();
         configureNavButtton2();
         configureWeatherDisplay();
+        configureUserName();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        finish();
+        startActivity(getIntent());
     }
 
     private void configureNavButton1() {
@@ -57,8 +68,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void configureUserName() {
+        TextView welcome = (TextView) findViewById(R.id.welcometext);
+        String displayName = mPreferences.getString(getString(R.string.username), "Guest");
+        String temp = "Welcome, " + displayName + "!";
+        welcome.setText(temp);
+    }
+
     private void configureWeatherDisplay() {
-        weatherdisplay = (TextView) findViewById(R.id.homeWeatherText);
+        TextView weatherdisplay = (TextView) findViewById(R.id.homeWeatherText);
 
         weatherGetter wg = new weatherGetter();
         String weather = wg.doInBackground();
