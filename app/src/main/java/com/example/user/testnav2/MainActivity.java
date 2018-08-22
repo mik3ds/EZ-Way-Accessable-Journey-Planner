@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    //add a comment
 
     private void configureUserName() {
         TextView welcome = (TextView) findViewById(R.id.welcometext);
