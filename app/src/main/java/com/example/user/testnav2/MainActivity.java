@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
 
         configureNavButton1();
-        configureNavButtton2();
+        configureNavButton2();
+        configureNavButton3();
         configureWeatherDisplay();
         configureUserName();
     }
@@ -58,12 +59,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void configureNavButtton2() {
+    private void configureNavButton2() {
         Button navbutton2 = (Button) findViewById(R.id.navbutton2);
         navbutton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(MainActivity.this, Main2Activity.class));
+            }
+        });
+    }
+
+    private void configureNavButton3() {
+        Button navbutton3 = (Button) findViewById(R.id.navbutton3);
+        navbutton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, MapActivity.class));
             }
         });
     }

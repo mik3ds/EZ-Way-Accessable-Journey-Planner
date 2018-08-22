@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/welcometext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -18,30 +19,38 @@
         android:id="@+id/navbutton1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="93dp"
-        android:layout_marginStart="71dp"
+        android:layout_alignEnd="@+id/welcometext"
+        android:layout_alignRight="@+id/welcometext"
+        android:layout_centerVertical="true"
         android:text="Activity 1" />
 
     <Button
         android:id="@+id/navbutton2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="121dp"
-        android:layout_marginEnd="44dp"
+        android:layout_alignLeft="@+id/navbutton1"
+        android:layout_alignStart="@+id/navbutton1"
+        android:layout_alignTop="@+id/navbutton1"
+        android:layout_marginTop="64dp"
         android:text="Activity 2" />
+
+    <Button
+        android:id="@+id/navbutton3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/navbutton2"
+        android:layout_alignStart="@+id/navbutton2"
+        android:layout_alignTop="@+id/navbutton2"
+        android:layout_marginTop="67dp"
+        android:text="Activity 3" />
 
     <TextView
         android:id="@+id/homeWeatherText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="160dp"
+        android:layout_below="@+id/welcometext"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="53dp"
         android:text="Weather Display" />
 
 </RelativeLayout>
