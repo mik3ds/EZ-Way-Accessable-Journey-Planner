@@ -21,6 +21,7 @@ import com.mapquest.mapping.maps.OnMapReadyCallback;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,27 +36,8 @@ public class MapActivity extends AppCompatActivity{
     private MapboxMap mMapboxMap;
     private MapView mMapView;
     ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
-    private void readcsv() {
-        int i = 0;
-        try {
-            File csv = new File(Environment.getExternalStorageDirectory() + "/storage/emulated/0/DCIM/toiletmapexport_180801_090000.csv");
-            BufferedReader br = new BufferedReader(new FileReader(csv));
-            br.readLine();
-            String line = "";
-            String[] onerow;
-            while ((line = br.readLine()) != null){
-                onerow = line.split(",");
-                List<String> infolist = Arrays.asList(onerow);
-                ArrayList<String> infoarraylist = new ArrayList<String>(infolist);
-                data.add(infoarraylist);
-            }
 
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+    Geocoder gc = new Geocoder(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState)  {
@@ -66,10 +48,8 @@ public class MapActivity extends AppCompatActivity{
         mMapView.onCreate(savedInstanceState);
 
         List<Address> addressList = null;
-        Geocoder gc = new Geocoder(this);
         //       double lat = LocationUtils.latitude;
         //     double lng = LocationUtils.longitude;
-
         double lat = -37.8775468;
         double lng = 145.0443;
         final LatLng latLng = new LatLng(lat, lng);
@@ -92,6 +72,38 @@ public class MapActivity extends AppCompatActivity{
             private void addmarker(MapboxMap mapboxMap) {
                 MarkerOptions markerOptions = new MarkerOptions();
 
+                List<android.location.Address> addressList = null;
+
+                int i = 0;
+                try {
+                    File csv = new File(Environment.getExternalStorageDirectory() + "/storage/emulated/0/DCIM/toiletmapexport_180801_090000.csv");
+                    BufferedReader br = new BufferedReader(new FileReader(csv));
+                    br.readLine();
+                    String line = "";
+                    String[] onerow;
+                    while ((line = br.readLine()) != null){
+                        onerow = line.split(",");
+                        List<String> infolist = Arrays.asList(onerow);
+                        ArrayList<String> infoarraylist = new ArrayList<String>(infolist);
+                        if( infoarraylist.get(5) == "Victoria") {
+                            data.add(infoarraylist);
+                            addressList = gc.getFromLocationName(infoarraylist.get(4),1000000);
+                            Address address = addressList.get(i);
+                            double lat = address.getLatitude();
+                            double lon = address.getLongitude();
+                            LatLng latlon = new LatLng(lat,lon);
+                            markerOptions.position(latlon);
+                            markerOptions.title(infoarraylist.get(4));
+                            mapboxMap.addMarker(markerOptions);
+                        }
+                        i++;
+                    }
+
+                    br.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 // Create an Icon object for the marker to use
                 IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
                 Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.default_marker);
@@ -102,12 +114,36 @@ public class MapActivity extends AppCompatActivity{
                 markerOptions.title("Caulfield campus");
 
                 mapboxMap.addMarker(markerOptions);
+
+
             }
 
 
         });
     }
 
+//
+//    private void readcsv() {
+//        int i = 0;
+//        try {
+//            File csv = new File(Environment.getExternalStorageDirectory() + "/storage/emulated/0/DCIM/toiletmapexport_180801_090000.csv");
+//            BufferedReader br = new BufferedReader(new FileReader(csv));
+//            br.readLine();
+//            String line = "";
+//            String[] onerow;
+//            while ((line = br.readLine()) != null){
+//                onerow = line.split(",");
+//                List<String> infolist = Arrays.asList(onerow);
+//                ArrayList<String> infoarraylist = new ArrayList<String>(infolist);
+//                if( infoarraylist.get(5) == "Victoria")
+//                    data.add(infoarraylist);
+//            }
+//
+//            br.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     @Override
