@@ -1,8 +1,10 @@
 package com.example.user.testnav2;
 
 import android.graphics.drawable.Drawable;
+import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
@@ -16,15 +18,35 @@ import com.mapquest.mapping.maps.MapboxMap;
 import com.mapbox.mapboxsdk.*;
 import com.mapquest.mapping.maps.OnMapReadyCallback;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.List;
+
 
 /**
  * Created by mark on 8/20/2018.
  */
 
+
 public class MapActivity extends AppCompatActivity{
     private MapboxMap mMapboxMap;
     private MapView mMapView;
 
+    private void readcsv() {
+        int i = 0;
+        try {
+            File csv = new File(Environment.getExternalStorageDirectory() + "/storage/emulated/0/DCIM/toiletmapexport_180801_090000.csv");
+            BufferedReader br = new BufferedReader(new FileReader(csv));
+            br.readLine();
+            String line = "";
+            while ((line = br.readLine()) != null)
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     @Override
@@ -35,6 +57,7 @@ public class MapActivity extends AppCompatActivity{
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
 
+        List<Address> addressList = null;
         Geocoder gc = new Geocoder(this);
         //       double lat = LocationUtils.latitude;
         //     double lng = LocationUtils.longitude;
@@ -42,6 +65,9 @@ public class MapActivity extends AppCompatActivity{
         double lat = -37.8775468;
         double lng = 145.0443;
         final LatLng latLng = new LatLng(lat, lng);
+
+
+
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
@@ -81,16 +107,19 @@ public class MapActivity extends AppCompatActivity{
         super.onResume();
         mMapView.onResume();
     }
+
     @Override
     public void onPause(){
         super.onPause();
         mMapView.onPause();
     }
+
     @Override
     protected void onDestroy(){
         super.onDestroy();
         mMapView.onDestroy();
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
