@@ -21,6 +21,8 @@ import com.mapquest.mapping.maps.OnMapReadyCallback;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -32,7 +34,7 @@ import java.util.List;
 public class MapActivity extends AppCompatActivity{
     private MapboxMap mMapboxMap;
     private MapView mMapView;
-
+    ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
     private void readcsv() {
         int i = 0;
         try {
@@ -40,7 +42,13 @@ public class MapActivity extends AppCompatActivity{
             BufferedReader br = new BufferedReader(new FileReader(csv));
             br.readLine();
             String line = "";
-            while ((line = br.readLine()) != null)
+            String[] onerow;
+            while ((line = br.readLine()) != null){
+                onerow = line.split(",");
+                List<String> infolist = Arrays.asList(onerow);
+                ArrayList<String> infoarraylist = new ArrayList<String>(infolist);
+                data.add(infoarraylist);
+            }
 
             br.close();
         } catch (Exception e) {
