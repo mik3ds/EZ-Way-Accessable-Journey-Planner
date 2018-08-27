@@ -95,6 +95,7 @@ public class MapActivity extends AppCompatActivity{
                             markerOptions.position(latlon);
                             markerOptions.title(infoarraylist.get(4));
                             mapboxMap.addMarker(markerOptions);
+
                         }
                         i++;
                     }
