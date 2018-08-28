@@ -25,6 +25,12 @@ public class LocationUtils extends AppCompatActivity {
         getLocation();
     }
 
+
+    public void showlocation(){
+        getLocation();
+    }
+
+
     public void getLocation() {
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
