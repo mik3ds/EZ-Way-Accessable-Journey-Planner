@@ -48,6 +48,7 @@ public class MapActivity extends AppCompatActivity{
     public static double latitude;
     public static double longitude;
     LocationManager locationManager;
+    List<android.location.Address> addressList = null;
 
 
 
@@ -62,10 +63,10 @@ public class MapActivity extends AppCompatActivity{
 
         String location = "";
 
-        List<android.location.Address> addressList = null;
         Geocoder gc = new Geocoder(this);
         try{
-            addressList = gc.getFromLocationName(location,1);
+            addressList = gc.getFromLocationName(location,1000);
+            // add adress to list here
         }catch (IOException e)
         {
             e.printStackTrace();
@@ -95,6 +96,17 @@ public class MapActivity extends AppCompatActivity{
 
             private void addmarker(MapboxMap mapboxMap) {
                 MarkerOptions markerOptions = new MarkerOptions();
+
+
+                for(int i =0; i < 100000; i++){
+                    Address address = addressList.get(i);
+                    double lat = address.getLatitude();
+                    double lon = address.getLongitude();
+                    LatLng latlon = new LatLng(lat,lon);
+                    markerOptions.position(latlon);
+                    markerOptions.title("Disabled Toilets");
+                    mapboxMap.addMarker(markerOptions);
+                }
 
 //                List<android.location.Address> addressList = null;
 //
