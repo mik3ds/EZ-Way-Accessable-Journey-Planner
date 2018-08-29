@@ -3,6 +3,7 @@ package com.example.user.testnav2;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -64,13 +65,13 @@ public class MapActivity extends AppCompatActivity{
         String location = "";
 
         Geocoder gc = new Geocoder(this);
-    //    try{
-    //        addressList = gc.getFromLocationName(location,1000);
-    //        // add adress to list here
-    //    }catch (IOException e)
-    //    {
-    //        e.printStackTrace();
-    //    }
+        try{
+            addressList = gc.getFromLocationName(location,1000);
+            // add adress to list here
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
 
 //        List<Address> addressList = null;
         getLocation();
@@ -78,8 +79,18 @@ public class MapActivity extends AppCompatActivity{
 //        double lng = LocationUtils.longitude;
 //        double lat = -37.8775468;
 //        double lng = 145.0443;
-        final LatLng latLng = new LatLng(latitude, longitude);
 
+
+        //USER LOCATION
+        //final LatLng latLng = new LatLng(latitude, longitude);
+        final LatLng latLng = new LatLng(-37.877848, 145.044696);
+
+        //CAULFIELD STATION LOCATION
+        final LatLng calsat = new LatLng(-37.8769,145.0424);
+
+        //ACCESSABLE TOILETS LOCATION
+        final LatLng toilet1 = new LatLng( -37.86601353,  145.0496936);
+        final LatLng toilet2 = new LatLng( -37.86915066,  145.0540776);
 
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
@@ -94,19 +105,52 @@ public class MapActivity extends AppCompatActivity{
                 addmarker(mMapboxMap);
             }
 
+            private void addToilets(MapboxMap mapboxMap) {
+
+            }
+
             private void addmarker(MapboxMap mapboxMap) {
                 MarkerOptions markerOptions = new MarkerOptions();
 
 
-            //    for(int i =0; i < 100000; i++){
-            //        Address address = addressList.get(i);
-            //        double lat = address.getLatitude();
-            //        double lon = address.getLongitude();
-            //        LatLng latlon = new LatLng(lat,lon);
-            //        markerOptions.position(latlon);
-            //        markerOptions.title("Disabled Toilets");
-            //        mapboxMap.addMarker(markerOptions);
-            //    }
+                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+
+                // Create an Icon object for the marker to use
+
+                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.person);
+                Icon icon = iconFactory.fromDrawable(iconDrawable);
+                markerOptions.position(latLng);
+                markerOptions.icon(icon);
+                markerOptions.title("Your Location");
+                mapboxMap.addMarker(markerOptions);
+
+                markerOptions.position(calsat);
+                iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
+                icon = iconFactory.fromDrawable(iconDrawable);
+                markerOptions.title("Caulfield Station");
+                markerOptions.icon(icon);
+                mapboxMap.addMarker(markerOptions);
+
+                markerOptions.position(toilet1);
+                iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
+                icon = iconFactory.fromDrawable(iconDrawable);
+                markerOptions.title("Accessible Public Toilet");
+                markerOptions.icon(icon);
+                mapboxMap.addMarker(markerOptions);
+
+                // After creating first toilet marker, second one reuses data besides GPS coordinates
+                markerOptions.position(toilet2);
+                mapboxMap.addMarker(markerOptions);
+
+//                for(int i =0; i < 100000; i++){
+//                    Address address = addressList.get(i);
+//                    double lat = address.getLatitude();
+//                    double lon = address.getLongitude();
+//                    LatLng latlon = new LatLng(lat,lon);
+//                    markerOptions.position(latlon);
+//                    markerOptions.title("Disabled Toilets");
+//                    mapboxMap.addMarker(markerOptions);
+//                }
 
 //                List<android.location.Address> addressList = null;
 //
@@ -141,24 +185,9 @@ public class MapActivity extends AppCompatActivity{
 //                    e.printStackTrace();
 //                }
 
-                // Create an Icon object for the marker to use
-                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.default_marker);
-                Icon icon = iconFactory.fromDrawable(iconDrawable);
-                markerOptions.position(latLng);
-                markerOptions.icon(icon);
-
-                markerOptions.title("real-time location");
-
-                mapboxMap.addMarker(markerOptions);
-
-
             }
-
-
         });
     }
-
 
 //
 //    private void readcsv() {
@@ -209,7 +238,7 @@ public class MapActivity extends AppCompatActivity{
     }
 
 
-    public double getLocation() {
+    public void getLocation() {
 
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -225,7 +254,6 @@ public class MapActivity extends AppCompatActivity{
                 longitude = location.getLongitude();
             }
         }
-return latitude;
 
     }
 }

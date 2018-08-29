@@ -19,12 +19,15 @@
 
     <Button
         android:id="@+id/saveprofilebutton"
-        android:layout_width="wrap_content"
+        android:layout_width="127dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="155dp"
-        android:text="Save Changes" />
+        android:background="@android:color/holo_blue_dark"
+        android:text="Save Changes"
+        android:textColor="@android:color/background_light"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textView4"
