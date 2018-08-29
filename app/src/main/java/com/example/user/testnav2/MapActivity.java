@@ -79,7 +79,7 @@ public class MapActivity extends AppCompatActivity{
 //        double lat = -37.8775468;
 //        double lng = 145.0443;
         final LatLng latLng = new LatLng(latitude, longitude);
-
+        final LatLng calsat = new LatLng(-37.8769,145.0424);
 
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
@@ -98,15 +98,15 @@ public class MapActivity extends AppCompatActivity{
                 MarkerOptions markerOptions = new MarkerOptions();
 
 
-                for(int i =0; i < 100000; i++){
-                    Address address = addressList.get(i);
-                    double lat = address.getLatitude();
-                    double lon = address.getLongitude();
-                    LatLng latlon = new LatLng(lat,lon);
-                    markerOptions.position(latlon);
-                    markerOptions.title("Disabled Toilets");
-                    mapboxMap.addMarker(markerOptions);
-                }
+//                for(int i =0; i < 100000; i++){
+//                    Address address = addressList.get(i);
+//                    double lat = address.getLatitude();
+//                    double lon = address.getLongitude();
+//                    LatLng latlon = new LatLng(lat,lon);
+//                    markerOptions.position(latlon);
+//                    markerOptions.title("Disabled Toilets");
+//                    mapboxMap.addMarker(markerOptions);
+//                }
 
 //                List<android.location.Address> addressList = null;
 //
@@ -152,10 +152,17 @@ public class MapActivity extends AppCompatActivity{
 
                 mapboxMap.addMarker(markerOptions);
 
+                Drawable iconSta = ContextCompat.getDrawable(MapActivity.this,R.mipmap.ic_launcher);
+                icon = iconFactory.fromDrawable(iconSta);
+
+                markerOptions.position(calsat);
+                markerOptions.icon(icon);
+
+                markerOptions.title("Caulfield Station");
+
+                mapboxMap.addMarker(markerOptions);
 
             }
-
-
         });
     }
 
@@ -208,7 +215,7 @@ public class MapActivity extends AppCompatActivity{
     }
 
 
-    public double getLocation() {
+    public void getLocation() {
 
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -224,7 +231,6 @@ public class MapActivity extends AppCompatActivity{
                 longitude = location.getLongitude();
             }
         }
-return latitude;
 
     }
 }
