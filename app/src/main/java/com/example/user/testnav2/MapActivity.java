@@ -64,13 +64,13 @@ public class MapActivity extends AppCompatActivity{
         String location = "";
 
         Geocoder gc = new Geocoder(this);
-        try{
-            addressList = gc.getFromLocationName(location,1000);
-            // add adress to list here
-        }catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+    //    try{
+    //        addressList = gc.getFromLocationName(location,1000);
+    //        // add adress to list here
+    //    }catch (IOException e)
+    //    {
+    //        e.printStackTrace();
+    //    }
 
 //        List<Address> addressList = null;
         getLocation();
@@ -98,15 +98,15 @@ public class MapActivity extends AppCompatActivity{
                 MarkerOptions markerOptions = new MarkerOptions();
 
 
-                for(int i =0; i < 100000; i++){
-                    Address address = addressList.get(i);
-                    double lat = address.getLatitude();
-                    double lon = address.getLongitude();
-                    LatLng latlon = new LatLng(lat,lon);
-                    markerOptions.position(latlon);
-                    markerOptions.title("Disabled Toilets");
-                    mapboxMap.addMarker(markerOptions);
-                }
+            //    for(int i =0; i < 100000; i++){
+            //        Address address = addressList.get(i);
+            //        double lat = address.getLatitude();
+            //        double lon = address.getLongitude();
+            //        LatLng latlon = new LatLng(lat,lon);
+            //        markerOptions.position(latlon);
+            //        markerOptions.title("Disabled Toilets");
+            //        mapboxMap.addMarker(markerOptions);
+            //    }
 
 //                List<android.location.Address> addressList = null;
 //
@@ -158,6 +158,7 @@ public class MapActivity extends AppCompatActivity{
 
         });
     }
+
 
 //
 //    private void readcsv() {
