@@ -3,14 +3,19 @@ package com.example.user.testnav2;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.MainThread;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -43,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
         configureUserName();
         configureWeatherTextDisplay();
 
+        changeBackground();
+
     }
 
     @Override
@@ -50,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         finish();
         startActivity(getIntent());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.relativeLayoutMain);
+        AnimationDrawable ad = (AnimationDrawable) layout.getBackground();
+        ad.start();
     }
 
     private void configureNavButton1() {
@@ -91,11 +106,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configureWeatherBackground(JSONObject obj) {
+        int weatherCode = 0;
         try {
-            int weatherCode = obj.getJSONArray("weather").getJSONObject(0).getInt("id");
+            weatherCode = obj.getJSONArray("weather").getJSONObject(0).getInt("id");
         } catch (Throwable t) {
-            Log.e("FIT5120", "Could not load JJSON");
+            Log.e("FIT5120", "Could not load JSON");
         }
+
+        changeBackground();
+    }
+
+    private void changeBackground() {
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.relativeLayoutMain);
+        layout.setBackgroundResource(R.drawable.animation_list);
+
+        AnimationDrawable ad = (AnimationDrawable) layout.getBackground();
+        ad.setEnterFadeDuration(5000);
+        ad.setExitFadeDuration(2000);
     }
 
     private void configureWeatherTextDisplay() {

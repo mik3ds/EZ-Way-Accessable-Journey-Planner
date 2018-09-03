@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="firstBlue">#09C6DF</color>
     <color name="secondBlue">#0BCCE6</color>
+
+    <color name="weatherGrad1">#a4dbe4</color>
+    <color name="weatherGrad2">#2f63ff</color>
+    <color name="weatherGrad3">#f0e56b</color>
+    <color name="weatherGrad4">#74b433</color>
+    <color name="weatherGrad5">#fa990e</color>
+    <color name="weatherGrad6">#fdcc47</color>
+    <color name="weatherGrad7">#000000</color>
+    <color name="weatherGrad8">#fffff0</color>
 </resources>
+
