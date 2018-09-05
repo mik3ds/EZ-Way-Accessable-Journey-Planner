@@ -83,7 +83,7 @@ public class MapActivity extends AppCompatActivity{
 
         //USER LOCATION
         //final LatLng latLng = new LatLng(latitude, longitude);
-        final LatLng latLng = new LatLng(-37.877848, 145.044696);
+            final LatLng latLng = new LatLng(-37.877848, 145.044696);
 
         //CAULFIELD STATION LOCATION
         final LatLng calsat = new LatLng(-37.8769,145.0424);
