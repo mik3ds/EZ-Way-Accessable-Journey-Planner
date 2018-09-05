@@ -3,8 +3,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-
-
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -14,15 +12,15 @@ import com.amazonaws.services.s3.AmazonS3Client;
 
 import java.io.File;
 
-public class AWSUtils extends Activity {
+public class UploadActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AWSMobileClient.getInstance().initialize(this).execute();
-        downloadWithTransferUtility();
+        uploadWithTransferUtility();
     }
 
-    private void downloadWithTransferUtility() {
+    public void uploadWithTransferUtility() {
 
         TransferUtility transferUtility =
                 TransferUtility.builder()
@@ -31,13 +29,13 @@ public class AWSUtils extends Activity {
                         .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
                         .build();
 
-        TransferObserver downloadObserver =
-                transferUtility.download(
-                        "s3Folder/s3Key.txt",
+        TransferObserver uploadObserver =
+                transferUtility.upload(
+                        "public/s3Key.txt",
                         new File("/path/to/file/localFile.txt"));
 
         // Attach a listener to the observer to get state update and progress notifications
-        downloadObserver.setTransferListener(new TransferListener() {
+        uploadObserver.setTransferListener(new TransferListener() {
 
             @Override
             public void onStateChanged(int id, TransferState state) {
@@ -48,10 +46,11 @@ public class AWSUtils extends Activity {
 
             @Override
             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                float percentDonef = ((float)bytesCurrent/(float)bytesTotal) * 100;
+                float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
                 int percentDone = (int)percentDonef;
 
-                Log.d(LOG_TAG, "   ID:" + id + "   bytesCurrent: " + bytesCurrent + "   bytesTotal: " + bytesTotal + " " + percentDone + "%");
+                Log.d("YourActivity", "ID:" + id + " bytesCurrent: " + bytesCurrent
+                        + " bytesTotal: " + bytesTotal + " " + percentDone + "%");
             }
 
             @Override
@@ -63,11 +62,11 @@ public class AWSUtils extends Activity {
 
         // If you prefer to poll for the data, instead of attaching a
         // listener, check for the state and progress in the observer.
-        if (TransferState.COMPLETED == downloadObserver.getState()) {
+        if (TransferState.COMPLETED == uploadObserver.getState()) {
             // Handle a completed upload.
         }
 
-        Log.d(LOG_TAG, "Bytes Transferred: " + downloadObserver.getBytesTransferred());
-        Log.d(LOG_TAG, "Bytes Total: " + downloadObserver.getBytesTotal());
+        Log.d("YourActivity", "Bytes Transferred: " + uploadObserver.getBytesTransferred());
+        Log.d("YourActivity", "Bytes Total: " + uploadObserver.getBytesTotal());
     }
 }
