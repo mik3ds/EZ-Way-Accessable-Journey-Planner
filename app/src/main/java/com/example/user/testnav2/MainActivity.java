@@ -3,16 +3,22 @@ package com.example.user.testnav2;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.MainThread;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,8 +44,12 @@ public class MainActivity extends AppCompatActivity {
         configureNavButton1();
         configureNavButton2();
         configureNavButton3();
-        configureWeatherDisplay();
+
         configureUserName();
+        configureWeatherTextDisplay();
+
+        changeBackground();
+
     }
 
     @Override
@@ -47,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         finish();
         startActivity(getIntent());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.relativeLayoutMain);
+        AnimationDrawable ad = (AnimationDrawable) layout.getBackground();
+        ad.start();
     }
 
     private void configureNavButton1() {
@@ -87,22 +105,45 @@ public class MainActivity extends AppCompatActivity {
         welcome.setText(temp);
     }
 
-    private void configureWeatherDisplay() {
+    private void configureWeatherBackground(JSONObject obj) {
+        int weatherCode = 0;
+        try {
+            weatherCode = obj.getJSONArray("weather").getJSONObject(0).getInt("id");
+        } catch (Throwable t) {
+            Log.e("FIT5120", "Could not load JSON");
+        }
+
+        changeBackground();
+    }
+
+    private void changeBackground() {
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.relativeLayoutMain);
+        layout.setBackgroundResource(R.drawable.animation_list);
+
+        AnimationDrawable ad = (AnimationDrawable) layout.getBackground();
+        ad.setEnterFadeDuration(5000);
+        ad.setExitFadeDuration(2000);
+    }
+
+    private void configureWeatherTextDisplay() {
         TextView weatherdisplay = (TextView) findViewById(R.id.homeWeatherText);
 
         weatherGetter wg = new weatherGetter();
         String weather = wg.doInBackground();
         JSONObject obj = null;
+        JSONObject obj2 = null;
         try {
             obj = new JSONObject(weather);
-            Log.d("FIT5120", obj.toString());
+            obj2 = obj;
             obj = obj.getJSONObject("main");
             String temp = obj.getString("temp");
             String temp2 = "It is currently " + temp + " degrees in Melbourne";
             weatherdisplay.setText(temp2);
+
         } catch (Throwable t) {
             Log.e("FIT5120", "Could not load JSON");
         }
+        configureWeatherBackground(obj2);
 
 
 

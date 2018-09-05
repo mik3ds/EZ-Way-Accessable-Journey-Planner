@@ -33,10 +33,14 @@
     </LinearLayout>
 
     <android.support.v7.widget.CardView
+        android:id="@+id/cardView1"
+        android:foregroundGravity="center"
         android:layout_width="300dp"
         android:layout_height="100dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="250dp">
+        android:layout_centerVertical="true"
+        >
+
 
         <LinearLayout
 
@@ -49,16 +53,16 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Parent Tracking"
                 android:gravity="center"
                 android:paddingTop="10dp"
+                android:text="Parent Tracking"
                 android:textSize="20sp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="10dp"
                 android:gravity="center"
+                android:paddingTop="10dp"
                 android:text="Disabled"
                 android:textColor="@android:color/holo_red_light"
                 android:textSize="18sp"
