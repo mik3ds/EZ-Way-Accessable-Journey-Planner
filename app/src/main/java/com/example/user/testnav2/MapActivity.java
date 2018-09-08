@@ -44,7 +44,7 @@ public class MapActivity extends AppCompatActivity{
     private MapView mMapView;
 //    ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
-
+    //initialize latitude and longitude, location manager and the address list here
     static final int REQUEST_LOCATION = 1;
     public static double latitude;
     public static double longitude;
@@ -61,7 +61,6 @@ public class MapActivity extends AppCompatActivity{
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-
         String location = "";
 
         Geocoder gc = new Geocoder(this);
@@ -237,7 +236,7 @@ public class MapActivity extends AppCompatActivity{
         mMapView.onSaveInstanceState(outState);
     }
 
-
+    //Get user's current location from GPS
     public void getLocation() {
 
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
