@@ -9,6 +9,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +25,8 @@ import com.mapquest.mapping.maps.MapView;
 import com.mapquest.mapping.maps.MapboxMap;
 import com.mapbox.mapboxsdk.*;
 import com.mapquest.mapping.maps.OnMapReadyCallback;
+
+import org.json.JSONArray;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -102,14 +105,41 @@ public class MapActivity extends AppCompatActivity{
                 mMapboxMap = mapboxMap;
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
                 addmarker(mMapboxMap);
+                addToilets(mMapboxMap);
             }
 
+
+
             private void addToilets(MapboxMap mapboxMap) {
+                final MarkerOptions markerOptions = new MarkerOptions();
+                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
+                Icon icon = iconFactory.fromDrawable(iconDrawable);
+                String toiletname = "";
+                String address = "";
+                JSONArray toilets = RestClient.getToiLoc();
+                for(int i = 0; i < 1000; i++){
+                    try{
+                        //Get toilets details from server;
+                        latitude = toilets.getJSONObject(i).optDouble("Latitude");
+                        longitude = toilets.getJSONObject(i).optDouble("Longitude");
+                        toiletname = "Accessible Toilet";
+                        address = toilets.getJSONObject(i).optString("Address1");
+                        LatLng toilet_position = new LatLng(latitude, longitude);
+                        markerOptions.icon(icon);
+                        markerOptions.title(toiletname);
+                        markerOptions.snippet(address);
+                        markerOptions.position(toilet_position);
+                        mapboxMap.addMarker(markerOptions);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
 
             }
 
             private void addmarker(MapboxMap mapboxMap) {
-                MarkerOptions markerOptions = new MarkerOptions();
+                final MarkerOptions markerOptions = new MarkerOptions();
 
 
                 IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
@@ -140,6 +170,26 @@ public class MapActivity extends AppCompatActivity{
                 // After creating first toilet marker, second one reuses data besides GPS coordinates
                 markerOptions.position(toilet2);
                 mapboxMap.addMarker(markerOptions);
+
+
+
+
+
+
+//                new AsyncTask<Void, Void, String>(){
+//                    @Override
+//                    protected String doInBackground(Void... params) {
+//                        return RestClient.getToiLoc();
+//                    }
+//
+//                    @Override
+//                    protected void onPostExcute(String result){
+//
+//                        markerOptions.position(result.)
+//
+//                    }
+//                }.execute();
+
 
 //                for(int i =0; i < 100000; i++){
 //                    Address address = addressList.get(i);
@@ -187,6 +237,8 @@ public class MapActivity extends AppCompatActivity{
             }
         });
     }
+
+
 
 //
 //    private void readcsv() {
