@@ -109,7 +109,7 @@ public class MapActivity extends AppCompatActivity{
             }
 
 
-
+            //Toilets icon making
             private void addToilets(MapboxMap mapboxMap) {
                 final MarkerOptions markerOptions = new MarkerOptions();
                 IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
