@@ -15,4 +15,15 @@
         android:layout_height="match_parent"
         app:mapquest_app_key="WufPrGOVQ0Tdwp9JCX13G61OAGOuV8dQ"
         />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/toiletshidden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/btn_default"
+        tools:layout_editor_absoluteX="328dp"
+        tools:layout_editor_absoluteY="511dp" />
+
 </android.support.constraint.ConstraintLayout>

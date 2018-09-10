@@ -10,6 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LocationUtils extends AppCompatActivity {
     static final int REQUEST_LOCATION = 1;
     public static double latitude;
@@ -30,8 +33,12 @@ public class LocationUtils extends AppCompatActivity {
         getLocation();
     }
 
+    //Get user's current location from GPS
+    public List getLocation() {
 
-    public void getLocation() {
+
+        List list = new ArrayList();
+
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -44,9 +51,11 @@ public class LocationUtils extends AppCompatActivity {
             if (location != null){
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
-
+                list.add(latitude);
+                list.add(longitude);
             }
         }
+        return list;
 
     }
 

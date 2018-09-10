@@ -1,0 +1,7 @@
+{
+    "tableName": "table1",
+    "partitionKeyName": "ChildID",
+    "partitionKeyType": "N",
+    "sortKeyName": "PairCode",
+    "sortKeyType": "S"
+}
