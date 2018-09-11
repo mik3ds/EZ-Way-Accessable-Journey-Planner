@@ -3,6 +3,7 @@ package com.example.user.testnav2;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
@@ -22,6 +23,7 @@ import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapquest.mapping.maps.MapView;
 import com.mapquest.mapping.maps.MapboxMap;
@@ -56,8 +58,10 @@ public class MapActivity extends AppCompatActivity{
     public static double longitude;
     LocationManager locationManager;
     List<android.location.Address> addressList = null;
-    private static boolean markershown = false;
-    private FloatingActionButton floatingActionButton;
+    private static boolean toimarkershown = false;
+    private static boolean stamarkershown = false;
+    private FloatingActionButton floatingActionButton1;
+    private FloatingActionButton floatingActionButton2;
     private JSONArray toiletMarkers = null;
     private JSONArray stationMarkers = null;
 
@@ -71,15 +75,17 @@ public class MapActivity extends AppCompatActivity{
         mMapView.onCreate(savedInstanceState);
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         String location = "";
-        floatingActionButton = (FloatingActionButton) findViewById(R.id.toiletshidden);
-        Geocoder gc = new Geocoder(this);
-        try{
-            addressList = gc.getFromLocationName(location,1000);
-            // add adress to list here
-        }catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        floatingActionButton1 = (FloatingActionButton) findViewById(R.id.toiletshidden);
+        floatingActionButton2 = (FloatingActionButton) findViewById(R.id.stationshidden);
+
+//        Geocoder gc = new Geocoder(this);
+//        try{
+//            addressList = gc.getFromLocationName(location,1000);
+//            // add adress to list here
+//        }catch (IOException e)
+//        {
+//            e.printStackTrace();
+//        }
 
 //        LocationUtils LU = new LocationUtils();
 //        LU.getLocation();
@@ -101,30 +107,54 @@ public class MapActivity extends AppCompatActivity{
 
                 mMapboxMap = mapboxMap;
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+                mMapView.setStyle(Style.OUTDOORS);
                 addUserLocation(mMapboxMap);
                 addToilets(mMapboxMap);
                 addStations(mMapboxMap);
-                floatingActionButton.setOnClickListener(new View.OnClickListener() {
+                floatingActionButton1.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-                        remove();
-
+                        removetoilets();
                     }
                 });
 
-    }
+                floatingActionButton2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        removestation();
+                    }
+                });
 
-
-            public void remove(){
-                if(markershown) {
-                    mMapboxMap.clear();
-                    addUserLocation(mMapboxMap);
-                    markershown = false;
-                }else addToilets(mMapboxMap);
             }
 
 
+            public void removetoilets(){
+                if(toimarkershown && stamarkershown) {
+                    mMapboxMap.clear();
+                    addUserLocation(mMapboxMap);
+                    addStations(mMapboxMap);
+                    toimarkershown = false;
+                }else if(toimarkershown && !stamarkershown) {
+                    mMapboxMap.clear();
+                    addUserLocation(mMapboxMap);
+                    toimarkershown = false;
+                }else addToilets(mMapboxMap);
+
+            }
+
+
+            public void removestation(){
+                if(stamarkershown && toimarkershown) {
+                    mMapboxMap.clear();
+                    addUserLocation(mMapboxMap);
+                    addToilets(mMapboxMap);
+                    stamarkershown = false;
+                }else if(stamarkershown && !toimarkershown){
+                    mMapboxMap.clear();
+                    addUserLocation(mMapboxMap);
+                    stamarkershown = false;
+                }else   addStations(mMapboxMap);
+            }
 
 
 
@@ -147,15 +177,15 @@ public class MapActivity extends AppCompatActivity{
                 for(int i = 0; i < 1000; i++){
                     try{
                         //Get toilets details from server;
-                        stalat = stations.getJSONObject(i).optDouble("Latitude");
-                        stalon = stations.getJSONObject(i).optDouble("Longitude");
-                        stationname = stations.getJSONObject(i).optString("Name");
+                        stalat = stations.getJSONObject(i).optDouble("lat");
+                        stalon = stations.getJSONObject(i).optDouble("lon");
+                        stationname = stations.getJSONObject(i).optString("name");
                         LatLng station_position = new LatLng(stalat, stalon);
                         markerOptions.icon(icon);
                         markerOptions.title(stationname);
                         markerOptions.position(station_position);
                         mapboxMap.addMarker(markerOptions);
-                        markershown = true;
+                        stamarkershown = true;
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -193,22 +223,18 @@ public class MapActivity extends AppCompatActivity{
                         markerOptions.snippet(address);
                         markerOptions.position(toilet_position);
                         mapboxMap.addMarker(markerOptions);
-                        markershown = true;
+                        toimarkershown = true;
                     }catch (Exception e){
                         e.printStackTrace();
                     }
                 }
-
             }
 
             private void addUserLocation(MapboxMap mapboxMap) {
                 MarkerOptions markerOptions = new MarkerOptions();
-
-
                 IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
 
                 // Create an Icon object for the marker to use
-
                 Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.person);
                 Icon icon = iconFactory.fromDrawable(iconDrawable);
                 markerOptions.position(latLng);
