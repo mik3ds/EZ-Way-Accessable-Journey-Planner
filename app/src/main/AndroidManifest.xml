@@ -29,7 +29,7 @@
         <activity android:name=".Main1Activity" />
         <activity android:name=".Main2Activity" />
         <activity android:name=".MapActivity" />
-        <activity android:name=".Main1ActivityEdit"></activity>
+        <activity android:name=".Main1ActivityEdit" />
 
     </application>
 

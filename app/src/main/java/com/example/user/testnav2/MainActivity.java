@@ -1,6 +1,7 @@
 package com.example.user.testnav2;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
@@ -32,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences mPreferences;
 
+    ProgressDialog nDialog;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +55,21 @@ public class MainActivity extends AppCompatActivity {
 
         changeBackground();
 
+        nDialog = new ProgressDialog(MainActivity.this);
+        nDialog.setMessage("Loading..");
+        nDialog.setTitle("Get Data");
+        nDialog.setIndeterminate(false);
+        nDialog.setCancelable(true);
+
+
     }
+
+    @Override
+    protected void onStop() {
+        nDialog.hide();
+        super.onStop();
+    }
+
 
     @Override
     protected void onRestart() {
@@ -92,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         navbutton3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                nDialog.show();
                 startActivity(new Intent(MainActivity.this, MapActivity.class));
             }
         });
@@ -144,11 +164,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("FIT5120", "Could not load JSON");
         }
         configureWeatherBackground(obj2);
-
-
-
     }
-
 
 
 }
