@@ -60,4 +60,4 @@ http://13.59.24.178/allStations.php
 
 //Parent Tracker test
 
-http://13.59.24.178/test.php?name=boronely
+http://13.59.24.178/test.php?name=guest
