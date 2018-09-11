@@ -43,16 +43,21 @@ Android Application using Amazon AWS backend.
 ## Example Server URLs
 
 //20 Closest Toilets Sorted By Distance
+
 http://13.59.24.178/nearbyToilets.php?lat=145.034677&lon=-37.877848
 
 //20 Closest Stations Sorted By Distance
+
 http://13.59.24.178/nearbyStations.php?lat=145.034677&lon=-37.877848
 
 //Returns All Toilets
+
 http://13.59.24.178/SamplePage.php
 
 //Returns All Stations
+
 http://13.59.24.178/allStations.php
 
 //Parent Tracker test
+
 http://13.59.24.178/test.php?name=boronely
