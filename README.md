@@ -61,3 +61,41 @@ http://13.59.24.178/allStations.php
 //Parent Tracker test
 
 http://13.59.24.178/test.php?name=guest
+
+
+## Parent Tracking Function
+
+
+//Allows user to be tracked
+
+//User Input = Name
+
+//Other Input = Lat, Lon
+
+trackerSignUp.php?name=XXX&childid=XXX&lat=XXX&lon=XXX
+
+
+//Parent links themselves to child
+
+//User Input = Name
+
+//Other Input = ParentID
+
+linkParent.php?name=XXX&code=XXX&parentID=XXX
+
+
+//Child's device auto-updates location
+
+//Other Input = Lat, Lon
+
+updateLocation.php?childid=XXX&lat=XXX&lon=XXX
+
+
+
+//Stop user tracking
+
+//Other Input = ChildID
+
+stopTracking.php?childid=XXX
+
+
