@@ -15,6 +15,8 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+
 /**
  * Created by mark on 9/8/2018.
  */
@@ -34,7 +36,6 @@ public class RestClient {
 
         //Making HTTP request
         try{
-            int i = 0;
             URL url = new URL(toi_URL);
             //open the connection
             conn = (HttpURLConnection) url.openConnection();
@@ -48,8 +49,6 @@ public class RestClient {
             //add http headers to set your response type to json
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
-            //Read the response
-            Scanner inStream = new Scanner(conn.getInputStream());
             //read the input stream and store it as string
             int responseCode = conn.getResponseCode();
             if(responseCode == HttpURLConnection.HTTP_OK){
@@ -60,15 +59,9 @@ public class RestClient {
                     sb.append(line);
             }
             JSONResult = new JSONArray(sb.toString());//String to JSONArray
-            }catch (ProtocolException e) {
+            } catch (IOException | JSONException e){
                 e.printStackTrace();
-            }catch (MalformedURLException e){
-                e.printStackTrace();
-            }catch (IOException e){
-                e.printStackTrace();
-            }catch (JSONException e) {
-                e.printStackTrace();
-            }finally
+            } finally
          {
             conn.disconnect();
         }
@@ -86,7 +79,6 @@ public class RestClient {
 
         //Making HTTP request
         try{
-            int i = 0;
             URL url = new URL(toi_URL);
             //open the connection
             conn = (HttpURLConnection) url.openConnection();
@@ -100,8 +92,6 @@ public class RestClient {
             //add http headers to set your response type to json
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
-            //Read the response
-            Scanner inStream = new Scanner(conn.getInputStream());
             //read the input stream and store it as string
             int responseCode = conn.getResponseCode();
             if(responseCode == HttpURLConnection.HTTP_OK){
@@ -112,19 +102,15 @@ public class RestClient {
                     sb.append(line);
             }
             JSONResult = new JSONArray(sb.toString());//String to JSONArray
-        }catch (ProtocolException e) {
+        } catch (IOException | JSONException e){
             e.printStackTrace();
-        }catch (MalformedURLException e){
-            e.printStackTrace();
-        }catch (IOException e){
-            e.printStackTrace();
-        }catch (JSONException e) {
-            e.printStackTrace();
-        }finally
+        } finally
         {
+            assert conn != null;
             conn.disconnect();
         }
         return JSONResult;
     }
+
 
 }

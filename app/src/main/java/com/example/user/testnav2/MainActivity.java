@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         nDialog = new ProgressDialog(MainActivity.this);
         nDialog.setMessage("Loading..");
-        nDialog.setTitle("Get Data");
+        nDialog.setTitle("Getting Data");
         nDialog.setIndeterminate(false);
         nDialog.setCancelable(true);
 
