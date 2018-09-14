@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.w3c.dom.Text;
 
 import java.util.concurrent.ExecutionException;
 
@@ -57,7 +56,7 @@ public class Main2Activity extends AppCompatActivity {
                         double lon = ja.getJSONObject(0).getDouble("childLon");
                         String details = ja.getJSONObject(0).getString("details");
 
-                        Intent intent = new Intent(Main2Activity.this, TrackMapActvity.class);
+                        Intent intent = new Intent(Main2Activity.this, TrackMapActivity.class);
                         intent.putExtra("lat", lat);
                         intent.putExtra("lon", lon);
 

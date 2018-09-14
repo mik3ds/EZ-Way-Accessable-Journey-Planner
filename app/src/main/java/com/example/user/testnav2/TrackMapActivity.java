@@ -22,7 +22,7 @@ import org.json.JSONArray;
  * Created by mark on 9/14/2018.
  */
 
-public class TrackMapActvity extends AppCompatActivity{
+public class TrackMapActivity extends AppCompatActivity{
 
         private MapboxMap mMapboxmap;
         private MapView mMapview;
@@ -52,6 +52,7 @@ public class TrackMapActvity extends AppCompatActivity{
 
                                 mMapboxmap = mapboxMap;
                                 mMapboxmap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+                                mMapboxmap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
                                 addStations(mMapboxmap);
                         }
 
@@ -59,8 +60,8 @@ public class TrackMapActvity extends AppCompatActivity{
                         //Stations icon making
                         private void addStations(MapboxMap mapboxMap) {
                                 MarkerOptions markerOptions = new MarkerOptions();
-                                IconFactory iconFactory = IconFactory.getInstance(TrackMapActvity.this);
-                                Drawable iconDrawable = ContextCompat.getDrawable(TrackMapActvity.this, R.drawable.train);
+                                IconFactory iconFactory = IconFactory.getInstance(TrackMapActivity.this);
+                                Drawable iconDrawable = ContextCompat.getDrawable(TrackMapActivity.this, R.drawable.train);
                                 Icon icon = iconFactory.fromDrawable(iconDrawable);
                                 String stationname = "";
                                 JSONArray stations = null;
@@ -72,7 +73,7 @@ public class TrackMapActvity extends AppCompatActivity{
                                 };
                                 double stalat = 0.0;
                                 double stalon = 0.0;
-                                for(int i = 0; i < 1000; i++){
+                                for(int i = 0; i < stations.length(); i++){
                                         try{
                                                 //Get toilets details from server;
                                                 stalat = stations.getJSONObject(i).optDouble("lat");

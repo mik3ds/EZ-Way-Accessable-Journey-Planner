@@ -31,6 +31,7 @@
         <activity android:name=".Main2Activity" />
         <activity android:name=".MapActivity" />
         <activity android:name=".Main1ActivityEdit" />
+        <activity android:name=".TrackMapActivity" />
 
     </application>
 
