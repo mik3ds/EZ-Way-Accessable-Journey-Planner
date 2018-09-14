@@ -80,7 +80,7 @@ public class Main1Activity extends AppCompatActivity {
         DeviceIDGenerator didg = new DeviceIDGenerator();
         String deviceID = didg.getID(Main1Activity.this);
         trackingDisplay.setText(deviceID);
-        String url = "http://13.59.24.178/trackingStatus.php?childid=" + deviceID;
+        String url = "http://13.59.24.178/trackingStatusChild.php?childid=" + deviceID;
         String example = new AsyncTaskRestClient().execute(url).get();
         String empty = "[]";
         if (example.equals(empty)) {

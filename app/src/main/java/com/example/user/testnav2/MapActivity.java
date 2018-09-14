@@ -2,6 +2,7 @@ package com.example.user.testnav2;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
@@ -13,11 +14,13 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
@@ -40,6 +43,7 @@ import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -47,7 +51,8 @@ import java.util.List;
  */
 
 
-public class MapActivity extends AppCompatActivity{
+public class MapActivity extends AppCompatActivity {
+    private SharedPreferences mPreferences;
     private MapboxMap mMapboxMap;
     private MapView mMapView;
 //    ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
@@ -67,13 +72,14 @@ public class MapActivity extends AppCompatActivity{
 
 
     @Override
-    public void onCreate(Bundle savedInstanceState)  {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MapboxAccountManager.start(getApplicationContext());
         setContentView(R.layout.activity_map);
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
-        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         String location = "";
         floatingActionButton1 = (FloatingActionButton) findViewById(R.id.toiletshidden);
         floatingActionButton2 = (FloatingActionButton) findViewById(R.id.stationshidden);
@@ -97,17 +103,17 @@ public class MapActivity extends AppCompatActivity{
         final LatLng latLng = new LatLng(-37.877848, 145.044696);
 
 
-
         mMapView.getMapAsync(new OnMapReadyCallback() {
-
 
 
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
 
                 mMapboxMap = mapboxMap;
+
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
-                mMapView.setStyle(Style.OUTDOORS);
+                //mMapView.setStyle(Style.OUTDOORS);
+                mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
                 addUserLocation(mMapboxMap);
                 addToilets(mMapboxMap);
                 addStations(mMapboxMap);
@@ -128,34 +134,33 @@ public class MapActivity extends AppCompatActivity{
             }
 
 
-            public void removetoilets(){
-                if(toimarkershown && stamarkershown) {
+            public void removetoilets() {
+                if (toimarkershown && stamarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
                     addStations(mMapboxMap);
                     toimarkershown = false;
-                }else if(toimarkershown && !stamarkershown) {
+                } else if (toimarkershown && !stamarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
                     toimarkershown = false;
-                }else addToilets(mMapboxMap);
+                } else addToilets(mMapboxMap);
 
             }
 
 
-            public void removestation(){
-                if(stamarkershown && toimarkershown) {
+            public void removestation() {
+                if (stamarkershown && toimarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
                     addToilets(mMapboxMap);
                     stamarkershown = false;
-                }else if(stamarkershown && !toimarkershown){
+                } else if (stamarkershown && !toimarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
                     stamarkershown = false;
-                }else   addStations(mMapboxMap);
+                } else addStations(mMapboxMap);
             }
-
 
 
             //Stations icon making
@@ -171,11 +176,12 @@ public class MapActivity extends AppCompatActivity{
                     stationMarkers = stations;
                 } else {
                     stations = stationMarkers;
-                };
+                }
+                ;
                 double stalat = 0.0;
                 double stalon = 0.0;
-                for(int i = 0; i < 1000; i++){
-                    try{
+                for (int i = 0; i < stations.length(); i++) {
+                    try {
                         //Get toilets details from server;
                         stalat = stations.getJSONObject(i).optDouble("lat");
                         stalon = stations.getJSONObject(i).optDouble("lon");
@@ -186,7 +192,7 @@ public class MapActivity extends AppCompatActivity{
                         markerOptions.position(station_position);
                         mapboxMap.addMarker(markerOptions);
                         stamarkershown = true;
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -210,8 +216,8 @@ public class MapActivity extends AppCompatActivity{
 //                };
                 double toilat = 0.0;
                 double toilon = 0.0;
-                for(int i = 0; i < 1000; i++){
-                    try{
+                for (int i = 0; i < toilets.length(); i++) {
+                    try {
                         //Get toilets details from server;
                         toilat = toilets.getJSONObject(i).optDouble("Latitude");
                         toilon = toilets.getJSONObject(i).optDouble("Longitude");
@@ -224,7 +230,7 @@ public class MapActivity extends AppCompatActivity{
                         markerOptions.position(toilet_position);
                         mapboxMap.addMarker(markerOptions);
                         toimarkershown = true;
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -235,7 +241,7 @@ public class MapActivity extends AppCompatActivity{
                 IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
 
                 // Create an Icon object for the marker to use
-                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.person);
+                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.star);
                 Icon icon = iconFactory.fromDrawable(iconDrawable);
                 markerOptions.position(latLng);
                 markerOptions.icon(icon);
@@ -247,28 +253,26 @@ public class MapActivity extends AppCompatActivity{
     }
 
 
-
-
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         mMapView.onResume();
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         mMapView.onPause();
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState){
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mMapView.onSaveInstanceState(outState);
     }
@@ -277,7 +281,7 @@ public class MapActivity extends AppCompatActivity{
     public List getLocation() {
         List list = new ArrayList();
 
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
@@ -286,7 +290,7 @@ public class MapActivity extends AppCompatActivity{
         } else {
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-            if (location != null){
+            if (location != null) {
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
                 list.add(latitude);
@@ -296,4 +300,4 @@ public class MapActivity extends AppCompatActivity{
         return list;
 
     }
-    }
+}

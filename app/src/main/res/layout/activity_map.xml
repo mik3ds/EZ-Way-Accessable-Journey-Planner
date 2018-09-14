@@ -12,7 +12,7 @@
         android:id="@+id/mapquestMapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:mapquest_app_key="WufPrGOVQ0Tdwp9JCX13G61OAGOuV8dQ" />
+        app:mapquest_app_key="pk.eyJ1IjoibWlrZWRzIiwiYSI6ImNqbTJrdjF6NDJybHgzcWxpdHM4ZTIxbGgifQ.YFHLu0yNfoUk75M3t7HnDw" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/toiletshidden"
