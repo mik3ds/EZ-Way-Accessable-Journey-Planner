@@ -1,5 +1,6 @@
 package com.example.user.testnav2;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -55,8 +56,14 @@ public class Main2Activity extends AppCompatActivity {
                         double lat = ja.getJSONObject(0).getDouble("childLat");
                         double lon = ja.getJSONObject(0).getDouble("childLon");
                         String details = ja.getJSONObject(0).getString("details");
-                        String response = name + " was located at " + lat + "," + lon + " on " + details;
-                        tv.setText(response);
+
+                        Intent intent = new Intent(Main2Activity.this, TrackMapActvity.class);
+                        intent.putExtra("lat", lat);
+                        intent.putExtra("lon", lon);
+
+                        startActivity(intent);
+                      //  String response = name + " was located at " + lat + "," + lon + " on " + details;
+                    //    tv.setText(response);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
