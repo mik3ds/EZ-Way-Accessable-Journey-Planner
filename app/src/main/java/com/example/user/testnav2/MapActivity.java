@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,17 +16,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.MarkerViewManager;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -57,6 +62,7 @@ public class MapActivity extends AppCompatActivity {
     private SharedPreferences mPreferences;
     private MapboxMap mMapboxMap;
     private MapView mMapView;
+    private MarkerViewManager mMarkerViewManager;
 //    ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
     //initialize latitude and longitude, location manager and the address list here
@@ -71,6 +77,11 @@ public class MapActivity extends AppCompatActivity {
     private FloatingActionButton floatingActionButton2;
     private JSONArray toiletMarkers = null;
     private JSONArray stationMarkers = null;
+    private TextView slidepanelTitle;
+    private TextView slidepanelSubtitle;
+    private TextView slidepanelJourney;
+
+
 //    private SlidingUpPanelLayout mLayout;
 
 
@@ -108,7 +119,6 @@ public class MapActivity extends AppCompatActivity {
         // final LatLng latLng = new LatLng(latitude, longitude);
         final LatLng latLng = new LatLng(-37.877848, 145.044696);
 
-
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
 
@@ -122,6 +132,47 @@ public class MapActivity extends AppCompatActivity {
                 addUserLocation(mMapboxMap);
                 addToilets(mMapboxMap);
                 addStations(mMapboxMap);
+
+                final IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
+                final Icon trainIcon = iconFactory.fromDrawable(iconDrawable);
+                iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
+                final Icon toiletIcon = iconFactory.fromDrawable(iconDrawable);
+
+
+
+
+                mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(@NonNull Marker marker) {
+                        slidepanelTitle = (TextView) findViewById(R.id.sliderpanelTitleTextView);
+                        slidepanelTitle.setText(marker.getTitle());
+                        slidepanelSubtitle = (TextView) findViewById(R.id.sliderpanelSubtitleTextView);
+                        slidepanelSubtitle.setText(marker.getSnippet());
+                        slidepanelJourney = (TextView) findViewById(R.id.sliderpanelJourneyTextView);
+
+                        //Create temporary train icon and compare
+                        String example = "";
+                        if (marker.getIcon().getBitmap().sameAs(trainIcon.getBitmap())){
+                            String url = "http://13.59.24.178/getStationByID.php/?stationname=" + marker.getTitle();
+                            Log.e("help", marker.toString());
+                            example = new AsyncTaskRestClient().doInBackground(url);
+
+                        } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())){
+                            String url = "http://13.59.24.178/getToiletByID.php/?stationname=" + marker.getTitle();
+                            Log.e("help", marker.toString());
+                            example = new AsyncTaskRestClient().doInBackground(url);
+                        } else {
+                            Log.e("help", "If Statement not doing anything");
+                        }
+                        slidepanelJourney.setText(example);
+
+
+
+                        return false;
+                    }
+                }
+                );
                 floatingActionButton1.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -135,6 +186,8 @@ public class MapActivity extends AppCompatActivity {
                         removestation();
                     }
                 });
+
+
 
             }
 
@@ -271,7 +324,12 @@ public class MapActivity extends AppCompatActivity {
                 mapboxMap.addMarker(markerOptions);
             }
         });
+
+
+
     }
+
+
 
 
     @Override
