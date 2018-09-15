@@ -21,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
@@ -32,6 +33,7 @@ import com.mapquest.mapping.maps.MapView;
 import com.mapquest.mapping.maps.MapboxMap;
 import com.mapbox.mapboxsdk.*;
 import com.mapquest.mapping.maps.OnMapReadyCallback;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.json.JSONArray;
 
@@ -69,6 +71,7 @@ public class MapActivity extends AppCompatActivity {
     private FloatingActionButton floatingActionButton2;
     private JSONArray toiletMarkers = null;
     private JSONArray stationMarkers = null;
+//    private SlidingUpPanelLayout mLayout;
 
 
     @Override
@@ -76,6 +79,9 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         MapboxAccountManager.start(getApplicationContext());
         setContentView(R.layout.activity_map);
+//        mLayout = (SlidingUpPanelLayout) findViewById(R.id.slidingPanelMapActivity);
+//        mLayout.setAnchorPoint(0.5f);
+
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
 
@@ -112,7 +118,6 @@ public class MapActivity extends AppCompatActivity {
                 mMapboxMap = mapboxMap;
 
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
-                //mMapView.setStyle(Style.OUTDOORS);
                 mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
                 addUserLocation(mMapboxMap);
                 addToilets(mMapboxMap);
@@ -135,31 +140,47 @@ public class MapActivity extends AppCompatActivity {
 
 
             public void removetoilets() {
+
+                String toast = "";
+
                 if (toimarkershown && stamarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
                     addStations(mMapboxMap);
                     toimarkershown = false;
+                    toast = "Toilets Disabled";
                 } else if (toimarkershown && !stamarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
                     toimarkershown = false;
-                } else addToilets(mMapboxMap);
+                    toast = "Toilets Disabled";
+                } else { addToilets(mMapboxMap);
+                toast = "Toilets Enabled";}
+
+                Toast.makeText(getApplicationContext(), toast,Toast.LENGTH_LONG).show();
 
             }
 
 
             public void removestation() {
+                String toast = "";
                 if (stamarkershown && toimarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
                     addToilets(mMapboxMap);
                     stamarkershown = false;
+                    toast = "Stations Disabled";
                 } else if (stamarkershown && !toimarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
                     stamarkershown = false;
-                } else addStations(mMapboxMap);
+                    toast = "Stations Disabled";
+                } else {
+                    addStations(mMapboxMap);
+                    toast = "Stations Enabled";
+                }
+                Toast.makeText(getApplicationContext(), toast,Toast.LENGTH_LONG).show();
+
             }
 
 

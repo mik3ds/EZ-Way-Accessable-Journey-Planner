@@ -2,12 +2,12 @@
 <com.sothree.slidinguppanel.SlidingUpPanelLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/slidingPanel"
-    android:gravity="bottom"
-    tools:context="com.example.user.testnav2.TrackMapActivity">
+    tools:context="com.example.user.testnav2.TrackMapActivity"
+    android:gravity="bottom">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -22,16 +22,31 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="360dp"
+        android:orientation="vertical">
 
-        <TextView
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello World Again"/>
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello World"/>
+        </RelativeLayout>
 
-    </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello World Again"/>
+        </RelativeLayout>
 
+    </LinearLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

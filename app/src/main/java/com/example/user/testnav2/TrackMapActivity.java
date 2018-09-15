@@ -15,12 +15,15 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapquest.mapping.maps.MapView;
 import com.mapquest.mapping.maps.MapboxMap;
 import com.mapquest.mapping.maps.OnMapReadyCallback;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.json.JSONArray;
 
 public class TrackMapActivity extends AppCompatActivity{
     private MapboxMap mMapboxmap;
     private MapView mMapview;
+//    private SlidingUpPanelLayout mLayout;
+
     Intent intent = getIntent();
 
     double lat = -37.877848;
@@ -34,6 +37,8 @@ public class TrackMapActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         MapboxAccountManager.start(getApplicationContext());
         setContentView(R.layout.activity_slidingpaneltest);
+//        mLayout = (SlidingUpPanelLayout) findViewById(R.id.slidingPanel);
+//        mLayout.setAnchorPoint(0.5f);
         mMapview = (MapView) findViewById(R.id.ParentMapView);
         mMapview.onCreate(savedInstanceState);
 

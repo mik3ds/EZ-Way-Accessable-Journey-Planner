@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<com.sothree.slidinguppanel.SlidingUpPanelLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:content=".MapActivity">
+    android:id="@+id/slidingPanelMapActivity"
+    tools:context="com.example.user.testnav2.MapActivity"
+    android:gravity="bottom">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <com.mapquest.mapping.maps.MapView
         android:id="@+id/mapquestMapView"
@@ -14,37 +19,63 @@
         android:layout_height="match_parent"
         app:mapquest_app_key="pk.eyJ1IjoibWlrZWRzIiwiYSI6ImNqbTJrdjF6NDJybHgzcWxpdHM4ZTIxbGgifQ.YFHLu0yNfoUk75M3t7HnDw" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/toiletshidden"
-        android:layout_width="wrap_content"
-        android:layout_height="52dp"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:src="@android:drawable/btn_default"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.975"
-        app:layout_constraintStart_toStartOf="parent" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/toiletshidden"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignStart="@+id/stationshidden"
+            android:layout_gravity="end|bottom"
+            android:layout_marginBottom="208dp"
+            android:src="@android:drawable/btn_default"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.975"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/stationshidden"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:src="@android:drawable/btn_default"
-        app:layout_constraintBottom_toTopOf="@+id/toiletshidden"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.975"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.982" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/stationshidden"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="end|bottom"
+            android:layout_marginBottom="142dp"
+            android:layout_marginEnd="29dp"
+            android:src="@android:drawable/btn_default"
+            app:layout_constraintBottom_toTopOf="@+id/toiletshidden"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.975"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.982" />
+    </RelativeLayout>
 
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="360dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello World"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello World Again"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
