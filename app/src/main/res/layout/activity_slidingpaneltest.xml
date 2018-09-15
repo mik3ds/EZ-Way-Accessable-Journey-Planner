@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.sothree.slidinguppanel.SlidingUpPanelLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/slidingPanel"
+    android:gravity="bottom"
+    tools:context="com.example.user.testnav2.SlidingPanelClass">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.mapquest.mapping.maps.MapView
+            android:id="@+id/ParentMapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:mapquest_app_key="WufPrGOVQ0Tdwp9JCX13G61OAGOuV8dQ"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello World Again"/>
+
+    </RelativeLayout>
+
+
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>

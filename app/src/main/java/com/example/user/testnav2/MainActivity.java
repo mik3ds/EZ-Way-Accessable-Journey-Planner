@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         configureNavButton1();
         configureNavButton2();
         configureNavButton3();
-
+        configureNavButton4();
         configureUserName();
         configureWeatherTextDisplay();
 
@@ -116,7 +116,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    //add a comment
+
+    private void configureNavButton4() {
+        Button navbutton3 = (Button) findViewById(R.id.buttonSlidingTest);
+        navbutton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, SlidingPanelClass.class));
+            }
+        });
+    }
 
     private void configureUserName() {
         TextView welcome = (TextView) findViewById(R.id.welcometext);

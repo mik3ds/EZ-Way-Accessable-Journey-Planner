@@ -7,6 +7,19 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/navbutton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="19dp"
+        android:background="@android:color/holo_blue_dark"
+        android:text="Track Child"
+        android:textColor="@android:color/background_light"
+        android:visibility="visible" />
+
     <android.support.v7.widget.CardView
         android:id="@+id/cardView1"
         android:layout_width="150dp"
@@ -69,15 +82,13 @@
         android:textStyle="bold" />
 
     <Button
-        android:id="@+id/navbutton2"
+        android:id="@+id/buttonSlidingTest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="11dp"
-        android:layout_marginTop="19dp"
+        android:layout_alignStart="@+id/navbutton2"
+        android:layout_alignTop="@+id/cardView1"
         android:background="@android:color/holo_blue_dark"
-        android:text="Track Child"
+        android:text="Slider TEst"
         android:textColor="@android:color/background_light"
         android:visibility="visible" />
 
