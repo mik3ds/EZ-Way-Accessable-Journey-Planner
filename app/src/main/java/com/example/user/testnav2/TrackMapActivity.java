@@ -1,6 +1,7 @@
 package com.example.user.testnav2;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -18,18 +19,22 @@ import com.mapquest.mapping.maps.OnMapReadyCallback;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.concurrent.ExecutionException;
 
 public class TrackMapActivity extends AppCompatActivity{
     private MapboxMap mMapboxmap;
     private MapView mMapview;
 //    private SlidingUpPanelLayout mLayout;
 
-    Intent intent = getIntent();
+    private SharedPreferences mPreferences;
 
-    double lat = -37.877848;
-    double lon = 145.044696;
 
+    final double lat = -37.877848;
+    final double lon = 145.044696;
     LatLng latLng = new LatLng(lat,lon);
+
     private JSONArray stationMarkers = null;
 
     @Override
@@ -41,7 +46,33 @@ public class TrackMapActivity extends AppCompatActivity{
 //        mLayout.setAnchorPoint(0.5f);
         mMapview = (MapView) findViewById(R.id.ParentMapView);
         mMapview.onCreate(savedInstanceState);
+        String name = mPreferences.getString("name", null);
+        String code = mPreferences.getString("code", null);
+        String deviceID = mPreferences.getString("deviceID", null);
 
+        if(mPreferences.getString("name", "Guest").equals("Guest")){
+            latLng = new LatLng(lat, lon);
+        }else{
+            final String url = "http://13.59.24.178/linkParent2.php?name=" + name + "&code=" + code + "&parentID=" + deviceID;
+            final String example = "[]";
+            String temp = example;
+            try {
+                temp = new AsyncTaskRestClient().execute(url).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            try {
+                JSONArray ja = new JSONArray(temp);
+                double lat = ja.getJSONObject(0).getDouble("childLat");
+                double lon = ja.getJSONObject(0).getDouble("childLon");
+                String details = ja.getJSONObject(0).getString("details");
+                latLng =new LatLng(lat,lon);
+                    //  String response = name + " was located at " + lat + "," + lon + " on " + details;
+                    //    tv.setText(response);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
 
 
 
@@ -49,7 +80,6 @@ public class TrackMapActivity extends AppCompatActivity{
 
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
-
                 mMapboxmap = mapboxMap;
                 mMapboxmap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
                 mMapboxmap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");

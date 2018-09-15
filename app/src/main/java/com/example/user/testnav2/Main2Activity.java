@@ -41,9 +41,12 @@ public class Main2Activity extends AppCompatActivity {
             public void onClick(View view) {
                 String code = String.valueOf(codeEntry.getText());
                 String name = String.valueOf(nameEntry.getText());
-
                 DeviceIDGenerator didg = new DeviceIDGenerator();
                 String deviceID = didg.getID(Main2Activity.this);
+                mEditor.putString("deviceID", deviceID);
+                mEditor.putString("name", name);
+                mEditor.putString("code", code);
+                mEditor.commit();
                 final String url = "http://13.59.24.178/linkParent2.php?name=" + name + "&code=" + code + "&parentID=" + deviceID;
                 final String example = "[]";
                 String temp = example;

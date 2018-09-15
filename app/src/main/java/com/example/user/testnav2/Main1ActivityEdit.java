@@ -50,7 +50,9 @@ public class Main1ActivityEdit extends AppCompatActivity {
 
     protected void saveUserData() {
         String newName = mName.getText().toString();
+//        mEditor.putString(getString(R.string.username), newName);
         mEditor.putString(getString(R.string.username), newName);
+
         mEditor.commit();
     }
 
