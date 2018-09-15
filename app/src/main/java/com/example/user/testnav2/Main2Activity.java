@@ -24,6 +24,8 @@ public class Main2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mEditor = mPreferences.edit();
 
         configureHomeButton2();
         configureTrackingElements();
@@ -70,7 +72,7 @@ public class Main2Activity extends AppCompatActivity {
                         intent.putExtra("lon", lon);
                         startActivity(intent);
                       //  String response = name + " was located at " + lat + "," + lon + " on " + details;
-                    //    tv.setText(response);
+                        tv.setText("success!");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

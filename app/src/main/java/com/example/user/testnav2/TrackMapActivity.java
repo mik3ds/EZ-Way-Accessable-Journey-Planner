@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
@@ -42,6 +43,9 @@ public class TrackMapActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         MapboxAccountManager.start(getApplicationContext());
         setContentView(R.layout.activity_slidingpaneltest);
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
 //        mLayout = (SlidingUpPanelLayout) findViewById(R.id.slidingPanel);
 //        mLayout.setAnchorPoint(0.5f);
         mMapview = (MapView) findViewById(R.id.ParentMapView);
