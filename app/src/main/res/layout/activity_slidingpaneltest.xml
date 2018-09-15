@@ -7,7 +7,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/slidingPanel"
     android:gravity="bottom"
-    tools:context="com.example.user.testnav2.SlidingPanelClass">
+    tools:context="com.example.user.testnav2.TrackMapActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
