@@ -25,6 +25,7 @@ public class Main1ActivityEdit extends AppCompatActivity {
 
     private LocationUtils LU;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,11 +102,15 @@ public class Main1ActivityEdit extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 RadioButton rb = (RadioButton) radioGroup.findViewById(i);
+                Boolean isParent = false;
                 if (rb.getText().equals("Tracking on")) {
                     //turn tracking on
                     String childName = mPreferences.getString(getString(R.string.username), "");
                     DeviceIDGenerator didg = new DeviceIDGenerator();
                     String deviceID = didg.getID(Main1ActivityEdit.this);
+                    isParent = true;
+                    mEditor.putBoolean("isParent", isParent);
+                    mEditor.commit();
 //                    List temp = LU.getLocation();
 //                    double lat = (double) temp.get(0);
 //                    double lon = (double) temp.get(1);
@@ -121,10 +126,14 @@ public class Main1ActivityEdit extends AppCompatActivity {
                     Log.e("onCheckedChanged", result);
                     configureTrackingStatus();
                 } else {
+                    isParent = false;
+                    mEditor.putBoolean("isParent", isParent);
+                    mEditor.commit();
                     DeviceIDGenerator didg = new DeviceIDGenerator();
                     String deviceID = didg.getID(Main1ActivityEdit.this);
                     String url = "http://13.59.24.178/stopTracking.php?childid=" + deviceID;
                     String result = "";
+
                     try {
                         result = new AsyncTaskRestClient().execute(url).get();
                     } catch (InterruptedException | ExecutionException e) {

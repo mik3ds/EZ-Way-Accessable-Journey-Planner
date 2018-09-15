@@ -28,17 +28,59 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Button navbutton1 = (Button) findViewById(R.id.navbutton1);
+        Button navbutton2 = (Button) findViewById(R.id.navbutton2);
+        Button navbutton3 = (Button) findViewById(R.id.navbutton3);
+        Button navbutton4 = (Button) findViewById(R.id.buttonSlidingTest);
+
+
+
+        navbutton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, Main1Activity.class));
+            }
+        });
+        navbutton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, Main2Activity.class));
+            }
+        });
+        navbutton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nDialog.show();
+                startActivity(new Intent(MainActivity.this, MapActivity.class));
+            }
+        });
+        navbutton4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, TrackMapActivity.class));
+            }
+        });
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if(mPreferences.getBoolean("isParent", false) == false){
+            navbutton3.setVisibility(Button.VISIBLE);
+            navbutton4.setVisibility(Button.GONE);
+        }else{
+            navbutton3.setVisibility(Button.INVISIBLE);
+            navbutton4.setVisibility(Button.VISIBLE);
+        }
+
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        configureNavButton1();
-        configureNavButton2();
-        configureNavButton3();
-        configureNavButton4();
+//        configureNavButton1();
+//        configureNavButton2();
+//        configureNavButton3();
+//        configureNavButton4();
         configureUserName();
         configureWeatherTextDisplay();
+
+
 
         changeBackground();
 
@@ -73,46 +115,46 @@ public class MainActivity extends AppCompatActivity {
         ad.start();
     }
 
-    private void configureNavButton1() {
-        Button navbutton1 = (Button) findViewById(R.id.navbutton1);
-        navbutton1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, Main1Activity.class));
-            }
-        });
-    }
+//    private void configureNavButton1() {
+//        Button navbutton1 = (Button) findViewById(R.id.navbutton1);
+//        navbutton1.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                startActivity(new Intent(MainActivity.this, Main1Activity.class));
+//            }
+//        });
+//    }
+//
+//    private void configureNavButton2() {
+//        Button navbutton2 = (Button) findViewById(R.id.navbutton2);
+//        navbutton2.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                startActivity(new Intent(MainActivity.this, Main2Activity.class));
+//            }
+//        });
+//    }
 
-    private void configureNavButton2() {
-        Button navbutton2 = (Button) findViewById(R.id.navbutton2);
-        navbutton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, Main2Activity.class));
-            }
-        });
-    }
-
-    private void configureNavButton3() {
-        Button navbutton3 = (Button) findViewById(R.id.navbutton3);
-        navbutton3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                nDialog.show();
-                startActivity(new Intent(MainActivity.this, MapActivity.class));
-            }
-        });
-    }
-
-    private void configureNavButton4() {
-        Button navbutton3 = (Button) findViewById(R.id.buttonSlidingTest);
-        navbutton3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, TrackMapActivity.class));
-            }
-        });
-    }
+//    private void configureNavButton3() {
+//        Button navbutton3 = (Button) findViewById(R.id.navbutton3);
+//        navbutton3.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                nDialog.show();
+//                startActivity(new Intent(MainActivity.this, MapActivity.class));
+//            }
+//        });
+//    }
+//
+//    private void configureNavButton4() {
+//        Button navbutton4 = (Button) findViewById(R.id.buttonSlidingTest);
+//        navbutton4.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                startActivity(new Intent(MainActivity.this, TrackMapActivity.class));
+//            }
+//        });
+//    }
 
     private void configureUserName() {
         TextView welcome = (TextView) findViewById(R.id.welcometext);

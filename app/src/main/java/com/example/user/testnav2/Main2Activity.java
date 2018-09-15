@@ -1,6 +1,8 @@
 package com.example.user.testnav2;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -14,11 +16,14 @@ import org.json.JSONException;
 import java.util.concurrent.ExecutionException;
 
 public class Main2Activity extends AppCompatActivity {
+    private SharedPreferences mPreferences;
+    private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+
 
         configureHomeButton2();
         configureTrackingElements();
@@ -36,6 +41,7 @@ public class Main2Activity extends AppCompatActivity {
             public void onClick(View view) {
                 String code = String.valueOf(codeEntry.getText());
                 String name = String.valueOf(nameEntry.getText());
+
                 DeviceIDGenerator didg = new DeviceIDGenerator();
                 String deviceID = didg.getID(Main2Activity.this);
                 final String url = "http://13.59.24.178/linkParent2.php?name=" + name + "&code=" + code + "&parentID=" + deviceID;
@@ -59,7 +65,6 @@ public class Main2Activity extends AppCompatActivity {
                         Intent intent = new Intent(Main2Activity.this, TrackMapActivity.class);
                         intent.putExtra("lat", lat);
                         intent.putExtra("lon", lon);
-
                         startActivity(intent);
                       //  String response = name + " was located at " + lat + "," + lon + " on " + details;
                     //    tv.setText(response);
