@@ -54,16 +54,37 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="360dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1" >
             <TextView
+                android:id="@+id/sliderpanelTitleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hello World"/>
+                android:text="Current Time or Currently Selected Marker Info"/>
+            <TextView
+                android:id="@+id/sliderpanelSubtitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="20dp"
+                android:text="More Info" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+            <TextView
+                android:id="@+id/sliderpanelJourneyTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Journey Details:"/>
         </RelativeLayout>
 
         <RelativeLayout
@@ -73,7 +94,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hello World Again"/>
+                android:text="Next 5 Journeys or travel time estimate"/>
         </RelativeLayout>
 
     </LinearLayout>
