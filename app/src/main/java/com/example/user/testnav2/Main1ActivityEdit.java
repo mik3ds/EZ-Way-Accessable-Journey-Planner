@@ -81,12 +81,12 @@ public class Main1ActivityEdit extends AppCompatActivity {
         if (example.equals(empty)) {
             trackingDisplay.setText("Disabled");
             trackingDisplay.setTextColor(this.getResources().getColor(R.color.traffic_red));
-            mEditor.putBoolean("isParent", false);
+            mEditor.putBoolean("isParent", true);
             mEditor.commit();
         } else {
             trackingDisplay.setText("Enabled");
             trackingDisplay.setTextColor(this.getResources().getColor(R.color.traffic_green));
-            mEditor.putBoolean("isParent", true);
+            mEditor.putBoolean("isParent", false);
             mEditor.commit();
         }
     }
