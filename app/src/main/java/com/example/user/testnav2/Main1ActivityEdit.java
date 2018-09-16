@@ -25,7 +25,7 @@ public class Main1ActivityEdit extends AppCompatActivity {
 
     private LocationUtils LU;
 
-
+    //Initialise variables
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,18 +42,20 @@ public class Main1ActivityEdit extends AppCompatActivity {
 
 
 
-
+    //Get user data method
     protected void getUserData() {
         String oldName = mPreferences.getString(getString(R.string.username), "");
         mName.setText(oldName);
     }
 
+    //Set user data method
     protected void saveUserData() {
         String newName = mName.getText().toString();
         mEditor.putString(getString(R.string.username), newName);
         mEditor.commit();
     }
 
+    //Save user data button
     protected void configureSaveButton() {
         mSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,8 +66,8 @@ public class Main1ActivityEdit extends AppCompatActivity {
         });
     }
 
+    //Configure Tracking status
     private void configureTrackingStatus() {
-
         TextView trackingDisplay = (TextView) findViewById(R.id.trackingEditOutput);
         DeviceIDGenerator didg = new DeviceIDGenerator();
         String deviceID = didg.getID(Main1ActivityEdit.this);
@@ -81,16 +83,17 @@ public class Main1ActivityEdit extends AppCompatActivity {
         if (example.equals(empty)) {
             trackingDisplay.setText("Disabled");
             trackingDisplay.setTextColor(this.getResources().getColor(R.color.traffic_red));
-            mEditor.putBoolean("isParent", false);
+            mEditor.putBoolean("isParent", true);
             mEditor.commit();
         } else {
             trackingDisplay.setText("Enabled");
             trackingDisplay.setTextColor(this.getResources().getColor(R.color.traffic_green));
-            mEditor.putBoolean("isParent", true);
+            mEditor.putBoolean("isParent", false);
             mEditor.commit();
         }
     }
 
+    //Configure toggle button
     private void configureToggle() {
         RadioGroup rg = (RadioGroup) findViewById(R.id.toggleTrackingRadioGroup);
         rg.clearCheck();
