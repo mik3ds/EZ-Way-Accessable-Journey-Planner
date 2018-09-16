@@ -50,9 +50,7 @@ public class Main1ActivityEdit extends AppCompatActivity {
 
     protected void saveUserData() {
         String newName = mName.getText().toString();
-//        mEditor.putString(getString(R.string.username), newName);
         mEditor.putString(getString(R.string.username), newName);
-
         mEditor.commit();
     }
 
@@ -83,9 +81,13 @@ public class Main1ActivityEdit extends AppCompatActivity {
         if (example.equals(empty)) {
             trackingDisplay.setText("Disabled");
             trackingDisplay.setTextColor(this.getResources().getColor(R.color.traffic_red));
+            mEditor.putBoolean("isParent", false);
+            mEditor.commit();
         } else {
             trackingDisplay.setText("Enabled");
             trackingDisplay.setTextColor(this.getResources().getColor(R.color.traffic_green));
+            mEditor.putBoolean("isParent", true);
+            mEditor.commit();
         }
     }
 
