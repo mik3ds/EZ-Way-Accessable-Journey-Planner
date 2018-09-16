@@ -104,14 +104,12 @@ public class Main1ActivityEdit extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 RadioButton rb = (RadioButton) radioGroup.findViewById(i);
-                Boolean isParent = false;
                 if (rb.getText().equals("Tracking on")) {
                     //turn tracking on
                     String childName = mPreferences.getString(getString(R.string.username), "");
                     DeviceIDGenerator didg = new DeviceIDGenerator();
                     String deviceID = didg.getID(Main1ActivityEdit.this);
-                    isParent = true;
-                    mEditor.putBoolean("isParent", isParent);
+                    mEditor.putBoolean("isParent", false);
                     mEditor.commit();
 //                    List temp = LU.getLocation();
 //                    double lat = (double) temp.get(0);
@@ -120,16 +118,11 @@ public class Main1ActivityEdit extends AppCompatActivity {
                     String url = "http://13.59.24.178/trackerSignUp.php?name=" + childName + "&childid=" + deviceID + "&lat=145.0380897&lon=-37.8779852";
                     Log.e("FIT5120", url);
                     String result = "";
-                    try {
-                        result = new AsyncTaskRestClient().execute(url).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
+                    result = new AsyncTaskRestClient().doInBackground(url);
                     Log.e("onCheckedChanged", result);
                     configureTrackingStatus();
                 } else {
-                    isParent = false;
-                    mEditor.putBoolean("isParent", isParent);
+                    mEditor.putBoolean("isParent", false);
                     mEditor.commit();
                     DeviceIDGenerator didg = new DeviceIDGenerator();
                     String deviceID = didg.getID(Main1ActivityEdit.this);
