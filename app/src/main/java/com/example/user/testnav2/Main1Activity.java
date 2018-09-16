@@ -69,6 +69,7 @@ public class Main1Activity extends AppCompatActivity {
         });
     }
 
+
     protected void configureProfileData() {
         TextView namedisplay1 = (TextView) findViewById(R.id.nameDisplay1);
         String displayName = mPreferences.getString(getString(R.string.username), "Guest");

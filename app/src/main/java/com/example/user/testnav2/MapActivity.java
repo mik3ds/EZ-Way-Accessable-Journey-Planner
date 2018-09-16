@@ -62,6 +62,7 @@ import java.util.concurrent.ExecutionException;
 
 
 public class MapActivity extends AppCompatActivity {
+    //Initialise map
     private SharedPreferences mPreferences;
     private MapboxMap mMapboxMap;
     private MapView mMapView;
@@ -118,8 +119,6 @@ public class MapActivity extends AppCompatActivity {
 //        LocationUtils LU = new LocationUtils();
         ArrayList<Double> list = getLocation();
 //        list = LU.getLocation();
-
-
         Double lulat = list.get(0);
         Double lulon = list.get(1);
 
@@ -160,7 +159,7 @@ public class MapActivity extends AppCompatActivity {
 
 
 
-
+                //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(@NonNull Marker marker) {
@@ -200,6 +199,8 @@ public class MapActivity extends AppCompatActivity {
                     }
                 }
                 );
+
+                //Hide and show toilets button
                 floatingActionButton1.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -207,6 +208,7 @@ public class MapActivity extends AppCompatActivity {
                     }
                 });
 
+                //Hide and show stations button
                 floatingActionButton2.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -218,7 +220,7 @@ public class MapActivity extends AppCompatActivity {
 
             }
 
-
+            //Hide and show toilets methods
             public void removetoilets() {
 
                 String toast = "";
@@ -241,7 +243,7 @@ public class MapActivity extends AppCompatActivity {
 
             }
 
-
+            //Hide and show stations method
             public void removestation() {
                 String toast = "";
                 if (stamarkershown && toimarkershown) {
@@ -345,6 +347,7 @@ public class MapActivity extends AppCompatActivity {
                 }
             }
 
+
             private void addUserLocation(MapboxMap mapboxMap) {
                 MarkerOptions markerOptions = new MarkerOptions();
                 IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
@@ -419,6 +422,7 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
+    //Update child location automatically
     public void updateChildLocationToServer() {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {

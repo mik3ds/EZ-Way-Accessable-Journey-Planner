@@ -40,12 +40,11 @@ public class TrackMapActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //initialise
         super.onCreate(savedInstanceState);
         MapboxAccountManager.start(getApplicationContext());
         setContentView(R.layout.activity_slidingpaneltest);
-
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
 //        mLayout = (SlidingUpPanelLayout) findViewById(R.id.slidingPanel);
 //        mLayout.setAnchorPoint(0.5f);
         mMapview = (MapView) findViewById(R.id.ParentMapView);
@@ -54,6 +53,8 @@ public class TrackMapActivity extends AppCompatActivity{
         String code = mPreferences.getString("code", null);
         String deviceID = mPreferences.getString("deviceID", null);
 
+
+        //get child's location from server
         if(mPreferences.getString("name", "Guest").equals("Guest")){
             latLng = new LatLng(lat, lon);
         }else{
@@ -81,7 +82,7 @@ public class TrackMapActivity extends AppCompatActivity{
 
 
         mMapview.getMapAsync(new OnMapReadyCallback() {
-
+            // initialise map
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 mMapboxmap = mapboxMap;

@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         Button navbutton3 = (Button) findViewById(R.id.navbutton3);
         Button navbutton4 = (Button) findViewById(R.id.buttonSlidingTest);
 
-
+        //set up buttons
 
         navbutton1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,47 +115,7 @@ public class MainActivity extends AppCompatActivity {
         ad.start();
     }
 
-//    private void configureNavButton1() {
-//        Button navbutton1 = (Button) findViewById(R.id.navbutton1);
-//        navbutton1.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                startActivity(new Intent(MainActivity.this, Main1Activity.class));
-//            }
-//        });
-//    }
-//
-//    private void configureNavButton2() {
-//        Button navbutton2 = (Button) findViewById(R.id.navbutton2);
-//        navbutton2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                startActivity(new Intent(MainActivity.this, Main2Activity.class));
-//            }
-//        });
-//    }
-
-//    private void configureNavButton3() {
-//        Button navbutton3 = (Button) findViewById(R.id.navbutton3);
-//        navbutton3.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                nDialog.show();
-//                startActivity(new Intent(MainActivity.this, MapActivity.class));
-//            }
-//        });
-//    }
-//
-//    private void configureNavButton4() {
-//        Button navbutton4 = (Button) findViewById(R.id.buttonSlidingTest);
-//        navbutton4.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                startActivity(new Intent(MainActivity.this, TrackMapActivity.class));
-//            }
-//        });
-//    }
-
+    //Show welcometext
     private void configureUserName() {
         TextView welcome = (TextView) findViewById(R.id.welcometext);
         String displayName = mPreferences.getString(getString(R.string.username), "Guest");
@@ -163,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         welcome.setText(temp);
     }
 
+    //Display weather backgournd
     private void configureWeatherBackground(JSONObject obj) {
         int weatherCode = 0;
         try {
@@ -174,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         changeBackground();
     }
 
+    //Background animation
     private void changeBackground() {
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.relativeLayoutMain);
         layout.setBackgroundResource(R.drawable.animation_list);
@@ -183,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         ad.setExitFadeDuration(2000);
     }
 
+    //Displayweather
     private void configureWeatherTextDisplay() {
         TextView weatherdisplay = (TextView) findViewById(R.id.homeWeatherText);
 

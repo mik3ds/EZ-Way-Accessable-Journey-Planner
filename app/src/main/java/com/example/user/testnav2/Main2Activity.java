@@ -40,7 +40,7 @@ public class Main2Activity extends AppCompatActivity {
         final EditText codeEntry = (EditText) findViewById(R.id.enterTrackingCode);
         final EditText nameEntry = (EditText) findViewById(R.id.enterChildName);
 
-
+        //Save input from user when button has been clicked
         saveCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
