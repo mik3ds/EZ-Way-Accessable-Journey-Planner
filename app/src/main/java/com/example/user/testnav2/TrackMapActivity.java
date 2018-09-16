@@ -4,13 +4,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.mapbox.mapboxsdk.MapboxAccountManager;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -21,7 +24,9 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class TrackMapActivity extends AppCompatActivity{
@@ -32,11 +37,33 @@ public class TrackMapActivity extends AppCompatActivity{
     private SharedPreferences mPreferences;
 
 
-    final double lat = -37.877848;
-    final double lon = 145.044696;
-    LatLng latLng = new LatLng(lat,lon);
+    private double lat;
+    private double lon;
+    private String childName = "DEFAULT";
+    private String childDetails = "DEFAULT";
+    private LatLng childLatLng = (new LatLng(0,0));
+    private MarkerOptions childMarker;
 
     private JSONArray stationMarkers = null;
+
+
+    private void updateChildData() {
+        final String deviceID = DeviceIDGenerator.getID(TrackMapActivity.this);
+        final String url = "http://13.59.24.178/getChildLocation.php?parentid=" + deviceID;
+        final String example = "[]";
+        String temp = example;
+        try {
+            temp = new AsyncTaskRestClient().doInBackground(url);
+            JSONArray ja = new JSONArray(temp);
+            childName = ja.getJSONObject(0).getString("name");
+            lon = ja.getJSONObject(0).getDouble("childLat");
+            lat = ja.getJSONObject(0).getDouble("childLon");
+            childDetails = ja.getJSONObject(0).getString("details");
+            childLatLng = new LatLng(lat,lon);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,48 +73,18 @@ public class TrackMapActivity extends AppCompatActivity{
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-//        mLayout = (SlidingUpPanelLayout) findViewById(R.id.slidingPanel);
-//        mLayout.setAnchorPoint(0.5f);
         mMapview = (MapView) findViewById(R.id.ParentMapView);
         mMapview.onCreate(savedInstanceState);
-        String name = mPreferences.getString("name", null);
-        String code = mPreferences.getString("code", null);
-        String deviceID = mPreferences.getString("deviceID", null);
-
-        if(mPreferences.getString("name", "Guest").equals("Guest")){
-            latLng = new LatLng(lat, lon);
-        }else{
-            final String url = "http://13.59.24.178/linkParent2.php?name=" + name + "&code=" + code + "&parentID=" + deviceID;
-            final String example = "[]";
-            String temp = example;
-            try {
-                temp = new AsyncTaskRestClient().execute(url).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-            try {
-                JSONArray ja = new JSONArray(temp);
-                double lat = ja.getJSONObject(0).getDouble("childLat");
-                double lon = ja.getJSONObject(0).getDouble("childLon");
-                String details = ja.getJSONObject(0).getString("details");
-                latLng =new LatLng(lat,lon);
-                    //  String response = name + " was located at " + lat + "," + lon + " on " + details;
-                    //    tv.setText(response);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
         mMapview.getMapAsync(new OnMapReadyCallback() {
 
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 mMapboxmap = mapboxMap;
-                mMapboxmap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
                 mMapboxmap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
-                addStations(mMapboxmap);
+//                addStations(mMapboxmap);
+                updateChildData();
+                addChild(mMapboxmap);
+                updateChildTimer(mMapboxmap);
             }
 
 
@@ -124,9 +121,57 @@ public class TrackMapActivity extends AppCompatActivity{
                     }
                 }
             }
+            private void addChild(MapboxMap mapboxMap) {
+                MarkerOptions markerOptions = new MarkerOptions();
+                IconFactory iconFactory = IconFactory.getInstance(TrackMapActivity.this);
+                Drawable iconDrawable = ContextCompat.getDrawable(TrackMapActivity.this, R.drawable.star);
+                Icon icon = iconFactory.fromDrawable(iconDrawable);
 
+                markerOptions.setIcon(icon);
+                markerOptions.setTitle(childName);
+                markerOptions.setSnippet(childDetails);
+                markerOptions.position(childLatLng);
+                mapboxMap.addMarker(markerOptions);
+                Log.e("help", childLatLng.toString());
+                mMapboxmap.moveCamera(CameraUpdateFactory.newLatLngZoom(childLatLng, 15));
+            }
+
+            private void updateChildAction(MapboxMap mapboxMap) {
+
+                mapboxMap.clear();
+
+                updateChildData();
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                IconFactory iconFactory = IconFactory.getInstance(TrackMapActivity.this);
+                Drawable iconDrawable = ContextCompat.getDrawable(TrackMapActivity.this, R.drawable.star);
+                Icon icon = iconFactory.fromDrawable(iconDrawable);
+
+                markerOptions.setIcon(icon);
+                markerOptions.setTitle(childName);
+                markerOptions.setSnippet(childDetails);
+                markerOptions.position(childLatLng);
+                mapboxMap.addMarker(markerOptions);
+                Log.e("help", childLatLng.toString());
+                mMapboxmap.moveCamera(CameraUpdateFactory.newLatLngZoom(childLatLng, 15));
+
+            }
+
+
+            public void updateChildTimer(final MapboxMap mapboxMap) {
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateChildAction(mapboxMap);
+                        Log.e("help", "success");
+                        handler.postDelayed(this,15000);
+                    }
+                },15000);
+            }
 
         });
 
-    }
+            }
+            ;
 }
