@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if(!mPreferences.getBoolean("isParent", false)) {
+        if(!mPreferences.getBoolean("isParent", true)) {
             navbutton3.setVisibility(Button.VISIBLE);
             navbutton4.setVisibility(Button.GONE);
         }else{

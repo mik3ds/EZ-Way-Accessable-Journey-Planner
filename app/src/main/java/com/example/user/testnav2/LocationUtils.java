@@ -34,10 +34,10 @@ public class LocationUtils extends AppCompatActivity {
     }
 
     //Get user's current location from GPS
-    public List getLocation() {
+    public ArrayList getLocation() {
 
 
-        List list = new ArrayList();
+        ArrayList<Double> list = new ArrayList();
 
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)

@@ -116,13 +116,17 @@ public class MapActivity extends AppCompatActivity {
 //        }
 
 //        LocationUtils LU = new LocationUtils();
-//        LU.getLocation();
-        getLocation();
+        ArrayList<Double> list = getLocation();
+//        list = LU.getLocation();
+
+
+        Double lulat = list.get(0);
+        Double lulon = list.get(1);
 
 
         //USER LOCATION
-        // final LatLng latLng = new LatLng(latitude, longitude);
-        final LatLng latLng = new LatLng(-37.877848, 145.044696);
+         final LatLng latLng = new LatLng(lulat, lulon);
+      //  final LatLng latLng = new LatLng(-37.877848, 145.044696);
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
@@ -388,8 +392,8 @@ public class MapActivity extends AppCompatActivity {
     }
 
     //Get user's current location from GPS
-    public List getLocation() {
-        List list = new ArrayList();
+    public ArrayList getLocation() {
+        ArrayList<Double> list = new ArrayList();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
