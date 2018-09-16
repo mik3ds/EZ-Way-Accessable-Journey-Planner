@@ -12,6 +12,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -80,6 +82,7 @@ public class MapActivity extends AppCompatActivity {
     private TextView slidepanelTitle;
     private TextView slidepanelSubtitle;
     private TextView slidepanelJourney;
+    private ImageView slidepanelImage;
 
 
 //    private SlidingUpPanelLayout mLayout;
@@ -150,18 +153,26 @@ public class MapActivity extends AppCompatActivity {
                         slidepanelSubtitle = (TextView) findViewById(R.id.sliderpanelSubtitleTextView);
                         slidepanelSubtitle.setText(marker.getSnippet());
                         slidepanelJourney = (TextView) findViewById(R.id.sliderpanelJourneyTextView);
+                        slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
+
+                        slidepanelImage.setImageBitmap(marker.getIcon().getBitmap());
+
 
                         //Create temporary train icon and compare
                         String example = "";
+                        String footer = " Train Station";
+                        String stationName = marker.getTitle();
+                        stationName = stationName.replace(footer,"");
                         if (marker.getIcon().getBitmap().sameAs(trainIcon.getBitmap())){
-                            String url = "http://13.59.24.178/getStationByID.php/?stationname=" + marker.getTitle();
+                            String url = "http://13.59.24.178/getStationByID.php/?stationname=" + stationName;
                             Log.e("help", marker.toString());
                             example = new AsyncTaskRestClient().doInBackground(url);
 
                         } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())){
-                            String url = "http://13.59.24.178/getToiletByID.php/?stationname=" + marker.getTitle();
-                            Log.e("help", marker.toString());
-                            example = new AsyncTaskRestClient().doInBackground(url);
+
+//                            String url = "http://13.59.24.178/getToiletByID.php/?toiletID=" + marker.getTitle();
+//                            Log.e("help", marker.toString());
+//                            example = new AsyncTaskRestClient().doInBackground(url);
                         } else {
                             Log.e("help", "If Statement not doing anything");
                         }
@@ -262,6 +273,14 @@ public class MapActivity extends AppCompatActivity {
                         stationname = stations.getJSONObject(i).optString("name");
                         LatLng station_position = new LatLng(stalat, stalon);
                         markerOptions.icon(icon);
+                        //Fix up marker name formatting to make it more clear these markers are Stations
+                        String lastChar = stationname.substring(stationname.length() - 1);
+                        if (lastChar.equals(" ")) {
+                            stationname += "Train Station";
+                        } else {
+                            stationname += " Train Station";
+                        }
+
                         markerOptions.title(stationname);
                         markerOptions.position(station_position);
                         mapboxMap.addMarker(markerOptions);
