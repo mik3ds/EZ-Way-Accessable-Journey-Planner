@@ -46,8 +46,8 @@
         android:layout_marginBottom="198dp"
         android:layout_marginStart="25dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Child Code..." />
+        android:hint="Child Code..."
+        android:inputType="textPersonName" />
 
     <EditText
         android:id="@+id/enterChildName"
@@ -58,8 +58,8 @@
         android:layout_marginEnd="30dp"
         android:layout_marginTop="199dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name" />
+        android:hint="Name"
+        android:inputType="textPersonName" />
 
     <Button
         android:id="@+id/saveChildCode"
