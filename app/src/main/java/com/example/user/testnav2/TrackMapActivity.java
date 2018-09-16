@@ -56,8 +56,8 @@ public class TrackMapActivity extends AppCompatActivity{
             temp = new AsyncTaskRestClient().doInBackground(url);
             JSONArray ja = new JSONArray(temp);
             childName = ja.getJSONObject(0).getString("name");
-            lon = ja.getJSONObject(0).getDouble("childLat");
-            lat = ja.getJSONObject(0).getDouble("childLon");
+            lat = ja.getJSONObject(0).getDouble("childLat");
+            lon = ja.getJSONObject(0).getDouble("childLon");
             childDetails = ja.getJSONObject(0).getString("details");
             childLatLng = new LatLng(lat,lon);
         } catch (JSONException e) {
