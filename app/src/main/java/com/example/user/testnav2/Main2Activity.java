@@ -25,6 +25,9 @@ public class Main2Activity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
 
 
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
         configureHomeButton2();
         configureTrackingElements();
     }
@@ -62,10 +65,17 @@ public class Main2Activity extends AppCompatActivity {
                         double lon = ja.getJSONObject(0).getDouble("childLon");
                         String details = ja.getJSONObject(0).getString("details");
 
-                        Intent intent = new Intent(Main2Activity.this, TrackMapActivity.class);
-                        intent.putExtra("lat", lat);
-                        intent.putExtra("lon", lon);
-                        startActivity(intent);
+
+
+                        if(mPreferences.getBoolean("isParent", false) == false){
+                            mEditor = mPreferences.edit();
+                            mEditor.putBoolean("isParent", true);
+                            mEditor.apply();
+                        }
+//                        Intent intent = new Intent(Main2Activity.this, TrackMapActivity.class);
+//                        intent.putExtra("lat", lat);
+//                        intent.putExtra("lon", lon);
+//                        startActivity(intent);
                       //  String response = name + " was located at " + lat + "," + lon + " on " + details;
                     //    tv.setText(response);
                     } catch (JSONException e) {

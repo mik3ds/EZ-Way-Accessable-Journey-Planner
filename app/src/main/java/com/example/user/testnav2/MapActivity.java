@@ -16,6 +16,7 @@ import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -103,6 +104,7 @@ public class MapActivity extends AppCompatActivity {
         String location = "";
         floatingActionButton1 = (FloatingActionButton) findViewById(R.id.toiletshidden);
         floatingActionButton2 = (FloatingActionButton) findViewById(R.id.stationshidden);
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 //        Geocoder gc = new Geocoder(this);
 //        try{
@@ -141,6 +143,16 @@ public class MapActivity extends AppCompatActivity {
                 final Icon trainIcon = iconFactory.fromDrawable(iconDrawable);
                 iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
                 final Icon toiletIcon = iconFactory.fromDrawable(iconDrawable);
+
+                Boolean isParent = mPreferences.getBoolean("isParent", true);
+                Log.e("help", "line 149 triggers");
+                if (!isParent) {
+                    Log.e("help","line 150 triggers");
+                    updateChildLocationToServer();
+                }
+
+
+
 
 
 
@@ -395,7 +407,26 @@ public class MapActivity extends AppCompatActivity {
                 list.add(longitude);
             }
         }
+        if (list.size() == 0) {
+            list.add(144.07);
+            list.add(-35.06);
+        }
         return list;
 
+    }
+
+    public void updateChildLocationToServer() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                List loc = getLocation();
+                String childid = DeviceIDGenerator.getID(MapActivity.this);
+                String url = "http://13.59.24.178/updateLocation.php?childid=" + childid + "&lat=" + loc.get(0).toString() + "&lon=" + loc.get(1).toString();
+                String result = new AsyncTaskRestClient().doInBackground(url);
+                Log.e("help", "success");
+                handler.postDelayed(this,15000);
+            }
+        },15000);
     }
 }
