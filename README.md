@@ -2,7 +2,7 @@
 
 ## Installation Instructions
 
-### Create a Web Server using Ubuntu Linux 14.05.5 and Apache
+### Create and set up a Web Server using Ubuntu Linux 14.05.5 and Apache
 
 
 For the demo we have created an Amazon EC2 Virtual Machine instance. SSH into the machine (  ssh -i "awsmachinekeypair.pem" hostname  ). When connected, run:
@@ -19,7 +19,7 @@ Only allow incoming traffic to the web server through ssh http connections.
 Copy the Web Server PHP scripts to the public web server directory. (Default Apache2 location is /var/www/html)
 
 
-### Create a Database
+### Create and set up a remote MySQL Database
 
 
 For the demo we have created an Amazon RDS MySql database.
@@ -30,7 +30,7 @@ SSH into the Web Server.
 Connect to MySQL database.
 
 
-   mysql -u"root" -password --local-infile; //Where root is the MySQL user previously set as the admin account
+   mysql -u"root" -h -password --local-infile; //Where root is the MySQL user previously set as the admin account
    
 
 Run MySQL create table scripts.
