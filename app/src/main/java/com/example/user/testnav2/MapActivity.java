@@ -44,15 +44,23 @@ import com.mapquest.mapping.maps.OnMapReadyCallback;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 
@@ -85,6 +93,9 @@ public class MapActivity extends AppCompatActivity {
     private TextView slidepanelSubtitle;
     private TextView slidepanelJourney;
     private ImageView slidepanelImage;
+    JSONArray stations = null;
+    String tempString = null;
+    private JSONArray JSONResult;
 
 
 //    private SlidingUpPanelLayout mLayout;
@@ -124,8 +135,8 @@ public class MapActivity extends AppCompatActivity {
 
 
         //USER LOCATION
-         final LatLng latLng = new LatLng(lulat, lulon);
-      //  final LatLng latLng = new LatLng(-37.877848, 145.044696);
+        final LatLng latLng = new LatLng(lulat, lulon);
+        //  final LatLng latLng = new LatLng(-37.877848, 145.044696);
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
@@ -137,9 +148,10 @@ public class MapActivity extends AppCompatActivity {
 
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                 mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
-//                addUserLocation(mMapboxMap);
-//                addToilets(mMapboxMap);
-//                addStations(mMapboxMap);
+
+//                asyncToiletMarkers(-37.877848,145.034677);
+//                asyncStationMarkers(-37.877848,145.034677);
+                addUserLocation();
 
                 final IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
                 Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
@@ -150,54 +162,49 @@ public class MapActivity extends AppCompatActivity {
                 Boolean isParent = mPreferences.getBoolean("isParent", true);
                 Log.e("help", "line 149 triggers");
                 if (!isParent) {
-                    Log.e("help","line 150 triggers");
-                    updateChildLocationToServer();
+                    Log.e("help", "line 150 triggers");
+                    //  updateChildLocationToServer();
                 }
-
-
-
-
 
 
                 //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(@NonNull Marker marker) {
-                        slidepanelTitle = (TextView) findViewById(R.id.sliderpanelTitleTextView);
-                        slidepanelTitle.setText(marker.getTitle());
-                        slidepanelSubtitle = (TextView) findViewById(R.id.sliderpanelSubtitleTextView);
-                        slidepanelSubtitle.setText(marker.getSnippet());
-                        slidepanelJourney = (TextView) findViewById(R.id.sliderpanelJourneyTextView);
-                        slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
+                                                        @Override
+                                                        public boolean onMarkerClick(@NonNull Marker marker) {
+                                                            slidepanelTitle = (TextView) findViewById(R.id.sliderpanelTitleTextView);
+                                                            slidepanelTitle.setText(marker.getTitle());
+                                                            slidepanelSubtitle = (TextView) findViewById(R.id.sliderpanelSubtitleTextView);
+                                                            slidepanelSubtitle.setText(marker.getSnippet());
+                                                            slidepanelJourney = (TextView) findViewById(R.id.sliderpanelJourneyTextView);
+                                                            slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
 
-                        slidepanelImage.setImageBitmap(marker.getIcon().getBitmap());
+                                                            slidepanelImage.setImageBitmap(marker.getIcon().getBitmap());
 
 
-                        //Create temporary train icon and compare
-                        String example = "";
-                        String footer = " Train Station";
-                        String stationName = marker.getTitle();
-                        stationName = stationName.replace(footer,"");
-                        if (marker.getIcon().getBitmap().sameAs(trainIcon.getBitmap())){
-                            String url = "http://13.59.24.178/getStationByID.php/?stationname=" + stationName;
-                            Log.e("help", marker.toString());
-                            example = new AsyncTaskRestClient().doInBackground(url);
+                                                            //Create temporary train icon and compare
+                                                            String example = "";
+                                                            String footer = " Train Station";
+                                                            String stationName = marker.getTitle();
+                                                            stationName = stationName.replace(footer, "");
+                                                            if (marker.getIcon().getBitmap().sameAs(trainIcon.getBitmap())) {
+                                                                String url = "http://13.59.24.178/getStationByID.php/?stationname=" + stationName;
+                                                                Log.e("help", marker.toString());
+                                                                example = new AsyncTaskRestClient().doInBackground(url);
 
-                        } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())){
+                                                            } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())) {
 
 //                            String url = "http://13.59.24.178/getToiletByID.php/?toiletID=" + marker.getTitle();
 //                            Log.e("help", marker.toString());
 //                            example = new AsyncTaskRestClient().doInBackground(url);
-                        } else {
-                            Log.e("help", "If Statement not doing anything");
-                        }
-                        slidepanelJourney.setText(example);
+                                                            } else {
+                                                                Log.e("help", "If Statement not doing anything");
+                                                            }
+                                                            slidepanelJourney.setText(example);
 
 
-
-                        return false;
-                    }
-                }
+                                                            return false;
+                                                        }
+                                                    }
                 );
 
                 //Hide and show toilets button
@@ -217,7 +224,6 @@ public class MapActivity extends AppCompatActivity {
                 });
 
 
-
             }
 
             //Hide and show toilets methods
@@ -227,19 +233,22 @@ public class MapActivity extends AppCompatActivity {
 
                 if (toimarkershown && stamarkershown) {
                     mMapboxMap.clear();
-                    addUserLocation(mMapboxMap);
-                    addStations(mMapboxMap);
+                    addUserLocation();
+                    asyncStationMarkers(-37.877848,145.034677);
                     toimarkershown = false;
                     toast = "Toilets Disabled";
                 } else if (toimarkershown && !stamarkershown) {
                     mMapboxMap.clear();
-                    addUserLocation(mMapboxMap);
+                    addUserLocation();
                     toimarkershown = false;
                     toast = "Toilets Disabled";
-                } else { addToilets(mMapboxMap);
-                toast = "Toilets Enabled";}
+                } else {
+                    asyncToiletMarkers(-37.877848,145.034677);
+                    toimarkershown = true;
+                    toast = "Toilets Enabled";
+                }
 
-                Toast.makeText(getApplicationContext(), toast,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
 
             }
 
@@ -248,127 +257,329 @@ public class MapActivity extends AppCompatActivity {
                 String toast = "";
                 if (stamarkershown && toimarkershown) {
                     mMapboxMap.clear();
-                    addUserLocation(mMapboxMap);
-                    addToilets(mMapboxMap);
+                    addUserLocation();
+                    asyncToiletMarkers(-37.877848,145.034677);
                     stamarkershown = false;
                     toast = "Stations Disabled";
                 } else if (stamarkershown && !toimarkershown) {
                     mMapboxMap.clear();
-                    addUserLocation(mMapboxMap);
+                    addUserLocation();
                     stamarkershown = false;
                     toast = "Stations Disabled";
                 } else {
-                    addStations(mMapboxMap);
+                    asyncStationMarkers(-37.877848,145.034677);
+                    stamarkershown = true;
                     toast = "Stations Enabled";
                 }
-                Toast.makeText(getApplicationContext(), toast,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
 
+            }
+
+            public void addUserLocation(){
+                ArrayList<Double> list = new ArrayList();
+                list = getLocation();
+                MarkerOptions markerOptions = new MarkerOptions();
+                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.star);
+                Icon icon = iconFactory.fromDrawable(iconDrawable);
+                latitude = list.get(0);
+                longitude = list.get(1);
+                LatLng userloc = new LatLng(latitude, longitude);
+                markerOptions.title("User location");
+                markerOptions.icon(icon);
+                markerOptions.position(userloc);
+                mMapboxMap.addMarker(markerOptions);
             }
 
 
             //Stations icon making
-            private void addStations(MapboxMap mapboxMap) {
-                MarkerOptions markerOptions = new MarkerOptions();
-                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
-                Icon icon = iconFactory.fromDrawable(iconDrawable);
-                String stationname = "";
-                JSONArray stations = null;
-                if (stationMarkers == null) {
-                    stations = RestClient.getStaLoc(-37.877848, 145.044696);
-                    stationMarkers = stations;
-                } else {
-                    stations = stationMarkers;
-                }
-                ;
-                double stalat = 0.0;
-                double stalon = 0.0;
-                for (int i = 0; i < stations.length(); i++) {
-                    try {
-                        //Get toilets details from server;
-                        stalat = stations.getJSONObject(i).optDouble("lat");
-                        stalon = stations.getJSONObject(i).optDouble("lon");
-                        stationname = stations.getJSONObject(i).optString("name");
-                        LatLng station_position = new LatLng(stalat, stalon);
-                        markerOptions.icon(icon);
-                        //Fix up marker name formatting to make it more clear these markers are Stations
-                        String lastChar = stationname.substring(stationname.length() - 1);
-                        if (lastChar.equals(" ")) {
-                            stationname += "Train Station";
-                        } else {
-                            stationname += " Train Station";
-                        }
+//            private void addStations(MapboxMap mapboxMap) {
+//                MarkerOptions markerOptions = new MarkerOptions();
+//                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+//                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
+//                Icon icon = iconFactory.fromDrawable(iconDrawable);
+//                String stationname = "";
 
-                        markerOptions.title(stationname);
-                        markerOptions.position(station_position);
-                        mapboxMap.addMarker(markerOptions);
-                        stamarkershown = true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
 
-            //Toilets icon making
-            private void addToilets(MapboxMap mapboxMap) {
-                MarkerOptions markerOptions = new MarkerOptions();
-                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
-                Icon icon = iconFactory.fromDrawable(iconDrawable);
-                String toiletname = "";
-                String address = "";
-                JSONArray toilets = null;
-                toilets = RestClient.getToiLoc(-37.877848, 145.044696);
-//                if (toiletMarkers == null) {
-//                    toilets = RestClient.getStaLoc(-37.877848, 145.044696);
-//                    toiletMarkers = toilets;
+//                if (stationMarkers == null) {
+//                 stations = RestClient.getStaLoc(-37.877848, 145.044696);
+//
+//                    stationMarkers = stations;
 //                } else {
-//                    toilets = toiletMarkers;
-//                };
-                double toilat = 0.0;
-                double toilon = 0.0;
-                for (int i = 0; i < toilets.length(); i++) {
-                    try {
-                        //Get toilets details from server;
-                        toilat = toilets.getJSONObject(i).optDouble("Latitude");
-                        toilon = toilets.getJSONObject(i).optDouble("Longitude");
-                        toiletname = "Accessible Toilet";
-                        address = toilets.getJSONObject(i).optString("Address1");
-                        LatLng toilet_position = new LatLng(toilat, toilon);
-                        markerOptions.icon(icon);
-                        markerOptions.title(toiletname);
-                        markerOptions.snippet(address);
-                        markerOptions.position(toilet_position);
-                        mapboxMap.addMarker(markerOptions);
-                        toimarkershown = true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+//                    stations = stationMarkers;
+//                }
+//
+//                double stalat = 0.0;
+//                double stalon = 0.0;
+//                for (int i = 0; i < 100; i++) {
+//                    try {
+//                        //Get toilets details from server;
+//                        stalat = stations.getJSONObject(i).optDouble("lat");
+//                        stalon = stations.getJSONObject(i).optDouble("lon");
+//                        stationname = stations.getJSONObject(i).optString("name");
+//                        LatLng station_position = new LatLng(stalat, stalon);
+//                        markerOptions.icon(icon);
+//                        //Fix up marker name formatting to make it more clear these markers are Stations
+//                        String lastChar = stationname.substring(stationname.length() - 1);
+//                        if (lastChar.equals(" ")) {
+//                            stationname += "Train Station";
+//                        } else {
+//                            stationname += " Train Station";
+//                        }
+//
+//                        markerOptions.title(stationname);
+//                        markerOptions.position(station_position);
+//                        mapboxMap.addMarker(markerOptions);
+//                        stamarkershown = true;
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+
+//            //Toilets icon making
+//            private void addToilets(MapboxMap mapboxMap) {
+//                MarkerOptions markerOptions = new MarkerOptions();
+//                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+//                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
+//                Icon icon = iconFactory.fromDrawable(iconDrawable);
+//                String toiletname = "";
+//                String address = "";
+//                JSONArray toilets = null;
+//                toilets = RestClient.getToiLoc(-37.877848, 145.044696);
+////                if (toiletMarkers == null) {
+////                    toilets = RestClient.getStaLoc(-37.877848, 145.044696);
+////                    toiletMarkers = toilets;
+////                } else {
+////                    toilets = toiletMarkers;
+////                };
+//                double toilat = 0.0;
+//                double toilon = 0.0;
+//                for (int i = 0; i < toilets.length(); i++) {
+//                    try {
+//                        //Get toilets details from server;
+//                        toilat = toilets.getJSONObject(i).optDouble("Latitude");
+//                        toilon = toilets.getJSONObject(i).optDouble("Longitude");
+//                        toiletname = "Accessible Toilet";
+//                        address = toilets.getJSONObject(i).optString("Address1");
+//                        LatLng toilet_position = new LatLng(toilat, toilon);
+//                        markerOptions.icon(icon);
+//                        markerOptions.title(toiletname);
+//                        markerOptions.snippet(address);
+//                        markerOptions.position(toilet_position);
+//                        mapboxMap.addMarker(markerOptions);
+//                        toimarkershown = true;
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//
+//
+//            private void addUserLocation(MapboxMap mapboxMap) {
+//                MarkerOptions markerOptions = new MarkerOptions();
+//                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+//
+//                // Create an Icon object for the marker to use
+//                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.star);
+//                Icon icon = iconFactory.fromDrawable(iconDrawable);
+//                markerOptions.position(latLng);
+//                markerOptions.icon(icon);
+//                markerOptions.title("Your Location");
+//                markerOptions.snippet("111");
+//                mapboxMap.addMarker(markerOptions);
+//            }
+//        });
 
 
-            private void addUserLocation(MapboxMap mapboxMap) {
-                MarkerOptions markerOptions = new MarkerOptions();
-                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-
-                // Create an Icon object for the marker to use
-                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.star);
-                Icon icon = iconFactory.fromDrawable(iconDrawable);
-                markerOptions.position(latLng);
-                markerOptions.icon(icon);
-                markerOptions.title("Your Location");
-                markerOptions.snippet("111");
-                mapboxMap.addMarker(markerOptions);
-            }
         });
-
-
-
     }
 
 
 
+    public void asyncToiletMarkers(Double lat, Double lon) {
+        ToiletMarkersAsyncTask t = new ToiletMarkersAsyncTask(this);
+        t.getClosestToilets(lat,lon);
+    }
+
+    public class ToiletMarkersAsyncTask extends AsyncTask<Void,Void,Void> {
+
+        private WeakReference<MapActivity> activityWeakReference;
+        private String urls = "http://13.59.24.178/";
+        ToiletMarkersAsyncTask(MapActivity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        protected void getClosestToilets(Double lat, Double lon) {
+            urls += "nearbyToilets.php?lat=" + lon + "&lon=" + lat;
+            Log.e("toilet", urls.toString());
+            execute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.e("help", "doInBackground triggered");
+            JSONResult = new JSONArray();
+            try{
+                URL url = new URL(urls);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally
+            {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            if (tempString == null) {
+                tempString = "EMPTY";
+            }
+            Log.e("Number One", tempString);
+            Log.e("Number Two", JSONResult.toString());
+
+            try {
+                JSONResult = new JSONArray(tempString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            MarkerOptions markerOptions = new MarkerOptions();
+            IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+            Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
+            Icon icon = iconFactory.fromDrawable(iconDrawable);
+            String toiletname = "";
+            String address = "";
+            JSONArray toilets = JSONResult;
+            Log.e("help", JSONResult.toString());
+            double toilat = 0.0;
+            double toilon = 0.0;
+            for (int i = 0; i < toilets.length(); i++) {
+                try {
+                    //Get toilets details from server;
+                    toilat = toilets.getJSONObject(i).optDouble("Latitude");
+                    toilon = toilets.getJSONObject(i).optDouble("Longitude");
+                    toiletname = "Accessible Toilet";
+                    address = toilets.getJSONObject(i).optString("Address1");
+                    LatLng toilet_position = new LatLng(toilat, toilon);
+                    markerOptions.icon(icon);
+                    markerOptions.title(toiletname);
+                    markerOptions.snippet(address);
+                    markerOptions.position(toilet_position);
+                    mMapboxMap.addMarker(markerOptions);
+                    toimarkershown = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+
+
+    public void asyncStationMarkers(Double lat, Double lon) {
+        StationMarkersAsyncTask t = new StationMarkersAsyncTask(this);
+        t.getClosestStations(lat,lon);
+    }
+
+    public class StationMarkersAsyncTask extends AsyncTask<Void,Void,Void> {
+
+        private WeakReference<MapActivity> activityWeakReference;
+        private String urls = "http://13.59.24.178/";
+        StationMarkersAsyncTask(MapActivity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        protected void getClosestStations(Double lat, Double lon) {
+            urls += "nearbyStations.php?lat=" + lon + "&lon=" + lat;
+            Log.e("toilet", urls.toString());
+            execute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.e("help", "doInBackground triggered");
+            JSONResult = new JSONArray();
+            try{
+                URL url = new URL(urls);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally
+            {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            if (tempString == null) {
+                tempString = "EMPTY";
+            }
+            Log.e("Number One", tempString);
+            Log.e("Number Two", JSONResult.toString());
+
+            try {
+                JSONResult = new JSONArray(tempString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            MarkerOptions markerOptions = new MarkerOptions();
+            IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+            Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
+            Icon icon = iconFactory.fromDrawable(iconDrawable);
+            String stationname = "";
+            String address = "";
+            JSONArray stations = JSONResult;
+            Log.e("help", JSONResult.toString());
+            double stalat = 0.0;
+            double stalon = 0.0;
+            for (int i = 0; i < stations.length(); i++) {
+                try {
+                    //Get toilets details from server;
+                    stalat = stations.getJSONObject(i).optDouble("lat");
+                    stalon = stations.getJSONObject(i).optDouble("lon");
+                    stationname = stations.getJSONObject(i).optString("name");
+       //             address = stations.getJSONObject(i).optString("Address1");
+                    LatLng sta_position = new LatLng(stalat, stalon);
+                    markerOptions.icon(icon);
+                    markerOptions.title(stationname);
+      //              markerOptions.snippet(address);
+                    markerOptions.position(sta_position);
+                    mMapboxMap.addMarker(markerOptions);
+                    stamarkershown = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
 
     @Override
     public void onResume() {
@@ -393,6 +604,7 @@ public class MapActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         mMapView.onSaveInstanceState(outState);
     }
+
 
     //Get user's current location from GPS
     public ArrayList getLocation() {
@@ -423,18 +635,19 @@ public class MapActivity extends AppCompatActivity {
     }
 
     //Update child location automatically
-    public void updateChildLocationToServer() {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List loc = getLocation();
-                String childid = DeviceIDGenerator.getID(MapActivity.this);
-                String url = "http://13.59.24.178/updateLocation.php?childid=" + childid + "&lat=" + loc.get(0).toString() + "&lon=" + loc.get(1).toString();
-                String result = new AsyncTaskRestClient().doInBackground(url);
-                Log.e("help", "success");
-                handler.postDelayed(this,15000);
-            }
-        },15000);
-    }
+//    public void updateChildLocationToServer() {
+//        final Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                List loc = getLocation();
+//                String childid = DeviceIDGenerator.getID(MapActivity.this);
+//                String url = "http://13.59.24.178/updateLocation.php?childid=" + childid + "&lat=" + loc.get(0).toString() + "&lon=" + loc.get(1).toString();
+//                String result = new AsyncTaskRestClient().doInBackground(url);
+//                Log.e("help", "success");
+//                handler.postDelayed(this,15000);
+//            }
+//        },15000);
+//    }
 }
+

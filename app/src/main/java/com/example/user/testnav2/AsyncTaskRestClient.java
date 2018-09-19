@@ -41,7 +41,7 @@ public class AsyncTaskRestClient extends AsyncTask<String,Void,String>{
             result = stringBuilder.toString();
 
         }
-        catch(IOException e){
+        catch(Exception e){
             e.printStackTrace();
             result = null;
         }
