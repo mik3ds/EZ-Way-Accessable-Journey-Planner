@@ -90,7 +90,7 @@
                     android:id="@+id/sliderpanelTitleTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Currently Selected Marker Info" />
+                    android:text="" />
 
                 <TextView
                     android:id="@+id/sliderpanelSubtitleTextView"
@@ -99,7 +99,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginTop="20dp"
-                    android:text="More Info" />
+                    android:text="" />
 
 
             </LinearLayout>

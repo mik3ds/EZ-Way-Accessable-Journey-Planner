@@ -2,6 +2,7 @@ package com.example.user.testnav2;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -9,9 +10,11 @@ import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -26,6 +29,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -92,23 +96,14 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+
+
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
 
@@ -215,6 +210,32 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
                     }
 
                 });
+                NavigationView nv = (NavigationView) findViewById(R.id.nav_view);
+
+                nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        int itemID = item.getItemId();
+                        Log.e("help", Integer.toString(itemID));
+
+                        if (itemID == R.id.nav_profile) {
+                            startActivity(new Intent(Main3Activity.this, Main1Activity.class));
+                        } else if (itemID == R.id.nav_trackchild) {
+                            startActivity(new Intent(Main3Activity.this, Main1Activity.class));
+                        } else if (itemID == R.id.nav_trackparent) {
+                            startActivity(new Intent(Main3Activity.this, Main2Activity.class));
+
+                        } else if (itemID == R.id.nav_station) {
+                            removestation();
+
+                        } else if (itemID == R.id.nav_toilet) {
+                            removetoilets();
+                        } else {}
+
+
+                        return false;
+                    }
+                });
             }
 
         //Hide and show toilets methods
@@ -280,6 +301,24 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
                 markerOptions.icon(icon);
                 markerOptions.position(userloc);
                 mMapboxMap.addMarker(markerOptions);
+
+                if (mPreferences.getString("childlat", "").length() > 1) {
+
+                    Drawable starIcon = ContextCompat.getDrawable(Main3Activity.this,R.drawable.childicon);
+                    Icon ic = iconFactory.fromDrawable(starIcon);
+                    Double chlat = Double.parseDouble(mPreferences.getString("childlat", "0.0"));
+                    Double chlon = Double.parseDouble(mPreferences.getString("childlon", "0.0"));
+                    LatLng childLatLng = new LatLng(chlat,chlon);
+                    MarkerOptions mo = new MarkerOptions();
+                    mo.title("Child Location");
+                    mo.icon(ic);
+                    mo.position(childLatLng);
+                    mMapboxMap.addMarker(mo);
+
+
+                }
+
+
             }
 
 
@@ -298,8 +337,7 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
         @Override
         public boolean onCreateOptionsMenu(Menu menu) {
             // Inflate the menu; this adds items to the action bar if it is present.
-            getMenuInflater().inflate(R.menu.main3, menu);
-            return true;
+            return false;
         }
 
         @Override

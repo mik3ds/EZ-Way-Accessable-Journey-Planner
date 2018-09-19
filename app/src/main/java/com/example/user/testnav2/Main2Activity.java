@@ -70,6 +70,12 @@ public class Main2Activity extends AppCompatActivity {
                         double lon = ja.getJSONObject(0).getDouble("childLon");
                         String details = ja.getJSONObject(0).getString("details");
 
+                        mEditor.putString("childlat",Double.toString(lat));
+                        mEditor.putString("childlon",Double.toString(lon));
+                        mEditor.apply();
+
+
+
 
 
                         if(mPreferences.getBoolean("isParent", false) == false){
