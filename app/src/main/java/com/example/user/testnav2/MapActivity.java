@@ -2,6 +2,7 @@ package com.example.user.testnav2;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -29,6 +30,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.paolorotolo.appintro.AppIntro;
+import com.github.paolorotolo.appintro.AppIntroFragment;
+import com.github.paolorotolo.appintro.model.SliderPage;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
@@ -63,13 +67,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import co.naughtyspirit.showcaseview.ShowcaseView;
+import co.naughtyspirit.showcaseview.targets.Target;
+
+import static com.example.user.testnav2.R.id.sliderpanelTitleTextView;
+
 
 /**
  * Created by mark on 8/20/2018.
  */
 
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerViewClickListener{
     //Initialise map
     private SharedPreferences mPreferences;
     private MapboxMap mMapboxMap;
@@ -104,6 +113,7 @@ public class MapActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         MapboxAccountManager.start(getApplicationContext());
         setContentView(R.layout.activity_map);
 //        mLayout = (SlidingUpPanelLayout) findViewById(R.id.slidingPanelMapActivity);
@@ -133,11 +143,12 @@ public class MapActivity extends AppCompatActivity {
         Double lulat = list.get(0);
         Double lulon = list.get(1);
 
+        asyncStationMarkers(lulat, lulon);
+        asyncToiletMarkers(lulat,lulon);
 
         //USER LOCATION
         final LatLng latLng = new LatLng(lulat, lulon);
         //  final LatLng latLng = new LatLng(-37.877848, 145.044696);
-
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
 
@@ -159,6 +170,9 @@ public class MapActivity extends AppCompatActivity {
                 iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
                 final Icon toiletIcon = iconFactory.fromDrawable(iconDrawable);
 
+
+
+
                 Boolean isParent = mPreferences.getBoolean("isParent", true);
                 Log.e("help", "line 149 triggers");
                 if (!isParent) {
@@ -171,7 +185,7 @@ public class MapActivity extends AppCompatActivity {
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
                                                         @Override
                                                         public boolean onMarkerClick(@NonNull Marker marker) {
-                                                            slidepanelTitle = (TextView) findViewById(R.id.sliderpanelTitleTextView);
+                                                            slidepanelTitle = (TextView) findViewById(sliderpanelTitleTextView);
                                                             slidepanelTitle.setText(marker.getTitle());
                                                             slidepanelSubtitle = (TextView) findViewById(R.id.sliderpanelSubtitleTextView);
                                                             slidepanelSubtitle.setText(marker.getSnippet());
@@ -392,6 +406,8 @@ public class MapActivity extends AppCompatActivity {
 //        });
 
 
+
+
         });
     }
 
@@ -400,6 +416,14 @@ public class MapActivity extends AppCompatActivity {
     public void asyncToiletMarkers(Double lat, Double lon) {
         ToiletMarkersAsyncTask t = new ToiletMarkersAsyncTask(this);
         t.getClosestToilets(lat,lon);
+    }
+
+    @Override
+    public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull com.mapbox.mapboxsdk.maps.MapboxMap.MarkerViewAdapter markerViewAdapter) {
+        TextView title = (TextView) findViewById(R.id.sliderpanelTitleTextView);
+        title.setText(marker.getTitle());
+        return false;
+
     }
 
     public class ToiletMarkersAsyncTask extends AsyncTask<Void,Void,Void> {
@@ -411,7 +435,8 @@ public class MapActivity extends AppCompatActivity {
         }
 
         protected void getClosestToilets(Double lat, Double lon) {
-            urls += "nearbyToilets.php?lat=" + lon + "&lon=" + lat;
+
+            urls += "nearbyToilets.php?lat=" + lat + "&lon=" + lon;
             Log.e("toilet", urls.toString());
             execute();
         }
@@ -495,6 +520,7 @@ public class MapActivity extends AppCompatActivity {
         t.getClosestStations(lat,lon);
     }
 
+
     public class StationMarkersAsyncTask extends AsyncTask<Void,Void,Void> {
 
         private WeakReference<MapActivity> activityWeakReference;
@@ -504,7 +530,7 @@ public class MapActivity extends AppCompatActivity {
         }
 
         protected void getClosestStations(Double lat, Double lon) {
-            urls += "nearbyStations.php?lat=" + lon + "&lon=" + lat;
+            urls += "nearbyStations.php?lat=" + lat + "&lon=" + lon;
             Log.e("toilet", urls.toString());
             execute();
         }
@@ -633,6 +659,8 @@ public class MapActivity extends AppCompatActivity {
         return list;
 
     }
+
+
 
     //Update child location automatically
 //    public void updateChildLocationToServer() {
