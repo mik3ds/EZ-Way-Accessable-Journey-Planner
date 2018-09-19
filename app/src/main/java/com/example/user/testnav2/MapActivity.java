@@ -3,6 +3,7 @@ package com.example.user.testnav2;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -24,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -99,6 +101,7 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
     private static boolean stamarkershown = false;
     private FloatingActionButton floatingActionButton1;
     private FloatingActionButton floatingActionButton2;
+    private FloatingActionButton floatingActionButton3;
     private JSONArray toiletMarkers = null;
     private JSONArray stationMarkers = null;
     private TextView slidepanelTitle;
@@ -130,6 +133,7 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         String location = "";
         floatingActionButton1 = (FloatingActionButton) findViewById(R.id.toiletshidden);
         floatingActionButton2 = (FloatingActionButton) findViewById(R.id.stationshidden);
+        floatingActionButton3 = (FloatingActionButton) findViewById(R.id.floatingAction);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 //        Geocoder gc = new Geocoder(this);
@@ -153,6 +157,38 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         //USER LOCATION
         final LatLng latLng = new LatLng(lulat, lulon);
         //  final LatLng latLng = new LatLng(-37.877848, 145.044696);
+
+
+
+
+
+
+
+
+        floatingActionButton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String[] options = {"Profile","Tracking", "My Places", "Toggle Toilet Markers", "Togggle Station Markers"};
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+                builder.setTitle("Navigation");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (i == 0) {
+                            startActivity(new Intent(MapActivity.this, Main1Activity.class));
+                        } else if (i == 3 ) {
+
+                        }
+                    }
+                });
+                builder.show();
+            }
+        });
+
+
+
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
 
