@@ -11,7 +11,7 @@ public class tutorial1 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial1);
-
+//a
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
