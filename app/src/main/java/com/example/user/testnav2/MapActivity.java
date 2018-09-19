@@ -137,9 +137,9 @@ public class MapActivity extends AppCompatActivity {
 
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                 mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
-                addUserLocation(mMapboxMap);
-                addToilets(mMapboxMap);
-                addStations(mMapboxMap);
+//                addUserLocation(mMapboxMap);
+//                addToilets(mMapboxMap);
+//                addStations(mMapboxMap);
 
                 final IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
                 Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
@@ -415,8 +415,8 @@ public class MapActivity extends AppCompatActivity {
             }
         }
         if (list.size() == 0) {
-            list.add(144.07);
-            list.add(-35.06);
+            list.add(-37.8770);
+            list.add(145.0442);
         }
         return list;
 
