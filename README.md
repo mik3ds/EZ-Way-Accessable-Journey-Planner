@@ -1,101 +1,170 @@
 # FIT5120 EasyWay Android Application
 
-Android Application using Amazon AWS backend.
-
 ## Installation Instructions
 
-##### Create an Amazon EC2 Virtual Machine instance, allow all network traffic to that machine (http and ssh only for more security).
-
-##### Create an Amazon RDS MySql database, only allowing incoming network traffic from the EC2 IP address.
+### Create and set up a Web Server using Ubuntu Linux 14.05.5 and Apache
 
 
-##### ssh into the EC2, where awsmachinekeypair.pem is your Amazon primary key pair present in the current working directory, and hostname is the public IP of the EC2 Virtual Machine:
-  ssh -i "awsmachinekeypair.pem" hostname
- 
+For the demo we have created an Amazon EC2 Virtual Machine instance. SSH into the machine (  ssh -i "awsmachinekeypair.pem" hostname  ). When connected, run:
 
 
-##### List dependencies and setup::
   sudo upgrade
+  
   sudo apt-get install apache2
+  
   sudo apt-get install mysql
   
-  
-##### Store Server Scripts in /var/www/html on EC2 machine.
+
+Only allow incoming traffic to the web server through ssh http connections.
+Copy the Web Server PHP scripts to the public web server directory. (Default Apache2 location is /var/www/html)
 
 
-##### Start Apache:
+### Create and set up a remote MySQL Database
+
+
+For the demo we have created an Amazon RDS MySql database.
+Only allow incoming network traffic from the Web Server public IP address.
+
+
+SSH into the Web Server.
+Connect to MySQL database.
+
+
+   mysql -u"root" -h -password --local-infile; //Where root is the MySQL user previously set as the admin account
+   
+
+Run MySQL create table scripts.
+
+
+Insert Data Sets into 'stations' and 'toilets' databases, where "records.csv" is the Data Set to be uploaded.
+
+   
+   LOAD DATA LOCAL INFILE 'records.csv' INTO TABLE stations FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'; //Where records.csv is the data required to be stored in the server db.
+
+
+### Start Apache:
 
   $ sudo /etc/init.d/apache2 start
  
- 
-##### Connect to RDS DB and upload records to DB:
-
-   mysql -u"root" -password --local-infile; //Where root is the MySQL user previously set as the admin account
    
-   LOAD DATA LOCAL INFILE 'records.csv' INTO TABLE stations FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'; //Where records.csv is the data required to be stored in the server db.
-   
-   
-##### Install .apk on Android compatible hardware(SDK min v17) and run.
+### Install .apk on Android compatible hardware(SDK min v17) and run.
+
+
+## Basic Functions
+
+### Map
+Map that shows user location, nearby Public Transport options, and other points of interest like accessable toilets and myki topup machines. 
+
+### Parent Tracking
+#### Setup
+To enable Parent Tracking on the child device, a user navigates to Profile -> Edit Profile, where they can enter a name and select Enable Tracking. After selecting Enable Tracking and pressing save, the application will give a pairing code.
+A user on another device can then navigate to Track Child Settings. Once there, they can enter in the previous user's name and connection code and select save. 
+#### Usage
+Once Parent Tracking is enabled, the Child device will update it's GPS coordinates to the server every 15 seconds. 
+The Parent device can then navigate to the Map Screen, which opens centered on a marker that displays the linked child's current location.
+
+## Web Server PHP Scripts
+
+
+##### getStationByID.php
+
+-post station name
+
+
+-returns station details
+
+
+##### linkParent.php
+
+-post child name, parent device id, pairing code
+
+-returns child record if linking between parent and child is successful
 
 
 
+##### stopTracking.php
 
-## Example Server URLs
+-post deviceid
 
-//20 Closest Toilets Sorted By Distance
-
-http://13.59.24.178/nearbyToilets.php?lat=145.034677&lon=-37.877848
-
-//20 Closest Stations Sorted By Distance
-
-http://13.59.24.178/nearbyStations.php?lat=145.034677&lon=-37.877848
-
-//Returns All Toilets
-
-http://13.59.24.178/SamplePage.php
-
-//Returns All Stations
-
-http://13.59.24.178/allStations.php
-
-//Parent Tracker test
-
-http://13.59.24.178/test.php?name=guest
-
-
-## Parent Tracking Function
-
-
-//Allows user to be tracked
-
-//User Input = Name
-
-//Other Input = Lat, Lon
-
-trackerSignUp.php?name=XXX&childid=XXX&lat=XXX&lon=XXX
-
-
-//Parent links themselves to child
-
-//User Input = Name
-
-//Other Input = ParentID
-
-linkParent.php?name=XXX&code=XXX&parentID=XXX
-
-
-//Child's device auto-updates location
-
-//Other Input = Lat, Lon
-
-updateLocation.php?childid=XXX&lat=XXX&lon=XXX
+-deletes user tracking details
 
 
 
-//Stop user tracking
+##### updateLocation.php
 
-//Other Input = ChildID
+-post deviceid, current user lat and lon
 
-stopTracking.php?childid=XXX
+-script generates date time stamp
 
+-updates database with tracking information
+
+-returns user tracking details
+
+
+
+##### getToiletByID.php
+
+-post toiletid
+
+-returns toilet details
+
+
+
+##### trackerSignUp.php
+
+-post child name, deviceid, current lat and lon
+
+-script generates date time stamp
+
+
+
+##### nearbyStations.php
+
+-post user current lat and lon
+
+-return closest 20 train stations sorted by distance
+
+
+
+##### nearbyToilets.php
+
+-post user current lat and lon
+
+-return closest 20 accessable public toilets sorted by distance
+
+
+
+##### trackingStatusChild.php
+
+-post childid
+
+-returns user tracking details if they exist
+
+
+
+##### getChildLocation.php
+
+-post parentid
+
+-returns child name, lat, lon, date and time of last update if the parentid is linked to a child record.
+
+
+
+##### trackingStatusParent.php
+
+-post parentid
+
+-returns all child tracking details if the parentid is linked to a child record
+
+
+
+##### allToilets.php
+
+-returns all toilet records
+
+
+
+##### allStations.php
+
+-returns all station records
 

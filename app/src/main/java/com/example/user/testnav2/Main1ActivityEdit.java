@@ -15,7 +15,7 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class Main1ActivityEdit extends AppCompatActivity {
+public class    Main1ActivityEdit extends AppCompatActivity {
 
     private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
