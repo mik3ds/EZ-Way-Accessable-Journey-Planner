@@ -1,6 +1,7 @@
 package com.example.user.testnav2;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,6 +26,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -104,7 +107,8 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
     private ImageView slidepanelImage;
     JSONArray stations = null;
     String tempString = null;
-    private JSONArray JSONResult;
+    String tempString2 = null;
+    private JSONArray JSONResult = new JSONArray();
 
 
 //    private SlidingUpPanelLayout mLayout;
@@ -411,6 +415,14 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         });
     }
 
+    @SuppressLint("ResourceType")
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.layout.layout, menu);
+        return true;
+    }
+
 
 
     public void asyncToiletMarkers(Double lat, Double lon) {
@@ -444,7 +456,6 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         @Override
         protected Void doInBackground(Void... params) {
             Log.e("help", "doInBackground triggered");
-            JSONResult = new JSONArray();
             try{
                 URL url = new URL(urls);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -531,27 +542,28 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
 
         protected void getClosestStations(Double lat, Double lon) {
             urls += "nearbyStations.php?lat=" + lat + "&lon=" + lon;
-            Log.e("toilet", urls.toString());
+            Log.e("station", urls.toString());
             execute();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            Log.e("help", "doInBackground triggered");
-            JSONResult = new JSONArray();
+            Log.e("station", "doInBackground triggered");
             try{
                 URL url = new URL(urls);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
                 StringBuilder builder = new StringBuilder();
+                Log.e("stations", urls.toString());
 
                 String inputString;
                 while ((inputString = bufferedReader.readLine()) != null) {
                     builder.append(inputString);
                 }
                 urlConnection.disconnect();
-                tempString = builder.toString();
+                tempString2 = builder.toString();
+                Log.e("stations temp", tempString2);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally
@@ -563,14 +575,14 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
-            if (tempString == null) {
-                tempString = "EMPTY";
+            if (tempString2 == null) {
+                tempString2 = "EMPTY";
             }
-            Log.e("Number One", tempString);
+            Log.e("Number One", tempString2);
             Log.e("Number Two", JSONResult.toString());
 
             try {
-                JSONResult = new JSONArray(tempString);
+                JSONResult = new JSONArray(tempString2);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -581,8 +593,13 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
             Icon icon = iconFactory.fromDrawable(iconDrawable);
             String stationname = "";
             String address = "";
-            JSONArray stations = JSONResult;
-            Log.e("help", JSONResult.toString());
+            JSONArray stations = null;
+            try {
+                stations = new JSONArray(tempString2);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Log.e("station temp", JSONResult.toString());
             double stalat = 0.0;
             double stalon = 0.0;
             for (int i = 0; i < stations.length(); i++) {
