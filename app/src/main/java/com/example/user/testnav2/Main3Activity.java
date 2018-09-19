@@ -2,10 +2,10 @@ package com.example.user.testnav2;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -13,18 +13,23 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.paolorotolo.appintro.AppIntro;
-import com.github.paolorotolo.appintro.AppIntroFragment;
-import com.github.paolorotolo.appintro.model.SliderPage;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
@@ -34,7 +39,6 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapquest.mapping.maps.MapView;
 import com.mapquest.mapping.maps.MapboxMap;
-import com.mapbox.mapboxsdk.*;
 import com.mapquest.mapping.maps.OnMapReadyCallback;
 
 import org.json.JSONArray;
@@ -51,18 +55,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.naughtyspirit.showcaseview.ShowcaseView;
-import co.naughtyspirit.showcaseview.targets.Target;
-
 import static com.example.user.testnav2.R.id.sliderpanelTitleTextView;
 
-
-/**
- * Created by mark on 8/20/2018.
- */
-
-
-public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerViewClickListener{
+public class Main3Activity extends AppCompatActivity    implements NavigationView.OnNavigationItemSelectedListener {
     //Initialise map
     private SharedPreferences mPreferences;
     private MapboxMap mMapboxMap;
@@ -75,7 +70,7 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
     public static double latitude;
     public static double longitude;
     LocationManager locationManager;
-    List<android.location.Address> addressList = null;
+    List<Address> addressList = null;
     private static boolean toimarkershown = false;
     private static boolean stamarkershown = false;
     private FloatingActionButton floatingActionButton1;
@@ -90,19 +85,30 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
     String tempString = null;
     private JSONArray JSONResult;
 
-
-//    private SlidingUpPanelLayout mLayout;
-
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main3);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        MapboxAccountManager.start(getApplicationContext());
-        setContentView(R.layout.activity_map);
-//        mLayout = (SlidingUpPanelLayout) findViewById(R.id.slidingPanelMapActivity);
-//        mLayout.setAnchorPoint(0.5f);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
 
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
 
@@ -112,16 +118,6 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         floatingActionButton2 = (FloatingActionButton) findViewById(R.id.stationshidden);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-//        Geocoder gc = new Geocoder(this);
-//        try{
-//            addressList = gc.getFromLocationName(location,1000);
-//            // add adress to list here
-//        }catch (IOException e)
-//        {
-//            e.printStackTrace();
-//        }
-
-//        LocationUtils LU = new LocationUtils();
         ArrayList<Double> list = getLocation();
 //        list = LU.getLocation();
         Double lulat = list.get(0);
@@ -132,7 +128,7 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
 
         //USER LOCATION
         final LatLng latLng = new LatLng(lulat, lulon);
-        //  final LatLng latLng = new LatLng(-37.877848, 145.044696);
+
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
 
@@ -148,13 +144,11 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
 //                asyncStationMarkers(-37.877848,145.034677);
                 addUserLocation();
 
-                final IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
+                final IconFactory iconFactory = IconFactory.getInstance(Main3Activity.this);
+                Drawable iconDrawable = ContextCompat.getDrawable(Main3Activity.this, R.drawable.train);
                 final Icon trainIcon = iconFactory.fromDrawable(iconDrawable);
-                iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
+                iconDrawable = ContextCompat.getDrawable(Main3Activity.this, R.drawable.toilet);
                 final Icon toiletIcon = iconFactory.fromDrawable(iconDrawable);
-
-
 
 
                 Boolean isParent = mPreferences.getBoolean("isParent", true);
@@ -219,66 +213,65 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
                     public void onClick(View view) {
                         removestation();
                     }
+
                 });
-
-
             }
 
-            //Hide and show toilets methods
-            public void removetoilets() {
+        //Hide and show toilets methods
+        public void removetoilets() {
 
-                String toast = "";
+            String toast = "";
 
-                if (toimarkershown && stamarkershown) {
-                    mMapboxMap.clear();
-                    addUserLocation();
-                    asyncStationMarkers(-37.877848,145.034677);
-                    toimarkershown = false;
-                    toast = "Toilets Disabled";
-                } else if (toimarkershown && !stamarkershown) {
-                    mMapboxMap.clear();
-                    addUserLocation();
-                    toimarkershown = false;
-                    toast = "Toilets Disabled";
-                } else {
-                    asyncToiletMarkers(-37.877848,145.034677);
-                    toimarkershown = true;
-                    toast = "Toilets Enabled";
-                }
-
-                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
-
+            if (toimarkershown && stamarkershown) {
+                mMapboxMap.clear();
+                addUserLocation();
+                asyncStationMarkers(-37.877848,145.034677);
+                toimarkershown = false;
+                toast = "Toilets Disabled";
+            } else if (toimarkershown && !stamarkershown) {
+                mMapboxMap.clear();
+                addUserLocation();
+                toimarkershown = false;
+                toast = "Toilets Disabled";
+            } else {
+                asyncToiletMarkers(-37.877848,145.034677);
+                toimarkershown = true;
+                toast = "Toilets Enabled";
             }
 
-            //Hide and show stations method
-            public void removestation() {
-                String toast = "";
-                if (stamarkershown && toimarkershown) {
-                    mMapboxMap.clear();
-                    addUserLocation();
-                    asyncToiletMarkers(-37.877848,145.034677);
-                    stamarkershown = false;
-                    toast = "Stations Disabled";
-                } else if (stamarkershown && !toimarkershown) {
-                    mMapboxMap.clear();
-                    addUserLocation();
-                    stamarkershown = false;
-                    toast = "Stations Disabled";
-                } else {
-                    asyncStationMarkers(-37.877848,145.034677);
-                    stamarkershown = true;
-                    toast = "Stations Enabled";
-                }
-                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
 
+        }
+
+        //Hide and show stations method
+        public void removestation() {
+            String toast = "";
+            if (stamarkershown && toimarkershown) {
+                mMapboxMap.clear();
+                addUserLocation();
+                asyncToiletMarkers(-37.877848,145.034677);
+                stamarkershown = false;
+                toast = "Stations Disabled";
+            } else if (stamarkershown && !toimarkershown) {
+                mMapboxMap.clear();
+                addUserLocation();
+                stamarkershown = false;
+                toast = "Stations Disabled";
+            } else {
+                asyncStationMarkers(-37.877848,145.034677);
+                stamarkershown = true;
+                toast = "Stations Enabled";
             }
+            Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
+
+        }
 
             public void addUserLocation(){
                 ArrayList<Double> list = new ArrayList();
                 list = getLocation();
                 MarkerOptions markerOptions = new MarkerOptions();
-                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-                Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.star);
+                IconFactory iconFactory = IconFactory.getInstance(Main3Activity.this);
+                Drawable iconDrawable = ContextCompat.getDrawable(Main3Activity.this, R.drawable.star);
                 Icon icon = iconFactory.fromDrawable(iconDrawable);
                 latitude = list.get(0);
                 longitude = list.get(1);
@@ -288,17 +281,101 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
                 markerOptions.position(userloc);
                 mMapboxMap.addMarker(markerOptions);
             }
-        });
+
+
+                });
+            }
+        @Override
+        public void onBackPressed() {
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            } else {
+                super.onBackPressed();
+            }
+        }
+
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.main3, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            // Handle action bar item clicks here. The action bar will
+            // automatically handle clicks on the Home/Up button, so long
+            // as you specify a parent activity in AndroidManifest.xml.
+            int id = item.getItemId();
+
+            //noinspection SimplifiableIfStatement
+            if (id == R.id.action_settings) {
+                return true;
+            }
+
+            return super.onOptionsItemSelected(item);
+        }
+
+        @SuppressWarnings("StatementWithEmptyBody")
+        @Override
+        public boolean onNavigationItemSelected(MenuItem item) {
+            // Handle navigation view item clicks here.
+            int id = item.getItemId();
+
+            if (id == R.id.nav_camera) {
+                // Handle the camera action
+            } else if (id == R.id.nav_gallery) {
+
+            } else if (id == R.id.nav_slideshow) {
+
+            } else if (id == R.id.nav_manage) {
+
+            } else if (id == R.id.nav_share) {
+
+            } else if (id == R.id.nav_send) {
+
+            }
+
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
+        }
+
+
+    //Get user's current location from GPS
+    public ArrayList getLocation() {
+        ArrayList<Double> list = new ArrayList();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+
+        } else {
+            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+            if (location != null) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                list.add(latitude);
+                list.add(longitude);
+            }
+        }
+        if (list.size() == 0) {
+            list.add(-37.8770);
+            list.add(145.0442);
+        }
+        return list;
     }
 
-
-
     public void asyncToiletMarkers(Double lat, Double lon) {
-        ToiletMarkersAsyncTask t = new ToiletMarkersAsyncTask(this);
+        Main3Activity.ToiletMarkersAsyncTask t = new Main3Activity.ToiletMarkersAsyncTask(this);
         t.getClosestToilets(lat,lon);
     }
 
-    @Override
+
     public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull com.mapbox.mapboxsdk.maps.MapboxMap.MarkerViewAdapter markerViewAdapter) {
         TextView title = (TextView) findViewById(R.id.sliderpanelTitleTextView);
         title.setText(marker.getTitle());
@@ -308,9 +385,9 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
 
     public class ToiletMarkersAsyncTask extends AsyncTask<Void,Void,Void> {
 
-        private WeakReference<MapActivity> activityWeakReference;
+        private WeakReference<Main3Activity> activityWeakReference;
         private String urls = "http://13.59.24.178/";
-        ToiletMarkersAsyncTask(MapActivity activity) {
+        ToiletMarkersAsyncTask(Main3Activity activity) {
             activityWeakReference = new WeakReference<>(activity);
         }
 
@@ -361,8 +438,8 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
             }
 
             MarkerOptions markerOptions = new MarkerOptions();
-            IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-            Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.toilet);
+            IconFactory iconFactory = IconFactory.getInstance(Main3Activity.this);
+            Drawable iconDrawable = ContextCompat.getDrawable(Main3Activity.this, R.drawable.toilet);
             Icon icon = iconFactory.fromDrawable(iconDrawable);
             String toiletname = "";
             String address = "";
@@ -392,19 +469,17 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         }
     }
 
-
-
     public void asyncStationMarkers(Double lat, Double lon) {
-        StationMarkersAsyncTask t = new StationMarkersAsyncTask(this);
+        Main3Activity.StationMarkersAsyncTask t = new Main3Activity.StationMarkersAsyncTask(this);
         t.getClosestStations(lat,lon);
     }
 
 
     public class StationMarkersAsyncTask extends AsyncTask<Void,Void,Void> {
 
-        private WeakReference<MapActivity> activityWeakReference;
+        private WeakReference<Main3Activity> activityWeakReference;
         private String urls = "http://13.59.24.178/";
-        StationMarkersAsyncTask(MapActivity activity) {
+        StationMarkersAsyncTask(Main3Activity activity) {
             activityWeakReference = new WeakReference<>(activity);
         }
 
@@ -455,8 +530,8 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
             }
 
             MarkerOptions markerOptions = new MarkerOptions();
-            IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-            Drawable iconDrawable = ContextCompat.getDrawable(MapActivity.this, R.drawable.train);
+            IconFactory iconFactory = IconFactory.getInstance(Main3Activity.this);
+            Drawable iconDrawable = ContextCompat.getDrawable(Main3Activity.this, R.drawable.train);
             Icon icon = iconFactory.fromDrawable(iconDrawable);
             String stationname = "";
             String route = "";
@@ -486,75 +561,4 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mMapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMapView.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mMapView.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mMapView.onSaveInstanceState(outState);
-    }
-
-
-    //Get user's current location from GPS
-    public ArrayList getLocation() {
-        ArrayList<Double> list = new ArrayList();
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-
-        } else {
-            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            if (location != null) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-                list.add(latitude);
-                list.add(longitude);
-            }
-        }
-        if (list.size() == 0) {
-            list.add(-37.8770);
-            list.add(145.0442);
-        }
-        return list;
-
-    }
-
-
-
-    //Update child location automatically
-//    public void updateChildLocationToServer() {
-//        final Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                List loc = getLocation();
-//                String childid = DeviceIDGenerator.getID(MapActivity.this);
-//                String url = "http://13.59.24.178/updateLocation.php?childid=" + childid + "&lat=" + loc.get(0).toString() + "&lon=" + loc.get(1).toString();
-//                String result = new AsyncTaskRestClient().doInBackground(url);
-//                Log.e("help", "success");
-//                handler.postDelayed(this,15000);
-//            }
-//        },15000);
-//    }
 }
-

@@ -35,7 +35,11 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".Main1ActivityEdit" />
         <activity android:name=".TrackMapActivity" />
-        <activity android:name=".MapActivity"></activity>
+        <activity android:name=".MapActivity" />
+        <activity
+            android:name=".Main3Activity"
+            android:label="@string/title_activity_main3"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

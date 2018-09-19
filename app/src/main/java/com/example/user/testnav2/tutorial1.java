@@ -15,7 +15,7 @@ public class tutorial1 extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent mapIntent = new Intent(tutorial1.this, MapActivity.class);
+                Intent mapIntent = new Intent(tutorial1.this, Main3Activity.class);
                 startActivity(mapIntent);
                 finish();
             }
