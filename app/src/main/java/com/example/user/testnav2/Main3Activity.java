@@ -118,8 +118,8 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
         Double lulat = list.get(0);
         Double lulon = list.get(1);
 
-        asyncStationMarkers(lulat, lulon);
-        asyncToiletMarkers(lulat,lulon);
+//        asyncStationMarkers(lulat, lulon);
+//        asyncToiletMarkers(lulat,lulon);
 
         //USER LOCATION
         final LatLng latLng = new LatLng(lulat, lulon);
@@ -138,6 +138,8 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
 //                asyncToiletMarkers(-37.877848,145.034677);
 //                asyncStationMarkers(-37.877848,145.034677);
                 addUserLocation();
+//                removestation();
+//                removetoilets();
 
                 final IconFactory iconFactory = IconFactory.getInstance(Main3Activity.this);
                 Drawable iconDrawable = ContextCompat.getDrawable(Main3Activity.this, R.drawable.train);
@@ -243,6 +245,8 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
 
             String toast = "";
 
+
+
             if (toimarkershown && stamarkershown) {
                 mMapboxMap.clear();
                 addUserLocation();
@@ -286,6 +290,8 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
             Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
 
         }
+
+
 
             public void addUserLocation(){
                 ArrayList<Double> list = new ArrayList();
