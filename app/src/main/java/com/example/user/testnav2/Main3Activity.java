@@ -12,6 +12,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -770,5 +771,24 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
             }
 
         }
-        }
+    }
+
+    //Update child location automatically
+    public void updateChildLocationToServer() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                List loc = getLocation();
+                String childid = DeviceIDGenerator.getID(Main3Activity.this);
+                String url = "http://13.59.24.178/updateLocation.php?childid=" + childid + "&lat=" + loc.get(0).toString() + "&lon=" + loc.get(1).toString();
+                String result = new AsyncTaskRestClient().doInBackground(url);
+                Log.e("help", "success");
+                handler.postDelayed(this,15000);
+            }
+        },15000);
+    }
+
     };
+
+
