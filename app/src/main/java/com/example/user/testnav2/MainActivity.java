@@ -47,13 +47,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, Main2Activity.class));
             }
         });
-        navbutton3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                nDialog.show();
-                startActivity(new Intent(MainActivity.this, MapActivity.class));
-            }
-        });
+
         navbutton4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

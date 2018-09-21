@@ -130,6 +130,8 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
         asyncStationMarkers(lulat, lulon);
         asyncToiletMarkers(lulat,lulon);
 
+
+
         //USER LOCATION
         final LatLng latLng = new LatLng(lulat, lulon);
         //  final LatLng latLng = new LatLng(-37.877848, 145.044696);
@@ -163,6 +165,10 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
                     Log.e("help", "line 150 triggers");
                     //  updateChildLocationToServer();
                 }
+
+
+
+
 
 
                 //Set up marker button
@@ -222,6 +228,8 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
                 });
 
 
+
+
             }
 
             //Hide and show toilets methods
@@ -272,6 +280,8 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
                 Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
 
             }
+
+
 
             public void addUserLocation(){
                 ArrayList<Double> list = new ArrayList();

@@ -19,6 +19,6 @@ public class tutorial1 extends AppCompatActivity {
                 startActivity(mapIntent);
                 finish();
             }
-        },5000);
+        },1000);
     }
 }
