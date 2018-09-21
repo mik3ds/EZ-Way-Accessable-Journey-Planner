@@ -48,6 +48,7 @@ import com.mapquest.mapping.maps.OnMapReadyCallback;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -114,12 +115,18 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
         floatingActionButton2 = (FloatingActionButton) findViewById(R.id.stationshidden);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+
+        //change the title of navigation drawer to username
+        updateDrawerTitle();
+
         ArrayList<Double> list = getLocation();
 //        list = LU.getLocation();
         Double lulat = list.get(0);
         Double lulon = list.get(1);
 
+
         asyncAllMarkers(list.get(0),list.get(1));
+
 
         //USER LOCATION
         final LatLng latLng = new LatLng(lulat, lulon);
@@ -298,7 +305,7 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
                     }
 
                 });
-                NavigationView nv = (NavigationView) findViewById(R.id.nav_view);
+                NavigationView nv = (NavigationView) findViewById(R.id.nav_view1);
 
                 nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -327,6 +334,24 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateDrawerTitle();
+    }
+
+    private void updateDrawerTitle() {
+
+        String tempTitle = mPreferences.getString(getString(R.string.username), "Guest");
+
+        NavigationView nv = findViewById(R.id.nav_view1);
+        View hv = nv.getHeaderView(0);
+        TextView tv = (TextView) hv.findViewById(R.id.drawer_title);
+        tv.setText(tempTitle);
+
+    }
+
     @Override
     public void onBackPressed() {
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -336,7 +361,6 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
                 super.onBackPressed();
             }
         }
-
         @Override
         public boolean onCreateOptionsMenu(Menu menu) {
             // Inflate the menu; this adds items to the action bar if it is present.
@@ -382,7 +406,6 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
             drawer.closeDrawer(GravityCompat.START);
             return true;
         }
-
 
     //Get user's current location from GPS
     public ArrayList getLocation() {
