@@ -1,6 +1,7 @@
 package com.example.user.testnav2;
 
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,14 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -19,6 +28,8 @@ public class    Main1ActivityEdit extends AppCompatActivity {
 
     private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
+
+    private String trackStatus;
 
     private EditText mName;
     private Button mSave;
@@ -38,6 +49,7 @@ public class    Main1ActivityEdit extends AppCompatActivity {
         getUserData();
         configureTrackingStatus();
         configureToggle();
+        LU = new LocationUtils();
     }
 
 
@@ -74,23 +86,8 @@ public class    Main1ActivityEdit extends AppCompatActivity {
         trackingDisplay.setText(deviceID);
         String url = "http://13.59.24.178/trackingStatusChild.php?childid=" + deviceID;
         String example = "[]";
-        try {
-            example = new AsyncTaskRestClient().execute(url).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        String empty = "[]";
-        if (example.equals(empty)) {
-            trackingDisplay.setText("Disabled");
-            trackingDisplay.setTextColor(this.getResources().getColor(R.color.traffic_red));
-            mEditor.putBoolean("isParent", true);
-            mEditor.commit();
-        } else {
-            trackingDisplay.setText("Enabled");
-            trackingDisplay.setTextColor(this.getResources().getColor(R.color.traffic_green));
-            mEditor.putBoolean("isParent", false);
-            mEditor.commit();
-        }
+        asyncTrackingStatus(url);
+
     }
 
     //Configure toggle button
@@ -116,15 +113,17 @@ public class    Main1ActivityEdit extends AppCompatActivity {
                     String deviceID = didg.getID(Main1ActivityEdit.this);
                     mEditor.putBoolean("isParent", false);
                     mEditor.commit();
+
+
 //                    List temp = LU.getLocation();
 //                    double lat = (double) temp.get(0);
 //                    double lon = (double) temp.get(1);
-//                    String url = "http://13.59.24.178/trackerSignUp.php?name=" + childName + "&childid=" + deviceID + "&lat=" + lat + "&lon=" + lon;
-                    String url = "http://13.59.24.178/trackerSignUp.php?name=" + childName + "&childid=" + deviceID + "&lat=145.0380897&lon=-37.8779852";
-                    Log.e("FIT5120", url);
+                    double lat = -37.09;
+                    double lon = 145;
+                    String url = "http://13.59.24.178/trackerSignUp.php?name=" + childName + "&childid=" + deviceID + "&lat=" + lat + "&lon=" + lon;
+                    asyncEnableTracking(url);
                     String result = "";
-                    result = new AsyncTaskRestClient().doInBackground(url);
-                    Log.e("onCheckedChanged", result);
+                    asyncEnableTracking(url);
                     configureTrackingStatus();
                 } else {
                     mEditor.putBoolean("isParent", false);
@@ -133,17 +132,152 @@ public class    Main1ActivityEdit extends AppCompatActivity {
                     String deviceID = didg.getID(Main1ActivityEdit.this);
                     String url = "http://13.59.24.178/stopTracking.php?childid=" + deviceID;
                     String result = "";
-
-                    try {
-                        result = new AsyncTaskRestClient().execute(url).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("FIT5120", url);
-                    Log.e("onCheckedChanged", result);
+                    asyncStopTracking(url);
                     configureTrackingStatus();
                 }
             }
         });
+    }
+
+    public void asyncEnableTracking(String url) {
+        Main1ActivityEdit.EnableTrackingAsyncTask t = new Main1ActivityEdit.EnableTrackingAsyncTask(this);
+        t.enableTracking(url);
+    }
+
+    private class EnableTrackingAsyncTask extends AsyncTask<Void,Void,Void> {
+        private String savedURL;
+        private String tempString;
+        private WeakReference<Main1ActivityEdit> activityWeakReference;
+        EnableTrackingAsyncTask(Main1ActivityEdit activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+        protected void enableTracking(String url) {
+            savedURL = url;
+            execute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try{
+                URL url = new URL(savedURL);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void v) {
+
+        }
+    }
+
+    public void asyncTrackingStatus(String url) {
+        Main1ActivityEdit.TrackingStatusAsyncTask t = new Main1ActivityEdit.TrackingStatusAsyncTask(this);
+        t.checkTracking(url);
+    }
+
+    private class TrackingStatusAsyncTask extends AsyncTask<Void,Void,String> {
+        private String savedURL;
+        private String tempString;
+        private WeakReference<Main1ActivityEdit> activityWeakReference;
+        TrackingStatusAsyncTask(Main1ActivityEdit activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+        protected void checkTracking(String url) {
+            savedURL = url;
+            execute();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try{
+                URL url = new URL(savedURL);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            TextView trackingDisplay = (TextView) findViewById(R.id.trackingEditOutput);
+
+            String empty = "[]";
+            if (tempString.equals(empty)) {
+                trackingDisplay.setText("Disabled");
+                trackingDisplay.setTextColor(getApplicationContext().getResources().getColor(R.color.traffic_red));
+                mEditor.putBoolean("isParent", true);
+                mEditor.commit();
+            } else {
+                trackingDisplay.setText("Enabled");
+                trackingDisplay.setTextColor(getApplicationContext().getResources().getColor(R.color.traffic_green));
+                mEditor.putBoolean("isParent", false);
+                mEditor.commit();
+            }
+        }
+    }
+
+    public void asyncStopTracking(String url) {
+        Main1ActivityEdit.StopTrackingAsyncTask t = new Main1ActivityEdit.StopTrackingAsyncTask(this);
+        t.stopTracking(url);
+    }
+
+    private class StopTrackingAsyncTask extends AsyncTask<Void,Void,String> {
+        private String savedURL;
+        private String tempString;
+        private WeakReference<Main1ActivityEdit> activityWeakReference;
+        StopTrackingAsyncTask(Main1ActivityEdit activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+        protected void stopTracking(String url) {
+            savedURL = url;
+            execute();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try{
+                URL url = new URL(savedURL);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            trackStatus = tempString;
+        }
     }
 }
