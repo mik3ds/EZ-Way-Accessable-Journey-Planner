@@ -89,6 +89,7 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
     private TextView slidepanelJourney;
     private ImageView slidepanelImage;
     JSONArray stations = null;
+    JSONObject currentChildLocation = null;
     String tempString = null;
     private JSONArray JSONResult;
 
@@ -112,8 +113,6 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         String location = "";
-        floatingActionButton1 = (FloatingActionButton) findViewById(R.id.toiletshidden);
-        floatingActionButton2 = (FloatingActionButton) findViewById(R.id.stationshidden);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 
@@ -126,7 +125,10 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
         Double lulon = list.get(1);
 
 
-        asyncAllMarkers(list.get(0),list.get(1));
+        Boolean isParent = mPreferences.getBoolean("isParent", true);
+        if (!isParent) {
+            asyncAllMarkers(list.get(0),list.get(1));
+        }
 
 
         //USER LOCATION
@@ -207,19 +209,9 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
                 mMapboxMap.addMarker(markerOptions);
 
                 if (mPreferences.getString("childlat", "").length() > 1) {
-
-                    Drawable starIcon = ContextCompat.getDrawable(Main3Activity.this,R.drawable.childicon);
-                    Icon ic = iconFactory.fromDrawable(starIcon);
-                    Double chlat = Double.parseDouble(mPreferences.getString("childlat", "0.0"));
-                    Double chlon = Double.parseDouble(mPreferences.getString("childlon", "0.0"));
-                    LatLng childLatLng = new LatLng(chlat,chlon);
-                    MarkerOptions mo = new MarkerOptions();
-                    mo.title("Child Location");
-                    mo.icon(ic);
-                    mo.position(childLatLng);
-                    mMapboxMap.addMarker(mo);
-
-
+                    addChildLocationFromPref();
+                    asyncUpdateChildLocationFromServer(mMapboxMap);
+                    updateChildLocationFromServer(mMapboxMap);
                 }
 
 
@@ -246,7 +238,7 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
                 Log.e("help", "line 149 triggers");
                 if (!isParent) {
                     Log.e("help", "line 150 triggers");
-                    //  updateChildLocationToServer();
+                    updateChildLocationToServer();
                 }
 
 
@@ -290,22 +282,6 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
                                                     }
                 );
 
-                //Hide and show toilets button
-                floatingActionButton1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        removetoilets();
-                    }
-                });
-
-                //Hide and show stations button
-                floatingActionButton2.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        removestation();
-                    }
-
-                });
                 NavigationView nv = (NavigationView) findViewById(R.id.nav_view1);
 
                 nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -334,6 +310,26 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
                 });
             }
         });
+    }
+
+    private void addChildLocationFromPref() {
+        Drawable starIcon = ContextCompat.getDrawable(Main3Activity.this,R.drawable.childicon);
+        IconFactory iconFactory = IconFactory.getInstance(Main3Activity.this);
+        Icon ic = iconFactory.fromDrawable(starIcon);
+        Double chlat = Double.parseDouble(mPreferences.getString("childlat", "0.0"));
+        Double chlon = Double.parseDouble(mPreferences.getString("childlon", "0.0"));
+        LatLng childLatLng = new LatLng(chlat,chlon);
+        MarkerOptions mo = new MarkerOptions();
+        mo.title("Child Location");
+        mo.icon(ic);
+        mo.position(childLatLng);
+        LatLng empty = new LatLng(0.0,0.0);
+
+        if (empty != childLatLng) {
+
+            mMapboxMap.addMarker(mo);
+            Log.e("Child added to map", mo.toString());
+        }
     }
 
     @Override
@@ -440,7 +436,6 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
         t.getClosestToilets(lat,lon);
     }
 
-
     public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull com.mapbox.mapboxsdk.maps.MapboxMap.MarkerViewAdapter markerViewAdapter) {
         TextView title = (TextView) findViewById(R.id.sliderpanelTitleTextView);
         title.setText(marker.getTitle());
@@ -538,7 +533,6 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
         Main3Activity.StationMarkersAsyncTask t = new Main3Activity.StationMarkersAsyncTask(this);
         t.getClosestStations(lat,lon);
     }
-
 
     public class StationMarkersAsyncTask extends AsyncTask<Void,Void,Void> {
 
@@ -779,16 +773,149 @@ public class Main3Activity extends AppCompatActivity    implements NavigationVie
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                List loc = getLocation();
-                String childid = DeviceIDGenerator.getID(Main3Activity.this);
-                String url = "http://13.59.24.178/updateLocation.php?childid=" + childid + "&lat=" + loc.get(0).toString() + "&lon=" + loc.get(1).toString();
-                String result = new AsyncTaskRestClient().doInBackground(url);
-                Log.e("help", "success");
+                ArrayList<Double> temp = getLocation();
+                asyncUpdateChildLocationToServer(temp.get(0), temp.get(1));
                 handler.postDelayed(this,15000);
             }
         },15000);
     }
 
-    };
+    public void asyncUpdateChildLocationToServer(Double lat, Double lon) {
+        Main3Activity.UpdateLocationAsyncTask t = new Main3Activity.UpdateLocationAsyncTask(this);
+        t.updateLocation(lat,lon);
+
+    }
+
+    public class UpdateLocationAsyncTask extends AsyncTask<Void,Void,Void> {
+
+        private WeakReference<Main3Activity> activityWeakReference;
+        private String urls;
+        UpdateLocationAsyncTask(Main3Activity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        protected void updateLocation(Double lat, Double lon) {
+            String childid = DeviceIDGenerator.getID(Main3Activity.this);
+            urls = "http://13.59.24.178/updateLocation.php?childid=" + childid + "&lat=" + lat + "&lon=" + lon;
+            execute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.e("help", "doInBackground triggered");
+            JSONResult = new JSONArray();
+            try{
+                URL url = new URL(urls);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally
+            {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+        }
+    }
+
+    public void updateChildLocationFromServer(final MapboxMap mapboxMap){
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<Double> temp = getLocation();
+                asyncUpdateChildLocationFromServer(mapboxMap);
+                handler.postDelayed(this,15000);
+            }
+        },15000);
+    }
+
+    private void asyncUpdateChildLocationFromServer(MapboxMap mapboxMap) {
+        Main3Activity.GetChildLocationAsyncTask t = new Main3Activity.GetChildLocationAsyncTask(this);
+        t.updateChildLocation(mapboxMap);
+    }
+
+
+    public class GetChildLocationAsyncTask extends AsyncTask<Void,Void,Void>{
+
+        MapboxMap currentMap = null;
+        private WeakReference<Main3Activity> activityWeakReference;
+        GetChildLocationAsyncTask(Main3Activity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        final String deviceID = DeviceIDGenerator.getID(Main3Activity.this);
+        final String urls = "http://13.59.24.178/getChildLocation.php?parentid=" + deviceID;
+        final String example = "[]";
+        JSONArray ja = null;
+        JSONObject jo = null;
+        String tempString = "";
+
+        protected void updateChildLocation(MapboxMap mapboxMap) {
+            currentMap = mapboxMap;
+            execute();
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try{
+                URL url = new URL(urls);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void v) {
+            try {
+                ja = new JSONArray(tempString);
+                jo = ja.getJSONObject(0);
+                currentChildLocation = jo;
+                updateChildMarker(currentMap);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void updateChildMarker(MapboxMap mapboxMap) throws JSONException {
+        mapboxMap.clear();
+        MarkerOptions markerOptions = new MarkerOptions();
+        IconFactory iconFactory = IconFactory.getInstance(Main3Activity.this);
+        Drawable iconDrawable = ContextCompat.getDrawable(Main3Activity.this, R.drawable.childicon);
+        Icon icon = iconFactory.fromDrawable(iconDrawable);
+        markerOptions.setIcon(icon);
+        markerOptions.setTitle(currentChildLocation.getString("name"));
+        markerOptions.setSnippet(currentChildLocation.getString("details"));
+        LatLng childLatLng = new LatLng(currentChildLocation.getDouble("childLat"),currentChildLocation.getDouble("childLon"));
+        markerOptions.position(childLatLng);
+        mapboxMap.addMarker(markerOptions);
+        mapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(childLatLng, 15));
+
+    }
+};
 
 

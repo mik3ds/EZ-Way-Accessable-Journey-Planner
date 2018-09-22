@@ -108,8 +108,6 @@ public class MapActivity extends AppCompatActivity implements com.mapbox.mapboxs
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         String location = "";
-        floatingActionButton1 = (FloatingActionButton) findViewById(R.id.toiletshidden);
-        floatingActionButton2 = (FloatingActionButton) findViewById(R.id.stationshidden);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 //        Geocoder gc = new Geocoder(this);

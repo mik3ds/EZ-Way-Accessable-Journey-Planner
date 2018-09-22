@@ -113,14 +113,7 @@ public class    Main1ActivityEdit extends AppCompatActivity {
                     String deviceID = didg.getID(Main1ActivityEdit.this);
                     mEditor.putBoolean("isParent", false);
                     mEditor.commit();
-
-
-//                    List temp = LU.getLocation();
-//                    double lat = (double) temp.get(0);
-//                    double lon = (double) temp.get(1);
-                    double lat = -37.09;
-                    double lon = 145;
-                    String url = "http://13.59.24.178/trackerSignUp.php?name=" + childName + "&childid=" + deviceID + "&lat=" + lat + "&lon=" + lon;
+                    String url = "http://13.59.24.178/trackerSignUp.php?name=" + childName + "&childid=" + deviceID + "&lat=0.0&lon=0.0";
                     asyncEnableTracking(url);
                     String result = "";
                     asyncEnableTracking(url);
