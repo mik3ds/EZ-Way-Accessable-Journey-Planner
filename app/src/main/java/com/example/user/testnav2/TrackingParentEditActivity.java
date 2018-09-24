@@ -1,6 +1,5 @@
 package com.example.user.testnav2;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -15,14 +14,14 @@ import org.json.JSONException;
 
 import java.util.concurrent.ExecutionException;
 
-public class Main2Activity extends AppCompatActivity {
+public class TrackingParentEditActivity extends AppCompatActivity {
     private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_tracking_parent_edit);
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mEditor = mPreferences.edit();
@@ -47,7 +46,7 @@ public class Main2Activity extends AppCompatActivity {
                 String code = String.valueOf(codeEntry.getText());
                 String name = String.valueOf(nameEntry.getText());
                 DeviceIDGenerator didg = new DeviceIDGenerator();
-                String deviceID = didg.getID(Main2Activity.this);
+                String deviceID = didg.getID(TrackingParentEditActivity.this);
                 mEditor.putString("deviceID", deviceID);
                 mEditor.putString("name", name);
                 mEditor.putString("code", code);
@@ -83,7 +82,7 @@ public class Main2Activity extends AppCompatActivity {
                             mEditor.putBoolean("isParent", true);
                             mEditor.apply();
                         }
-//                        Intent intent = new Intent(Main2Activity.this, TrackMapActivity.class);
+//                        Intent intent = new Intent(TrackingParentEditActivity.this, TrackMapActivity.class);
 //                        intent.putExtra("lat", lat);
 //                        intent.putExtra("lon", lon);
 //                        startActivity(intent);

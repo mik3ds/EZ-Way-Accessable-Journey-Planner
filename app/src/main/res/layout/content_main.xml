@@ -14,11 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <com.mapquest.mapping.maps.MapView
+    <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapquestMapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:mapquest_app_key="pk.eyJ1IjoibWlrZWRzIiwiYSI6ImNqbTJrdjF6NDJybHgzcWxpdHM4ZTIxbGgifQ.YFHLu0yNfoUk75M3t7HnDw" />
+        android:layout_height="match_parent" />
 
     </RelativeLayout>
 

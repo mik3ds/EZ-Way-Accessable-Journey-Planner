@@ -18,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".tutorial1">
+        <activity android:name=".WelcomeScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,16 +30,16 @@
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />
 
-        <activity android:name=".Main1Activity" />
-        <activity android:name=".Main2Activity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".Main1ActivityEdit" />
-        <activity android:name=".TrackMapActivity" />
-        <activity android:name=".MapActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".ProfileEditActivity" />
+        <activity android:name=".TrackingParentEditActivity" />
         <activity
-            android:name=".Main3Activity"
+            android:name=".MapActivity"
             android:label="@string/title_activity_main3"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".TrackingChildActivity" />
+        <activity android:name=".TrackingChildEditActivity" />
+        <activity android:name=".TrackingParentActivity"></activity>
     </application>
 
 </manifest>

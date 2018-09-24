@@ -5,17 +5,17 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class tutorial1 extends AppCompatActivity {
+public class WelcomeScreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tutorial1);
+        setContentView(R.layout.activity_welcome_screen);
 //a
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent mapIntent = new Intent(tutorial1.this, Main3Activity.class);
+                Intent mapIntent = new Intent(WelcomeScreenActivity.this, MapActivity.class);
                 startActivity(mapIntent);
                 finish();
             }

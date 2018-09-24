@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,58 +20,32 @@ import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-public class    Main1ActivityEdit extends AppCompatActivity {
+public class TrackingChildEditActivity extends AppCompatActivity {
 
     private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
 
     private String trackStatus;
-
-    private EditText mName;
     private Button mSave;
 
-    private LocationUtils LU;
-
-    //Initialise variables
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main1_edit);
-        mName = (EditText) findViewById(R.id.editProfName);
-        mSave = (Button) findViewById(R.id.saveprofilebutton);
+        setContentView(R.layout.activity_tracking_child_edit);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mEditor = mPreferences.edit();
+        mSave = (Button) findViewById(R.id.saveprofilebutton);
         configureSaveButton();
-        getUserData();
         configureTrackingStatus();
         configureToggle();
-        LU = new LocationUtils();
     }
 
-
-
-    //Get user data method
-    protected void getUserData() {
-        String oldName = mPreferences.getString(getString(R.string.username), "");
-        mName.setText(oldName);
-    }
-
-    //Set user data method
-    protected void saveUserData() {
-        String newName = mName.getText().toString();
-        mEditor.putString(getString(R.string.username), newName);
-        mEditor.commit();
-    }
 
     //Save user data button
     protected void configureSaveButton() {
         mSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveUserData();
                 finish();
             }
         });
@@ -82,7 +55,7 @@ public class    Main1ActivityEdit extends AppCompatActivity {
     private void configureTrackingStatus() {
         TextView trackingDisplay = (TextView) findViewById(R.id.trackingEditOutput);
         DeviceIDGenerator didg = new DeviceIDGenerator();
-        String deviceID = didg.getID(Main1ActivityEdit.this);
+        String deviceID = didg.getID(TrackingChildEditActivity.this);
         trackingDisplay.setText(deviceID);
         String url = "http://13.59.24.178/trackingStatusChild.php?childid=" + deviceID;
         String example = "[]";
@@ -110,19 +83,21 @@ public class    Main1ActivityEdit extends AppCompatActivity {
                     //turn tracking on
                     String childName = mPreferences.getString(getString(R.string.username), "");
                     DeviceIDGenerator didg = new DeviceIDGenerator();
-                    String deviceID = didg.getID(Main1ActivityEdit.this);
+                    String deviceID = didg.getID(TrackingChildEditActivity.this);
+                    mEditor = mPreferences.edit();
                     mEditor.putBoolean("isParent", false);
-                    mEditor.commit();
+                    mEditor.apply();
                     String url = "http://13.59.24.178/trackerSignUp.php?name=" + childName + "&childid=" + deviceID + "&lat=0.0&lon=0.0";
                     asyncEnableTracking(url);
                     String result = "";
                     asyncEnableTracking(url);
                     configureTrackingStatus();
                 } else {
+                    mEditor = mPreferences.edit();
                     mEditor.putBoolean("isParent", false);
-                    mEditor.commit();
+                    mEditor.apply();
                     DeviceIDGenerator didg = new DeviceIDGenerator();
-                    String deviceID = didg.getID(Main1ActivityEdit.this);
+                    String deviceID = didg.getID(TrackingChildEditActivity.this);
                     String url = "http://13.59.24.178/stopTracking.php?childid=" + deviceID;
                     String result = "";
                     asyncStopTracking(url);
@@ -133,15 +108,15 @@ public class    Main1ActivityEdit extends AppCompatActivity {
     }
 
     public void asyncEnableTracking(String url) {
-        Main1ActivityEdit.EnableTrackingAsyncTask t = new Main1ActivityEdit.EnableTrackingAsyncTask(this);
+        TrackingChildEditActivity.EnableTrackingAsyncTask t = new TrackingChildEditActivity.EnableTrackingAsyncTask(this);
         t.enableTracking(url);
     }
 
     private class EnableTrackingAsyncTask extends AsyncTask<Void,Void,Void> {
         private String savedURL;
         private String tempString;
-        private WeakReference<Main1ActivityEdit> activityWeakReference;
-        EnableTrackingAsyncTask(Main1ActivityEdit activity) {
+        private WeakReference<TrackingChildEditActivity> activityWeakReference;
+        EnableTrackingAsyncTask(TrackingChildEditActivity activity) {
             activityWeakReference = new WeakReference<>(activity);
         }
         protected void enableTracking(String url) {
@@ -176,15 +151,15 @@ public class    Main1ActivityEdit extends AppCompatActivity {
     }
 
     public void asyncTrackingStatus(String url) {
-        Main1ActivityEdit.TrackingStatusAsyncTask t = new Main1ActivityEdit.TrackingStatusAsyncTask(this);
+        TrackingChildEditActivity.TrackingStatusAsyncTask t = new TrackingChildEditActivity.TrackingStatusAsyncTask(this);
         t.checkTracking(url);
     }
 
     private class TrackingStatusAsyncTask extends AsyncTask<Void,Void,String> {
         private String savedURL;
         private String tempString;
-        private WeakReference<Main1ActivityEdit> activityWeakReference;
-        TrackingStatusAsyncTask(Main1ActivityEdit activity) {
+        private WeakReference<TrackingChildEditActivity> activityWeakReference;
+        TrackingStatusAsyncTask(TrackingChildEditActivity activity) {
             activityWeakReference = new WeakReference<>(activity);
         }
         protected void checkTracking(String url) {
@@ -219,12 +194,14 @@ public class    Main1ActivityEdit extends AppCompatActivity {
             String empty = "[]";
             if (tempString.equals(empty)) {
                 trackingDisplay.setText("Disabled");
-                trackingDisplay.setTextColor(getApplicationContext().getResources().getColor(R.color.traffic_red));
+                trackingDisplay.setTextColor(getApplicationContext().getResources().getColor(R.color.red));
+                mEditor = mPreferences.edit();
                 mEditor.putBoolean("isParent", true);
                 mEditor.commit();
             } else {
                 trackingDisplay.setText("Enabled");
-                trackingDisplay.setTextColor(getApplicationContext().getResources().getColor(R.color.traffic_green));
+                trackingDisplay.setTextColor(getApplicationContext().getResources().getColor(R.color.green));
+                mEditor = mPreferences.edit();
                 mEditor.putBoolean("isParent", false);
                 mEditor.commit();
             }
@@ -232,15 +209,15 @@ public class    Main1ActivityEdit extends AppCompatActivity {
     }
 
     public void asyncStopTracking(String url) {
-        Main1ActivityEdit.StopTrackingAsyncTask t = new Main1ActivityEdit.StopTrackingAsyncTask(this);
+        TrackingChildEditActivity.StopTrackingAsyncTask t = new TrackingChildEditActivity.StopTrackingAsyncTask(this);
         t.stopTracking(url);
     }
 
     private class StopTrackingAsyncTask extends AsyncTask<Void,Void,String> {
         private String savedURL;
         private String tempString;
-        private WeakReference<Main1ActivityEdit> activityWeakReference;
-        StopTrackingAsyncTask(Main1ActivityEdit activity) {
+        private WeakReference<TrackingChildEditActivity> activityWeakReference;
+        StopTrackingAsyncTask(TrackingChildEditActivity activity) {
             activityWeakReference = new WeakReference<>(activity);
         }
         protected void stopTracking(String url) {
