@@ -28,6 +28,7 @@ public class TrackingChildEditActivity extends AppCompatActivity {
 
     private String trackStatus;
     private Button mSave;
+    private Boolean tracking;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +59,7 @@ public class TrackingChildEditActivity extends AppCompatActivity {
         String deviceID = didg.getID(TrackingChildEditActivity.this);
         trackingDisplay.setText(deviceID);
         String url = "http://13.59.24.178/trackingStatusChild.php?childid=" + deviceID;
-        String example = "[]";
         asyncTrackingStatus(url);
-
     }
 
     //Configure toggle button
@@ -69,10 +68,10 @@ public class TrackingChildEditActivity extends AppCompatActivity {
         rg.clearCheck();
 
         TextView trackingDisplay = (TextView) findViewById(R.id.trackingEditOutput);
-        if (trackingDisplay.getText() == "Disabled") {
-            rg.check(R.id.toggleOff);
-        } else {
+        if (trackingDisplay.getText() == "Enabled") {
             rg.check(R.id.toggleOn);
+        } else {
+            rg.check(R.id.toggleOff);
         }
 
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -195,15 +194,15 @@ public class TrackingChildEditActivity extends AppCompatActivity {
             if (tempString.equals(empty)) {
                 trackingDisplay.setText("Disabled");
                 trackingDisplay.setTextColor(getApplicationContext().getResources().getColor(R.color.red));
-                mEditor = mPreferences.edit();
-                mEditor.putBoolean("isParent", true);
-                mEditor.commit();
+                RadioButton rb = (RadioButton) findViewById(R.id.toggleOff);
+                rb.toggle();
+
             } else {
                 trackingDisplay.setText("Enabled");
                 trackingDisplay.setTextColor(getApplicationContext().getResources().getColor(R.color.green));
-                mEditor = mPreferences.edit();
-                mEditor.putBoolean("isParent", false);
-                mEditor.commit();
+                RadioButton rb = (RadioButton) findViewById(R.id.toggleOn);
+                rb.toggle();
+
             }
         }
     }
