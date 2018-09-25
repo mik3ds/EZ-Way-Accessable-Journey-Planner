@@ -8,15 +8,14 @@
     android:background="@mipmap/background">
 
     <ImageView
-        android:id="@+id/tt1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/tt5"
+        android:layout_width="332dp"
+        android:layout_height="437dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="40dp"
-        android:src="@mipmap/tt1"
+        android:layout_marginTop="48dp"
+        android:src="@mipmap/tt5"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,10 +27,10 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="68dp"
         android:layout_marginTop="8dp"
-        android:text="Next"
+        android:text="Get started"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tt1" />
+        app:layout_constraintTop_toBottomOf="@+id/tt5" />
 
     <Button
         android:id="@+id/button1"
@@ -47,5 +46,5 @@
         app:layout_constraintEnd_toStartOf="@+id/button2"
         app:layout_constraintHorizontal_bias="0.552"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tt1" />
+        app:layout_constraintTop_toBottomOf="@+id/tt5" />
 </android.support.constraint.ConstraintLayout>

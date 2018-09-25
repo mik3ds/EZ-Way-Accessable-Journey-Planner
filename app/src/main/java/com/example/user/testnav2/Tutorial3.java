@@ -13,13 +13,13 @@ import android.widget.Button;
 public class Tutorial3 extends AppCompatActivity {
 
 
-    Button back = (Button)findViewById(R.id.button1);
-    Button next = (Button)findViewById(R.id.button2);
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tutorial3);
+
+        Button back = (Button)findViewById(R.id.button1);
+        Button next = (Button)findViewById(R.id.button2);
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override

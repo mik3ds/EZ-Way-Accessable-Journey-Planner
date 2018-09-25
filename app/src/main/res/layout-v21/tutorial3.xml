@@ -8,13 +8,13 @@
     android:background="@mipmap/background">
 
     <ImageView
-        android:id="@+id/tt1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/tt3"
+        android:layout_width="275dp"
+        android:layout_height="461dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="40dp"
-        android:src="@mipmap/tt1"
+        android:src="@mipmap/tt3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,7 +31,7 @@
         android:text="Next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tt1" />
+        app:layout_constraintTop_toBottomOf="@+id/tt3" />
 
     <Button
         android:id="@+id/button1"
@@ -47,5 +47,5 @@
         app:layout_constraintEnd_toStartOf="@+id/button2"
         app:layout_constraintHorizontal_bias="0.552"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tt1" />
+        app:layout_constraintTop_toBottomOf="@+id/tt3" />
 </android.support.constraint.ConstraintLayout>

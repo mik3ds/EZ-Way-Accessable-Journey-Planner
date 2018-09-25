@@ -30,6 +30,14 @@
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />
 
+
+        <activity android:name=".Tutorial1"/>
+        <activity android:name=".Tutorial2"/>
+        <activity android:name=".Tutorial3"/>
+        <activity android:name=".Tutorial4"/>
+        <activity android:name=".Tutorial5"/>
+        <activity android:name=".Tutorial6"/>
+
         <activity android:name=".ProfileActivity" />
         <activity android:name=".ProfileEditActivity" />
         <activity android:name=".TrackingParentEditActivity" />
