@@ -141,9 +141,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             public void removetoilets() {
 
                 String toast = "";
-
-
-
                 if (toimarkershown && stamarkershown) {
                     mMapboxMap.clear();
                     addUserLocation();
@@ -160,9 +157,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     toimarkershown = true;
                     toast = "Toilets Enabled";
                 }
-
                 Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
-
             }
 
             //Hide and show stations method
@@ -185,7 +180,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     toast = "Stations Enabled";
                 }
                 Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
-
             }
 
             public void addUserLocation(){
