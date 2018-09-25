@@ -256,7 +256,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                         } else {
 
                         }
-
                         return false;
                     }
                 });
@@ -301,15 +300,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         updateDrawerTitle();
         configureProfileImage();
 
-        if (mPreferences.getBoolean("isParent",false) && !mPreferences.getBoolean("refreshStatus",false)) {
+        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
             mEditor = mPreferences.edit();
-            mEditor.putBoolean("refreshStatus",true);
+            mEditor.putBoolean("firstTimeRun",false);
             mEditor.apply();
             MapActivity.this.recreate();
         }
-
-        Log.e("help","resume happened");
-
+        Log.e("help","onResume triggered");
     }
 
     private void updateDrawerTitle() {
@@ -805,7 +802,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         MapActivity.GetChildLocationAsyncTask t = new MapActivity.GetChildLocationAsyncTask(this);
         t.updateChildLocation(mapboxMap);
     }
-
 
     public class GetChildLocationAsyncTask extends AsyncTask<Void,Void,Void>{
 

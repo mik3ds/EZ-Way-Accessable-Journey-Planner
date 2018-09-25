@@ -81,6 +81,7 @@ public class TrackingParentEditActivity extends AppCompatActivity {
                         if(!mPreferences.getBoolean("isParent", false)){
                             mEditor = mPreferences.edit();
                             mEditor.putBoolean("isParent", true);
+                            mEditor.putBoolean("firstTimeRun",true);
                             mEditor.apply();
                         }
 //                        Intent intent = new Intent(TrackingParentEditActivity.this, TrackMapActivity.class);
