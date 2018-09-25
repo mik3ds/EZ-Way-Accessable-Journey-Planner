@@ -2,6 +2,7 @@ package com.example.user.testnav2;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -17,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -56,6 +58,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.example.user.testnav2.R.id.sliderpanelTitleTextView;
 
@@ -87,6 +91,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     String tempString = null;
     private JSONArray JSONResult;
     private Boolean linkedChild;
+    private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,15 +122,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         updateDrawerTitle();
 
         ArrayList<Double> list = getLocation();
-//        list = LU.getLocation();
         Double lulat = list.get(0);
         Double lulon = list.get(1);
-
-
-        Boolean isParent = mPreferences.getBoolean("isParent", false);
-        if (!isParent) {
-            asyncAllMarkers(list.get(0),list.get(1));
-        }
 
 
         //USER LOCATION
@@ -135,7 +133,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         final Icon trainIcon = iconFactory.fromResource(R.drawable.train);
         final Icon toiletIcon = iconFactory.fromResource(R.drawable.toilet);
 
-
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
             public void removetoilets() {
@@ -143,13 +140,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 String toast = "";
                 if (toimarkershown && stamarkershown) {
                     mMapboxMap.clear();
-                    addUserLocation();
+                    addUserLocation(mMapboxMap);
                     asyncStationMarkers(-37.877848,145.034677);
                     toimarkershown = false;
                     toast = "Toilets Disabled";
                 } else if (toimarkershown && !stamarkershown) {
                     mMapboxMap.clear();
-                    addUserLocation();
+                    addUserLocation(mMapboxMap);
                     toimarkershown = false;
                     toast = "Toilets Disabled";
                 } else {
@@ -165,13 +162,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 String toast = "";
                 if (stamarkershown && toimarkershown) {
                     mMapboxMap.clear();
-                    addUserLocation();
+                    addUserLocation(mMapboxMap);
                     asyncToiletMarkers(-37.877848,145.034677);
                     stamarkershown = false;
                     toast = "Stations Disabled";
                 } else if (stamarkershown && !toimarkershown) {
                     mMapboxMap.clear();
-                    addUserLocation();
+                    addUserLocation(mMapboxMap);
                     stamarkershown = false;
                     toast = "Stations Disabled";
                 } else {
@@ -182,53 +179,22 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
             }
 
-            public void addUserLocation(){
-                ArrayList<Double> list = new ArrayList();
-                list = getLocation();
-                MarkerOptions markerOptions = new MarkerOptions();
-                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-                Icon icon = iconFactory.fromResource(R.drawable.star);
-                latitude = list.get(0);
-                longitude = list.get(1);
-                LatLng userloc = new LatLng(latitude, longitude);
-                markerOptions.title("User location");
-                markerOptions.icon(icon);
-                markerOptions.position(userloc);
-                mMapboxMap.addMarker(markerOptions);
-
-                if (mPreferences.getString("childlat", "").length() > 1) {
-                    addChildLocationFromPref();
-                    asyncUpdateChildLocationFromServer(mMapboxMap);
-                    updateChildLocationFromServer(mMapboxMap);
-                }
-
-
-            }
 
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
 
                 mMapboxMap = mapboxMap;
-
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                 mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
 
-//                asyncToiletMarkers(-37.877848,145.034677);
-//                asyncStationMarkers(-37.877848,145.034677);
-                addUserLocation();
-                toimarkershown = true;
-                stamarkershown = true;
-
-
-
-
-                Boolean isParent = mPreferences.getBoolean("isParent", true);
-                Log.e("help", "line 149 triggers");
+                Boolean isParent = mPreferences.getBoolean("isParent", false);
                 if (!isParent) {
-                    Log.e("help", "line 150 triggers");
+                    asyncAllMarkers(list.get(0),list.get(1));
                     updateChildLocationToServer();
                 }
-
+                addUserLocation(mMapboxMap);
+                toimarkershown = true;
+                stamarkershown = true;
 
                 //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
@@ -270,9 +236,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                     }
                 );
 
-
                 NavigationView nv = (NavigationView) findViewById(R.id.nav_view1);
-
                 nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -287,11 +251,11 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                             startActivity(new Intent(MapActivity.this, TrackingParentActivity.class));
                         } else if (itemID == R.id.nav_station) {
                             removestation();
-
                         } else if (itemID == R.id.nav_toilet) {
                             removetoilets();
-                        } else {}
+                        } else {
 
+                        }
 
                         return false;
                     }
@@ -299,7 +263,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             }
         });
     }
-
 
     private void configureProfileImage() {
         NavigationView nv = (NavigationView) findViewById(R.id.nav_view1);
@@ -312,7 +275,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             profileDisplay.setBackgroundResource(R.drawable.girl);
         }
     }
-
 
     private void addChildLocationFromPref() {
         IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
@@ -338,6 +300,16 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         super.onResume();
         updateDrawerTitle();
         configureProfileImage();
+
+        if (mPreferences.getBoolean("isParent",false) && !mPreferences.getBoolean("refreshStatus",false)) {
+            mEditor = mPreferences.edit();
+            mEditor.putBoolean("refreshStatus",true);
+            mEditor.apply();
+            MapActivity.this.recreate();
+        }
+
+        Log.e("help","resume happened");
+
     }
 
     private void updateDrawerTitle() {
@@ -381,7 +353,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             return super.onOptionsItemSelected(item);
         }
 
-        @SuppressWarnings("StatementWithEmptyBody")
         @Override
         public boolean onNavigationItemSelected(MenuItem item) {
             // Handle navigation view item clicks here.
@@ -447,7 +418,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         @Override
         protected Void doInBackground(Void... params) {
-            Log.e("help", "doInBackground triggered");
+            Log.e("ToiletMarkersAsyncTask", "doInBackground triggered");
             JSONResult = new JSONArray();
             try{
                 URL url = new URL(urls);
@@ -538,7 +509,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         @Override
         protected Void doInBackground(Void... params) {
-            Log.e("help", "doInBackground triggered");
+            Log.e("StationMarkersAsyncTask", "doInBackground triggered");
             JSONResult = new JSONArray();
             try{
                 URL url = new URL(urls);
@@ -640,7 +611,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Log.e("help", "all Markers doInBackground triggered");
+            Log.e("All Markers", "doInBackground triggered");
             JSONResult1 = new JSONArray();
             try{
                 Log.e("url1", url1);
@@ -789,7 +760,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         @Override
         protected Void doInBackground(Void... params) {
-            Log.e("help", "doInBackground triggered");
+            Log.e("UpdateLocationAsyncTask", "doInBackground triggered");
             JSONResult = new JSONArray();
             try{
                 URL url = new URL(urls);
@@ -857,6 +828,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
         @Override
         protected Void doInBackground(Void... voids) {
+            Log.e("GetChildLocationAsyncTa","get child location in background");
             try{
                 URL url = new URL(urls);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -877,6 +849,25 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
         @Override
         protected void onPostExecute(Void v) {
+
+            if (tempString.equals(example) && mPreferences.getBoolean("isParent",false)) {
+                mEditor = mPreferences.edit();
+                mEditor.putBoolean("isParent", false);
+                mEditor.apply();
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+                builder.setTitle("Alert");
+                builder.setMessage("You have been unpaired with your child. Tracking will no longer function.");
+                builder.setCancelable(false);
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        MapActivity.this.recreate();
+                    }
+                });
+                AlertDialog ad = builder.create();
+                ad.show();
+            }
+
             try {
                 ja = new JSONArray(tempString);
                 jo = ja.getJSONObject(0);
@@ -901,6 +892,29 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         markerOptions.position(childLatLng);
         mapboxMap.addMarker(markerOptions);
         mapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(childLatLng, 15));
+
+    }
+
+    public void addUserLocation(MapboxMap m){
+        Log.e("addUserLocation","happened");
+        ArrayList<Double> list = new ArrayList();
+        list = getLocation();
+        MarkerOptions markerOptions = new MarkerOptions();
+        IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+        Icon icon = iconFactory.fromResource(R.drawable.star);
+        latitude = list.get(0);
+        longitude = list.get(1);
+        LatLng userloc = new LatLng(latitude, longitude);
+        markerOptions.title("User location");
+        markerOptions.icon(icon);
+        markerOptions.position(userloc);
+        m.addMarker(markerOptions);
+
+        if (mPreferences.getBoolean("isParent",false)) {
+            asyncUpdateChildLocationFromServer(m);
+            updateChildLocationFromServer(m);
+        }
+
 
     }
 };
