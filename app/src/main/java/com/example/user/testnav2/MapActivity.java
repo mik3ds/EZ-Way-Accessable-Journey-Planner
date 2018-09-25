@@ -86,6 +86,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     JSONObject currentChildLocation = null;
     String tempString = null;
     private JSONArray JSONResult;
+    private Boolean linkedChild;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +111,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         String location = "";
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        configureProfileImage();
 
         //change the title of navigation drawer to username
         updateDrawerTitle();
@@ -274,6 +276,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                     }
                 );
 
+
                 NavigationView nv = (NavigationView) findViewById(R.id.nav_view1);
 
                 nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -303,6 +306,20 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         });
     }
 
+
+    private void configureProfileImage() {
+        NavigationView nv = (NavigationView) findViewById(R.id.nav_view1);
+        View v = nv.getHeaderView(0);
+        ImageView profileDisplay = (ImageView) v.findViewById(R.id.drawerHeaderProfilePic);
+        String gender = mPreferences.getString("gender","f");
+        if (gender.equals("m")) {
+            profileDisplay.setBackgroundResource(R.drawable.boy);
+        } else {
+            profileDisplay.setBackgroundResource(R.drawable.girl);
+        }
+    }
+
+
     private void addChildLocationFromPref() {
         IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
         Icon ic = iconFactory.fromResource(R.drawable.childicon);
@@ -326,6 +343,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     protected void onResume() {
         super.onResume();
         updateDrawerTitle();
+        configureProfileImage();
     }
 
     private void updateDrawerTitle() {
@@ -516,7 +534,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         private String urls = "http://13.59.24.178/";
         StationMarkersAsyncTask(MapActivity activity) {
             activityWeakReference = new WeakReference<>(activity);
-        }
+    }
 
         protected void getClosestStations(Double lat, Double lon) {
             urls += "nearbyStations.php?lat=" + lat + "&lon=" + lon;
@@ -731,6 +749,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     markerOptions2.title(toiletname);
                     markerOptions2.snippet(address);
                     markerOptions2.position(toilet_position);
+
                     mMapboxMap.addMarker(markerOptions2);
                     toimarkershown = true;
                 } catch (Exception e) {

@@ -77,7 +77,7 @@ public class TrackingParentEditActivity extends AppCompatActivity {
 
 
 
-                        if(mPreferences.getBoolean("isParent", false) == false){
+                        if(!mPreferences.getBoolean("isParent", false)){
                             mEditor = mPreferences.edit();
                             mEditor.putBoolean("isParent", true);
                             mEditor.apply();

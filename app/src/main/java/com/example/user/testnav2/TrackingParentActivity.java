@@ -58,7 +58,7 @@ public class TrackingParentActivity extends AppCompatActivity {
         DeviceIDGenerator didg = new DeviceIDGenerator();
         String deviceID = didg.getID(TrackingParentActivity.this);
         trackingDisplay.setText(deviceID);
-        String url = "http://13.59.24.178/trackingStatusParent.php?childid=" + deviceID;
+        String url = "http://13.59.24.178/trackingStatusParent.php?parentid=" + deviceID;
         String example = new AsyncTaskRestClient().execute(url).get();
         String empty = "[]";
         if (example.equals(empty)) {

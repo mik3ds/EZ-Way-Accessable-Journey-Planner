@@ -71,7 +71,9 @@ public class ProfileActivity extends AppCompatActivity {
         ImageView profileDisplay = (ImageView) findViewById(R.id.profilePicture);
         String gender = mPreferences.getString("gender","f");
         if (gender.equals("m")) {
-            profileDisplay.setImageResource(getResources().getIdentifier("boy",null,null));
+            profileDisplay.setBackgroundResource(R.drawable.boy);
+        } else {
+            profileDisplay.setBackgroundResource(R.drawable.girl);
         }
     }
 }

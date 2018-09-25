@@ -57,7 +57,6 @@ public class TrackingChildEditActivity extends AppCompatActivity {
         TextView trackingDisplay = (TextView) findViewById(R.id.trackingEditOutput);
         DeviceIDGenerator didg = new DeviceIDGenerator();
         String deviceID = didg.getID(TrackingChildEditActivity.this);
-        trackingDisplay.setText(deviceID);
         String url = "http://13.59.24.178/trackingStatusChild.php?childid=" + deviceID;
         asyncTrackingStatus(url);
     }

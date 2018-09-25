@@ -6,23 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".TrackingParentActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="@drawable/backdrop"
+        android:orientation="vertical">
+    </LinearLayout>
+
+<android.support.v7.widget.CardView
+    android:layout_width="300dp"
+    android:layout_height="200dp"
+    android:foregroundGravity="center"
+    android:layout_centerInParent="true">
+
     <TextView
         android:id="@+id/trackingParentStatusText"
-        android:layout_width="58dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="183dp" />
+        android:layout_gravity="center" />
+
+</android.support.v7.widget.CardView>
+
 
     <Button
         android:id="@+id/trackingParentButton"
         android:layout_width="wrap_content"
-        android:text="Edit Child Settings"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="182dp"
+        android:layout_marginBottom="96dp"
+        android:text="Edit Child Settings"
         tools:layout_editor_absoluteX="116dp"
         tools:layout_editor_absoluteY="184dp" />
+
 
 </RelativeLayout>
