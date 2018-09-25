@@ -253,6 +253,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                             removestation();
                         } else if (itemID == R.id.nav_toilet) {
                             removetoilets();
+                        } else if (itemID == R.id.tutorial){
+                            startActivity(new Intent(MapActivity.this, Tutorial1.class));
                         } else {
 
                         }
