@@ -28,7 +28,6 @@ public class TrackingParentEditActivity extends AppCompatActivity {
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-
         configureHomeButton2();
         configureTrackingElements();
     }
@@ -73,22 +72,12 @@ public class TrackingParentEditActivity extends AppCompatActivity {
                         mEditor.putString("childlon",Double.toString(lon));
                         mEditor.apply();
 
-
-
-
-
-
                         if(!mPreferences.getBoolean("isParent", false)){
                             mEditor = mPreferences.edit();
                             mEditor.putBoolean("isParent", true);
                             mEditor.putBoolean("firstTimeRun",true);
                             mEditor.apply();
                         }
-//                        Intent intent = new Intent(TrackingParentEditActivity.this, TrackMapActivity.class);
-//                        intent.putExtra("lat", lat);
-//                        intent.putExtra("lon", lon);
-//                        startActivity(intent);
-                      //  String response = name + " was located at " + lat + "," + lon + " on " + details;
                         tv.setText("success!");
                     } catch (JSONException e) {
                         e.printStackTrace();

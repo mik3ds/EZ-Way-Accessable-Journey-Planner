@@ -41,7 +41,9 @@
                     android:id="@+id/sliderpanelTitleTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Currently Selected Marker Info" />
+                    android:text=""
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/sliderpanelSubtitleTextView"
@@ -50,7 +52,9 @@
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginTop="20dp"
-                    android:text="More Info" />
+                    android:text=""
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
 
             </LinearLayout>
@@ -82,7 +86,7 @@
                 android:id="@+id/sliderpanelJourneyTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Journey Details:"/>
+                android:text=""/>
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -91,7 +95,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Next 5 Journeys or travel time estimate"/>
+                android:text=""/>
         </RelativeLayout>
     </LinearLayout>
 

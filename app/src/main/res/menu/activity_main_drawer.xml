@@ -13,9 +13,10 @@
         <item
             android:id="@+id/nav_trackparent"
             android:title="Tracking Settings (Parent)" />
-        <item
+        <!--<item
             android:id="@+id/nav_myplaces"
-            android:title="My Places" />
+            android:title="My Places" />-->
+
         <item
             android:id="@+id/nav_station"
             android:title="Toggle Station Markers" />

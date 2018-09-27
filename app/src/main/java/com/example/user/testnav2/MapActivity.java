@@ -68,30 +68,23 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private SharedPreferences mPreferences;
     private MapboxMap mMapboxMap;
     private MapView mMapView;
-//    ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
     //initialize latitude and longitude, location manager and the address list here
     static final int REQUEST_LOCATION = 1;
     public static double latitude;
     public static double longitude;
     LocationManager locationManager;
-    List<Address> addressList = null;
     private static boolean toimarkershown = false;
     private static boolean stamarkershown = false;
-    private FloatingActionButton floatingActionButton1;
-    private FloatingActionButton floatingActionButton2;
-    private JSONArray toiletMarkers = null;
-    private JSONArray stationMarkers = null;
     private TextView slidepanelTitle;
     private TextView slidepanelSubtitle;
     private TextView slidepanelJourney;
     private ImageView slidepanelImage;
-    JSONArray stations = null;
     JSONObject currentChildLocation = null;
     String tempString = null;
     private JSONArray JSONResult;
-    private Boolean linkedChild;
     private SharedPreferences.Editor mEditor;
+    private JSONObject currentMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -277,25 +270,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
     }
 
-    private void addChildLocationFromPref() {
-        IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-        Icon ic = iconFactory.fromResource(R.drawable.childicon);
-        Double chlat = Double.parseDouble(mPreferences.getString("childlat", "0.0"));
-        Double chlon = Double.parseDouble(mPreferences.getString("childlon", "0.0"));
-        LatLng childLatLng = new LatLng(chlat,chlon);
-        MarkerOptions mo = new MarkerOptions();
-        mo.title("Child Location");
-        mo.icon(ic);
-        mo.position(childLatLng);
-        LatLng empty = new LatLng(0.0,0.0);
-
-        if (empty != childLatLng) {
-
-            mMapboxMap.addMarker(mo);
-            Log.e("Child added to map", mo.toString());
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -389,18 +363,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         return list;
     }
 
+    //Begins ToiletMarkersAsyncTask in background
     public void asyncToiletMarkers(Double lat, Double lon) {
         MapActivity.ToiletMarkersAsyncTask t = new MapActivity.ToiletMarkersAsyncTask(this);
         t.getClosestToilets(lat,lon);
     }
 
-    public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull com.mapbox.mapboxsdk.maps.MapboxMap.MarkerViewAdapter markerViewAdapter) {
-        TextView title = (TextView) findViewById(R.id.sliderpanelTitleTextView);
-        title.setText(marker.getTitle());
-        return false;
-
-    }
-
+    //Populates toilet markers
     public class ToiletMarkersAsyncTask extends AsyncTask<Void,Void,Void> {
 
         private WeakReference<MapActivity> activityWeakReference;
@@ -486,6 +455,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         }
     }
+
 
     public void asyncStationMarkers(Double lat, Double lon) {
         MapActivity.StationMarkersAsyncTask t = new MapActivity.StationMarkersAsyncTask(this);

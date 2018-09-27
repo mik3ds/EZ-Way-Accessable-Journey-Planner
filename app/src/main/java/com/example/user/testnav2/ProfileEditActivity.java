@@ -1,5 +1,7 @@
 package com.example.user.testnav2;
 
+import android.support.v7.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -60,8 +62,24 @@ public class ProfileEditActivity extends AppCompatActivity {
         mSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveUserData();
-                finish();
+                String newName = mName.getText().toString();
+                if (!newName.equals("")) {
+                    saveUserData();
+                    finish();
+                } else {
+                    AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(ProfileEditActivity.this);
+                    builder.setTitle("Error");
+                    builder.setMessage("Please Enter a Name");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ProfileEditActivity.this.recreate();
+                        }
+                    });
+                    android.support.v7.app.AlertDialog ad = builder.create();
+                    ad.show();
+                }
             }
         });
     }
