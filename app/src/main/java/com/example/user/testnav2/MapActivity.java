@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -15,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -29,10 +27,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
@@ -43,6 +43,15 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+
+
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
+import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,9 +66,10 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.example.user.testnav2.R.id.sliderpanelTitleTextView;
 
@@ -80,11 +90,19 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private TextView slidepanelSubtitle;
     private TextView slidepanelJourney;
     private ImageView slidepanelImage;
+    private Button slidePanelJourneyButton;
+    private Button slidepanelbeginNavButton;
+    private Button slidepanelHideRouteButton;
     JSONObject currentChildLocation = null;
     String tempString = null;
     private JSONArray JSONResult;
     private SharedPreferences.Editor mEditor;
     private JSONObject currentMarker;
+    private NavigationMapRoute currentNavMap;
+    private DirectionsRoute currentRoute;
+
+
+    private SlidingUpPanelLayout panel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,13 +112,23 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        panel = findViewById(R.id.slidingPanelMapActivity);
+        panel.setFadeOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            }
+        });
+
+        slidepanelbeginNavButton = findViewById(R.id.sliderpanelNavButton);
+        slidepanelHideRouteButton = findViewById(R.id.sliderpanelHideRouteButton);
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
-
 
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
@@ -117,7 +145,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         ArrayList<Double> list = getLocation();
         Double lulat = list.get(0);
         Double lulon = list.get(1);
-
 
         //USER LOCATION
         final LatLng latLng = new LatLng(lulat, lulon);
@@ -176,6 +203,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
 
+
                 mMapboxMap = mapboxMap;
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                 mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
@@ -189,19 +217,20 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 toimarkershown = true;
                 stamarkershown = true;
 
+                slidepanelTitle = (TextView) findViewById(sliderpanelTitleTextView);
+                slidepanelSubtitle = (TextView) findViewById(R.id.sliderpanelSubtitleTextView);
+                slidepanelJourney = (TextView) findViewById(R.id.sliderpanelJourneyTextView);
+                slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
+                slidePanelJourneyButton = (Button) findViewById(R.id.sliderpanelJourneyButton);
+
+
                 //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
                                                         @Override
                                                         public boolean onMarkerClick(@NonNull Marker marker) {
-                                                            slidepanelTitle = (TextView) findViewById(sliderpanelTitleTextView);
                                                             slidepanelTitle.setText(marker.getTitle());
-                                                            slidepanelSubtitle = (TextView) findViewById(R.id.sliderpanelSubtitleTextView);
                                                             slidepanelSubtitle.setText(marker.getSnippet());
-                                                            slidepanelJourney = (TextView) findViewById(R.id.sliderpanelJourneyTextView);
-                                                            slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
-
                                                             slidepanelImage.setImageBitmap(marker.getIcon().getBitmap());
-
 
                                                             //Create temporary train icon and compare
                                                             String example = "";
@@ -209,17 +238,40 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                             String stationName = marker.getTitle();
                                                             stationName = stationName.replace(footer, "");
                                                             if (marker.getIcon().getBitmap().sameAs(trainIcon.getBitmap())) {
-                                                                String url = "http://13.59.24.178/getStationByID.php/?stationname=" + stationName;
-                                                                Log.e("help", marker.toString());
-                                                                example = new AsyncTaskRestClient().doInBackground(url);
+                                                                slidePanelJourneyButton.setText("Show Route");
+                                                                slidePanelJourneyButton.setVisibility(View.VISIBLE);
+                                                                slidePanelJourneyButton.setOnClickListener(new View.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(View view) {
+                                                                        ArrayList<Double> loc = getLocation();
+                                                                        LatLng originCoord = new LatLng(loc.get(0),loc.get(1));
+                                                                        LatLng destinationCoord = new LatLng(marker.getPosition());
+                                                                        Point originPoint = Point.fromLngLat(originCoord.getLongitude(),originCoord.getLatitude());
+                                                                        Point destinationPoint = Point.fromLngLat(destinationCoord.getLongitude(),destinationCoord.getLatitude());
+                                                                        getRoute(originPoint,destinationPoint);
+                                                                    }
+                                                                });
+                                                                slidepanelbeginNavButton.setVisibility(View.VISIBLE);
+                                                                slidepanelbeginNavButton.setOnClickListener(new View.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(View view) {
+                                                                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                                                                .directionsRoute(currentRoute)
+                                                                                .shouldSimulateRoute(true)
+                                                                                .build();
 
+                                                                        NavigationLauncher.startNavigation(MapActivity.this,options);
+                                                                    }
+                                                                });
                                                             } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())) {
+                                                                slidePanelJourneyButton.setVisibility(View.VISIBLE);
 
 //                            String url = "http://13.59.24.178/getToiletByID.php/?toiletID=" + marker.getTitle();
 //                            Log.e("help", marker.toString());
 //                            example = new AsyncTaskRestClient().doInBackground(url);
                                                             } else {
-                                                                Log.e("help", "If Statement not doing anything");
+                                                                slidePanelJourneyButton.setVisibility(View.GONE);
+                                                                Log.e("help", "Marker is not a train station or toilet");
                                                             }
                                                             slidepanelJourney.setText(example);
 
@@ -254,6 +306,47 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                         return false;
                     }
                 });
+            }
+        });
+    }
+
+
+    // https://www.mapbox.com/help/android-navigation-sdk/
+    //Method logic from here
+    private void getRoute(Point oPoint, Point dPoint) {
+        Log.e("getRoute method","is happening");
+
+        NavigationRoute.Builder nrb = NavigationRoute.builder(MapActivity.this);
+        nrb.accessToken(Mapbox.getAccessToken());
+        nrb.origin(oPoint);
+        nrb.destination(dPoint);
+        nrb.build().getRoute(new Callback<DirectionsResponse>() {
+            @Override
+            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                Log.e("getRoute method","onResponse method is happening");
+
+                if (response.body() == null) {
+                    Log.e("getRoute method", "No routes found, make sure you set the right user and access token.");
+                    return;
+                } else if (response.body().routes().size() < 1) {
+                    Log.e("getRoute method", "No routes found");
+                    return;
+                }
+                Log.e("getRoute method",response.toString());
+                currentRoute = response.body().routes().get(0);
+
+                if (currentNavMap != null) {
+                    currentNavMap.removeRoute();
+                } else {
+                    currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
+                }
+                mMapboxMap.deselectMarkers();
+                panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                currentNavMap.addRoute(currentRoute);
+            }
+
+            @Override
+            public void onFailure(Call<DirectionsResponse> call, Throwable t) {
             }
         });
     }
@@ -455,7 +548,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         }
     }
-
 
     public void asyncStationMarkers(Double lat, Double lon) {
         MapActivity.StationMarkersAsyncTask t = new MapActivity.StationMarkersAsyncTask(this);
@@ -885,6 +977,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
 
     }
+
+
 };
 
 

@@ -78,25 +78,45 @@
 
         </LinearLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1" >
             <TextView
                 android:id="@+id/sliderpanelJourneyTextView"
-                android:layout_width="wrap_content"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:text=""/>
-        </RelativeLayout>
+            <Button
+                android:id="@+id/sliderpanelJourneyButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:visibility="gone"/>
+
+        </LinearLayout>
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1">
+            <Button
+                android:id="@+id/sliderpanelNavButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Begin Journey"
+                android:visibility="gone"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""/>
         </RelativeLayout>
+        <Button
+            android:id="@+id/sliderpanelHideRouteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hide Routes"
+            android:visibility="gone"
+            />
     </LinearLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
