@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -66,14 +68,38 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
+import com.mapbox.geojson.Point;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+
+import android.location.Location;
+
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
+import android.support.annotation.NonNull;
+
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineListener;
+import com.mapbox.android.core.location.LocationEnginePriority;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
+
+
 import static com.example.user.testnav2.R.id.sliderpanelTitleTextView;
 
-public class MapActivity extends AppCompatActivity    implements NavigationView.OnNavigationItemSelectedListener {
+public class MapActivity extends AppCompatActivity    implements NavigationView.OnNavigationItemSelectedListener, LocationEngineListener, PermissionsListener {
     //Initialise map
     private SharedPreferences mPreferences;
     private MapboxMap mMapboxMap;
@@ -101,7 +127,12 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private NavigationMapRoute currentNavMap;
     private DirectionsRoute currentRoute;
 
+    private PermissionsManager permissionsManager;
+    private LocationLayerPlugin locationPlugin;
+    private LocationEngine locationEngine;
+    private Location originLocation;
 
+    List<android.location.Address> destination = null;
     private SlidingUpPanelLayout panel;
 
     @Override
@@ -111,6 +142,10 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         setContentView(R.layout.activity_map);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        android.support.v7.widget.SearchView msearchview = (android.support.v7.widget.SearchView) findViewById(R.id.searchEditText);
+        msearchview.bringToFront();
+        msearchview.setSubmitButtonEnabled(true);
+        Geocoder gc = new Geocoder(this);
 
         panel = findViewById(R.id.slidingPanelMapActivity);
         panel.setFadeOnClickListener(new View.OnClickListener() {
@@ -123,6 +158,57 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         slidepanelbeginNavButton = findViewById(R.id.sliderpanelNavButton);
         slidepanelHideRouteButton = findViewById(R.id.sliderpanelHideRouteButton);
 
+
+        msearchview.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                try{
+                    destination = gc.getFromLocationName(query, 1);
+                }catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+                Address temp = destination.get(0);
+                Double templat = temp.getLatitude();
+                Double templon = temp.getLongitude();
+                LatLng templatlon = new LatLng(templat, templon);
+                mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(templatlon, 13));
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+                Icon icon = iconFactory.fromResource(R.drawable.star);
+                markerOptions.icon(icon);
+                markerOptions.title(query);
+                markerOptions.position(templatlon);
+                mMapboxMap.addMarker(markerOptions);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                try{
+                    destination = gc.getFromLocationName(newText, 1);
+                }catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+                Address temp = destination.get(0);
+                Double templat = temp.getLatitude();
+                Double templon = temp.getLongitude();
+                LatLng templatlon = new LatLng(templat, templon);
+                mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(templatlon, 13));
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+                Icon icon = iconFactory.fromResource(R.drawable.star);
+                markerOptions.icon(icon);
+                markerOptions.title(newText);
+                markerOptions.position(templatlon);
+                mMapboxMap.addMarker(markerOptions);
+
+                return true;
+            }
+        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -205,7 +291,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
 
                 mMapboxMap = mapboxMap;
-                mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+                enableLocationPlugin();
+//                mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                 mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
 
                 Boolean isParent = mPreferences.getBoolean("isParent", false);
@@ -213,7 +300,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     asyncAllMarkers(list.get(0),list.get(1));
                     updateChildLocationToServer();
                 }
-                addUserLocation(mMapboxMap);
+ //               addUserLocation(mMapboxMap);
                 toimarkershown = true;
                 stamarkershown = true;
 
@@ -978,6 +1065,128 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
     }
 
+
+    @SuppressWarnings( {"MissingPermission"})
+    private void enableLocationPlugin() {
+        // Check if permissions are enabled and if not request
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            // Create an instance of LOST location engine
+            initializeLocationEngine();
+
+            locationPlugin = new LocationLayerPlugin(mMapView, mMapboxMap, locationEngine);
+            locationPlugin.setRenderMode(RenderMode.COMPASS);
+        } else {
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(this);
+        }
+    }
+
+    @SuppressWarnings( {"MissingPermission"})
+    private void initializeLocationEngine() {
+        LocationEngineProvider locationEngineProvider = new LocationEngineProvider(this);
+        locationEngine = locationEngineProvider.obtainBestLocationEngineAvailable();
+        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
+        locationEngine.activate();
+
+        Location lastLocation = locationEngine.getLastLocation();
+        if (lastLocation != null) {
+            originLocation = lastLocation;
+            setCameraPosition(lastLocation);
+        } else {
+            locationEngine.addLocationEngineListener(this);
+        }
+    }
+
+    private void setCameraPosition(Location location) {
+        mMapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(location.getLatitude(), location.getLongitude()), 13));
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+
+    }
+    @Override
+    public void onPermissionResult(boolean granted) {
+        if (granted) {
+            enableLocationPlugin();
+        } else {
+            finish();
+        }
+    }
+
+    @Override
+    @SuppressWarnings( {"MissingPermission"})
+    public void onConnected() {
+        locationEngine.requestLocationUpdates();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            originLocation = location;
+            setCameraPosition(location);
+            locationEngine.removeLocationEngineListener(this);
+        }
+    }
+
+    @Override
+    @SuppressWarnings( {"MissingPermission"})
+    protected void onStart() {
+        super.onStart();
+        if (locationEngine != null) {
+            locationEngine.requestLocationUpdates();
+        }
+        if (locationPlugin != null) {
+            locationPlugin.onStart();
+        }
+        mMapView.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates();
+        }
+        if (locationPlugin != null) {
+            locationPlugin.onStop();
+        }
+        mMapView.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+        if (locationEngine != null) {
+            locationEngine.deactivate();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mMapView.onPause();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mMapView.onSaveInstanceState(outState);
+    }
 
 };
 
