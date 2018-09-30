@@ -63,9 +63,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -97,9 +99,9 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     String tempString = null;
     private JSONArray JSONResult;
     private SharedPreferences.Editor mEditor;
-    private JSONObject currentMarker;
+    private JSONObject directionResults;
     private NavigationMapRoute currentNavMap;
-    private DirectionsRoute currentRoute;
+    private List<DirectionsRoute> currentRoute = new ArrayList<DirectionsRoute>();
 
 
     private SlidingUpPanelLayout panel;
@@ -244,11 +246,17 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                                     @Override
                                                                     public void onClick(View view) {
                                                                         ArrayList<Double> loc = getLocation();
-                                                                        LatLng originCoord = new LatLng(loc.get(0),loc.get(1));
                                                                         LatLng destinationCoord = new LatLng(marker.getPosition());
-                                                                        Point originPoint = Point.fromLngLat(originCoord.getLongitude(),originCoord.getLatitude());
-                                                                        Point destinationPoint = Point.fromLngLat(destinationCoord.getLongitude(),destinationCoord.getLatitude());
-                                                                        getRoute(originPoint,destinationPoint);
+                                                                        if (currentNavMap != null) {
+                                                                            Log.e("currentNavMap","routes have been removed");
+                                                                            currentNavMap.removeRoute();
+                                                                        } else {
+                                                                            currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
+                                                                        }
+                                                                        getDirections(loc.get(0),loc.get(1),destinationCoord.getLatitude(),destinationCoord.getLongitude());
+//                                                                        Point originPoint = Point.fromLngLat(originCoord.getLongitude(),originCoord.getLatitude());
+//                                                                        Point destinationPoint = Point.fromLngLat(destinationCoord.getLongitude(),destinationCoord.getLatitude());
+//                                                                        getRoute(originPoint,destinationPoint);
                                                                     }
                                                                 });
                                                                 slidepanelbeginNavButton.setVisibility(View.VISIBLE);
@@ -256,7 +264,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                                     @Override
                                                                     public void onClick(View view) {
                                                                         NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                                                                                .directionsRoute(currentRoute)
+                                                                                .directionsRoute(currentRoute.get(0))
                                                                                 .shouldSimulateRoute(true)
                                                                                 .build();
 
@@ -313,7 +321,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
     // https://www.mapbox.com/help/android-navigation-sdk/
     //Method logic from here
-    private void getRoute(Point oPoint, Point dPoint) {
+    private void getAndDisplaySingleRoute(Point oPoint, Point dPoint) {
         Log.e("getRoute method","is happening");
 
         NavigationRoute.Builder nrb = NavigationRoute.builder(MapActivity.this);
@@ -333,7 +341,9 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     return;
                 }
                 Log.e("getRoute method",response.toString());
-                currentRoute = response.body().routes().get(0);
+                currentRoute.clear();
+
+                currentRoute.add(response.body().routes().get(0));
 
                 if (currentNavMap != null) {
                     currentNavMap.removeRoute();
@@ -342,13 +352,91 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 }
                 mMapboxMap.deselectMarkers();
                 panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                currentNavMap.addRoute(currentRoute);
+                currentNavMap.addRoute(currentRoute.get(0));
             }
 
             @Override
             public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                Log.e("getAndDisplaySingleRout",t.toString());
+
             }
         });
+    }
+
+    private void getSingleRoute(Double originLat, Double originLon, Double destLat, Double destLon) {
+        Log.e("getSingleRoute","trigggered1");
+        Point oPoint = Point.fromLngLat(originLon,originLat);
+        Point dPoint = Point.fromLngLat(destLon,destLat);
+        NavigationRoute.Builder nrb = NavigationRoute.builder(MapActivity.this);
+        nrb.accessToken(Mapbox.getAccessToken());
+        nrb.origin(oPoint);
+        nrb.destination(dPoint);
+
+
+        Log.e("getSingleRoute","trigggered2");
+
+        nrb.build().getRoute(new Callback<DirectionsResponse>() {
+            @Override
+            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+
+                if (currentNavMap == null) {
+                    currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
+                }
+
+                if (response.body() == null) {
+                    return;
+                } else if (response.body().routes().size() < 1) {
+                    return;
+                }
+                Log.e("getSingleRoute","trigggered3");
+                DirectionsRoute dr;
+                dr = response.body().routes().get(0);
+                currentRoute.add(dr);
+            }
+
+            @Override
+            public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                Log.e("getSingleRoute",t.toString());
+            }
+        });
+    }
+
+    private void displayRoutes() {
+        if (currentNavMap != null) {
+            currentNavMap.removeRoute();
+        } else {
+            currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
+        }
+        mMapboxMap.deselectMarkers();
+        panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        int i = 0;
+        Log.e("displayRoutescurrenRout",currentRoute.toString());
+        while (currentRoute.size() > i) {
+            currentNavMap.addRoute(currentRoute.get(i));
+            i++;
+        }
+    }
+
+    private void displayRoute() {
+        Log.e("displayRoutecurrentrout","1");
+
+        if (currentNavMap != null) {
+            currentNavMap.removeRoute();
+        } else {
+            currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
+        }
+        Log.e("displayRoutecurrentrout","2");
+
+        mMapboxMap.deselectMarkers();
+//        panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        Log.e("displayRoutecurrentrout","3");
+        Log.e("currentRoute",currentRoute.toString());
+
+        int i = 0;
+        currentNavMap.addRoute(currentRoute.get(i));
+        Log.e("displayRoutecurrentrout","4");
+
+
     }
 
     private void configureProfileImage() {
@@ -979,6 +1067,153 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     }
 
 
-};
+    public void getDirections (Double originLat, Double originLon, Double destLat, Double destLon) {
+        MapActivity.GetDirectionsAsyncTask t = new MapActivity.GetDirectionsAsyncTask();
+        t.startTask(originLat,originLon,destLat,destLon);
+    }
+
+    public class GetDirectionsAsyncTask extends AsyncTask<Void,Void,String>{
+        private Double oLat;
+        private Double oLon;
+        private Double dLat;
+        private Double dLon;
+        private String tempString;
+
+        protected void startTask(Double originLat, Double originLon, Double destLat, Double destLon){
+            oLat = originLat;
+            oLon = originLon;
+            dLat = destLat;
+            dLon = destLon;
+            execute();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String urls = "https://maps.googleapis.com/maps/api/directions/json?origin=" + oLat.toString() + "," + oLon.toString() + "&destination=" + dLat.toString() + "," + dLon.toString() + "&key=AIzaSyDYwDoRvvpDt9FP8WAgPv0s2wfURayOyDk&mode=transit";
+            Log.e("urls",urls);
+            try{
+                URL url = new URL(urls);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return tempString;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            try {
+                directionResults = new JSONObject(s);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            ArrayList<JSONObject> al = configureDirections(directionResults);
+            assert al != null;
+            getManyRoutes(al);
+            if (currentNavMap != null) {
+                currentNavMap.removeRoute();
+            } else {
+                currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
+            }
+            if (currentRoute.size()> 0) {
+                currentNavMap.addRoutes(currentRoute);
+            }
+        }
+    }
+
+    private ArrayList<JSONObject> configureDirections(JSONObject results) {
+        String arrivalTime;
+        String departureTime;
+        String distance;
+        String duration;
+        String endAddress;
+        String endLocation;
+        String startAddress;
+        String startLocation;
+        Log.e("configureDirections","triggers");
+
+        try {
+            JSONArray routes = results.getJSONArray("routes");
+            Log.e("results",results.toString());
+            Log.e("routes",routes.toString());
+            JSONObject theRoute = routes.getJSONObject(0);
+            JSONObject legs = theRoute.getJSONArray("legs").getJSONObject(0);
+
+//            arrivalTime = legs.getJSONObject("arrival_time").getString("text");
+//            departureTime = legs.getJSONObject("departure_time").getString("text");
+//            distance = legs.getJSONObject("distance").getString("text");
+//            duration = legs.getJSONObject("duration").getString("text");
+//            endAddress = legs.getString("end_address");
+//            endLocation = legs.getJSONObject("end_location").getString("lat") + " , " + legs.getJSONObject("end_location").getString("lng");
+//            startAddress = legs.getString("start_address");
+//            startLocation = legs.getJSONObject("start_location").getString("lat") + " , " + legs.getJSONObject("end_location").getString("lng");
+//
+//            String example = "Arrival Time: " + arrivalTime + ". Departure Time: " + departureTime + ". Distance: " + distance + ". Duration" + duration;
+//            example += ". Start Location: " + startAddress + startLocation +  ". End Location: " + endAddress + endLocation;
+
+            JSONArray steps = legs.getJSONArray("steps");
+            ArrayList<JSONObject> aList = new ArrayList<>();
+            int i = 0;
+
+            Log.e("Line 1137","triggered");
+            while (i<steps.length()) {
+                aList.add(steps.getJSONObject(i));
+                i++;
+            }
+            Log.e("line 1142","triggered");
+            i = 0;
+            Log.e("travelmode",aList.get(i).getString("travel_mode"));
+            Log.e("aList size", String.valueOf(aList.size()));
+            Log.e("aList",aList.get(0).getString("travel_mode"));
+
+            //aList current holds each step of the journey as an entry of JSONObject
+
+            return aList;
+//            displayRoute();
+
+
+//            TextView tv = findViewById(R.id.textView1);
+//            tv.setText(example);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void getManyRoutes(ArrayList<JSONObject> aList) {
+        int i = 0;
+        final int size = aList.size();
+
+        while (i<aList.size()) {
+            try {
+                if (aList.get(i).getString("travel_mode").equals("WALKING")) {
+                    Log.e("aList", "triggers");
+
+                    getSingleRoute(aList.get(i).getJSONObject("start_location").getDouble("lat"),
+                            aList.get(i).getJSONObject("start_location").getDouble("lng"),
+                            aList.get(i).getJSONObject("end_location").getDouble("lat"),
+                            aList.get(i).getJSONObject("end_location").getDouble("lng"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            i++;
+        }
+
+    }
+}
+
 
 
