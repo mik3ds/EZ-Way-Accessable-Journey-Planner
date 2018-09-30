@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -73,9 +75,33 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
+import com.mapbox.geojson.Point;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+
+import android.location.Location;
+
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
+import android.support.annotation.NonNull;
+
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineListener;
+import com.mapbox.android.core.location.LocationEnginePriority;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
+
+
+import static com.example.user.testnav2.R.id.emergency;
 import static com.example.user.testnav2.R.id.sliderpanelTitleTextView;
 
-public class MapActivity extends AppCompatActivity    implements NavigationView.OnNavigationItemSelectedListener {
+public class MapActivity extends AppCompatActivity    implements NavigationView.OnNavigationItemSelectedListener, LocationEngineListener, PermissionsListener {
     //Initialise map
     private SharedPreferences mPreferences;
     private MapboxMap mMapboxMap;
@@ -103,8 +129,14 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private NavigationMapRoute currentNavMap;
     private List<DirectionsRoute> currentRoute = new ArrayList<DirectionsRoute>();
 
+    private PermissionsManager permissionsManager;
+    private LocationLayerPlugin locationPlugin;
+    private LocationEngine locationEngine;
+    private Location originLocation;
 
+    List<android.location.Address> destination = null;
     private SlidingUpPanelLayout panel;
+    String childEmergencyStatus = "0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +145,10 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         setContentView(R.layout.activity_map);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        android.support.v7.widget.SearchView msearchview = (android.support.v7.widget.SearchView) findViewById(R.id.searchEditText);
+        msearchview.bringToFront();
+        msearchview.setSubmitButtonEnabled(true);
+        Geocoder gc = new Geocoder(this);
 
         panel = findViewById(R.id.slidingPanelMapActivity);
         panel.setFadeOnClickListener(new View.OnClickListener() {
@@ -125,6 +161,37 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         slidepanelbeginNavButton = findViewById(R.id.sliderpanelNavButton);
         slidepanelHideRouteButton = findViewById(R.id.sliderpanelHideRouteButton);
 
+
+        msearchview.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                try{
+                    destination = gc.getFromLocationName(query, 1);
+                }catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+                Address temp = destination.get(0);
+                Double templat = temp.getLatitude();
+                Double templon = temp.getLongitude();
+                LatLng templatlon = new LatLng(templat, templon);
+                mMapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(templatlon, 13));
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+                Icon icon = iconFactory.fromResource(R.drawable.star);
+                markerOptions.icon(icon);
+                markerOptions.title(query);
+                markerOptions.position(templatlon);
+                mMapboxMap.addMarker(markerOptions);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -207,7 +274,10 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
 
                 mMapboxMap = mapboxMap;
+                enableLocationPlugin();
                 mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+
+//                mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                 mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
 
                 Boolean isParent = mPreferences.getBoolean("isParent", false);
@@ -215,7 +285,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     asyncAllMarkers(list.get(0),list.get(1));
                     updateChildLocationToServer();
                 }
-                addUserLocation(mMapboxMap);
+ //               addUserLocation(mMapboxMap);
                 toimarkershown = true;
                 stamarkershown = true;
 
@@ -225,6 +295,9 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
                 slidePanelJourneyButton = (Button) findViewById(R.id.sliderpanelJourneyButton);
 
+                if(isParent == true){
+                    updateChildEmergencyFromServer();
+                }
 
                 //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
@@ -308,6 +381,26 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                             removetoilets();
                         } else if (itemID == R.id.tutorial){
                             startActivity(new Intent(MapActivity.this, Tutorial1.class));
+                        } else if (itemID == R.id.emergency){
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+                            builder.setMessage("Sure to send notification to parent?");
+                            builder.setTitle("Alert");
+                            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    childEmergencyStatus = "1";
+                                    asyncUpdateEmergencyStatus(childEmergencyStatus);
+                                }
+                            });
+                            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    childEmergencyStatus = "0";
+                                }
+                            });
+                            builder.create().show();
                         } else {
 
                         }
@@ -890,7 +983,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     public void asyncUpdateChildLocationToServer(Double lat, Double lon) {
         MapActivity.UpdateLocationAsyncTask t = new MapActivity.UpdateLocationAsyncTask(this);
         t.updateLocation(lat,lon);
-
     }
 
     public class UpdateLocationAsyncTask extends AsyncTask<Void,Void,Void> {
@@ -1066,7 +1158,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
     }
 
-
     public void getDirections (Double originLat, Double originLon, Double destLat, Double destLon) {
         MapActivity.GetDirectionsAsyncTask t = new MapActivity.GetDirectionsAsyncTask();
         t.startTask(originLat,originLon,destLat,destLon);
@@ -1213,7 +1304,259 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
 
     }
-}
 
+    @SuppressWarnings( {"MissingPermission"})
+    private void enableLocationPlugin() {
+        // Check if permissions are enabled and if not request
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            // Create an instance of LOST location engine
+            initializeLocationEngine();
+
+            locationPlugin = new LocationLayerPlugin(mMapView, mMapboxMap, locationEngine);
+            locationPlugin.setRenderMode(RenderMode.COMPASS);
+        } else {
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(this);
+        }
+    }
+
+    @SuppressWarnings( {"MissingPermission"})
+    private void initializeLocationEngine() {
+        LocationEngineProvider locationEngineProvider = new LocationEngineProvider(this);
+        locationEngine = locationEngineProvider.obtainBestLocationEngineAvailable();
+        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
+        locationEngine.activate();
+
+        Location lastLocation = locationEngine.getLastLocation();
+        if (lastLocation != null) {
+            originLocation = lastLocation;
+            setCameraPosition(lastLocation);
+        } else {
+            locationEngine.addLocationEngineListener(this);
+        }
+    }
+
+    private void setCameraPosition(Location location) {
+        mMapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(location.getLatitude(), location.getLongitude()), 13));
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+
+    }
+    @Override
+    public void onPermissionResult(boolean granted) {
+        if (granted) {
+            enableLocationPlugin();
+        } else {
+            finish();
+        }
+    }
+
+    @Override
+    @SuppressWarnings( {"MissingPermission"})
+    public void onConnected() {
+        locationEngine.requestLocationUpdates();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            originLocation = location;
+            setCameraPosition(location);
+            locationEngine.removeLocationEngineListener(this);
+        }
+    }
+
+    @Override
+    @SuppressWarnings( {"MissingPermission"})
+    protected void onStart() {
+        super.onStart();
+        if (locationEngine != null) {
+            locationEngine.requestLocationUpdates();
+        }
+        if (locationPlugin != null) {
+            locationPlugin.onStart();
+        }
+        mMapView.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates();
+        }
+        if (locationPlugin != null) {
+            locationPlugin.onStop();
+        }
+        mMapView.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+        if (locationEngine != null) {
+            locationEngine.deactivate();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mMapView.onPause();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mMapView.onSaveInstanceState(outState);
+    }
+
+    //Update child emergency status to server
+    public void asyncUpdateEmergencyStatus(String emergency) {
+        MapActivity.emergencyContact t = new MapActivity.emergencyContact(this);
+
+        t.emergencyUpdate(emergency);
+
+    }
+
+    public class emergencyContact extends AsyncTask<Void,Void,Void> {
+
+        private WeakReference<MapActivity> activityWeakReference;
+        private String urls;
+        emergencyContact(MapActivity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        protected void emergencyUpdate(String emergence) {
+            String childid = DeviceIDGenerator.getID(MapActivity.this);
+            urls = "http://13.59.24.178/emergencyOn.php?childID=" + childid + "emergency" + emergence;
+            execute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.e("emergencyContact", "doInBackground triggered");
+            JSONResult = new JSONArray();
+            try{
+                URL url = new URL(urls);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally
+            {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+        }
+    }
+
+    //update child emergency status from server
+
+    public class updateEmergenceFromServer extends AsyncTask<Void,Void,Void> {
+
+        private WeakReference<MapActivity> activityWeakReference;
+        private String urls;
+        updateEmergenceFromServer(MapActivity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        protected void updateEmergency() {
+            String parentid = DeviceIDGenerator.getID(MapActivity.this);
+            urls = "http://13.59.24.178/emergencyOn.php?parentID=" + parentid;
+            execute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.e("UpdateChildEmergencyStatusFromServer", "doInBackground triggered");
+            JSONResult = new JSONArray();
+            try{
+                URL url = new URL(urls);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                urlConnection.disconnect();
+                tempString = builder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally
+            {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            if(tempString.equals(1)){
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+                builder.setTitle("Alert");
+                builder.setMessage("You child send emergency notification.");
+                builder.setCancelable(false);
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        MapActivity.this.recreate();
+                    }
+                });
+                AlertDialog ad = builder.create();
+                ad.show();
+            }
+        }
+    }
+
+    public void updateChildEmergencyFromServer(){
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                asyncUpdateChildEmergencyFromServer();
+                handler.postDelayed(this,15000);
+            }
+        },15000);
+    }
+
+    private void asyncUpdateChildEmergencyFromServer() {
+        MapActivity.updateEmergenceFromServer t = new MapActivity.updateEmergenceFromServer(this);
+        t.updateEmergency();
+    }
+
+
+};
 
 
