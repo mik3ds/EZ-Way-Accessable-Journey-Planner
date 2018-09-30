@@ -28,6 +28,11 @@
             android:id="@+id/tutorial"
             android:title="Tutorial" />
 
+        <item
+            android:id="@+id/emergency"
+            android:title="Emergency Contact" />
+
+
 
 
     </group>
