@@ -118,6 +118,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private TextView slidepanelSubtitle;
     private TextView slidepanelJourney;
     private ImageView slidepanelImage;
+    private ImageView slidepanelNext5;
     private Button slidePanelJourneyButton;
     private Button slidepanelbeginNavButton;
     private Button slidepanelHideRouteButton;
@@ -137,6 +138,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     List<android.location.Address> destination = null;
     private SlidingUpPanelLayout panel;
     String childEmergencyStatus = "0";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,6 +201,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        slidepanelNext5 = findViewById(R.id.imageNext5);
+
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
 
@@ -230,7 +234,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 if (toimarkershown && stamarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
-                    asyncStationMarkers(-37.877848,145.034677);
+                    asyncStationMarkers(-37.932438,145.082474);
                     toimarkershown = false;
                     toast = "Toilets Disabled";
                 } else if (toimarkershown && !stamarkershown) {
@@ -239,7 +243,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     toimarkershown = false;
                     toast = "Toilets Disabled";
                 } else {
-                    asyncToiletMarkers(-37.877848,145.034677);
+                    asyncToiletMarkers(-37.932438,145.082474);
                     toimarkershown = true;
                     toast = "Toilets Enabled";
                 }
@@ -252,7 +256,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 if (stamarkershown && toimarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
-                    asyncToiletMarkers(-37.877848,145.034677);
+                    asyncToiletMarkers(-37.932438,145.082474);
                     stamarkershown = false;
                     toast = "Stations Disabled";
                 } else if (stamarkershown && !toimarkershown) {
@@ -261,7 +265,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     stamarkershown = false;
                     toast = "Stations Disabled";
                 } else {
-                    asyncStationMarkers(-37.877848,145.034677);
+                    asyncStationMarkers(-37.932438,145.082474);
                     stamarkershown = true;
                     toast = "Stations Enabled";
                 }
@@ -295,6 +299,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
                 slidePanelJourneyButton = (Button) findViewById(R.id.sliderpanelJourneyButton);
 
+                slidepanelNext5.setVisibility(View.INVISIBLE);
+
                 if(isParent == true){
                     updateChildEmergencyFromServer();
                 }
@@ -313,6 +319,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                             String stationName = marker.getTitle();
                                                             stationName = stationName.replace(footer, "");
                                                             if (marker.getIcon().getBitmap().sameAs(trainIcon.getBitmap())) {
+                                                                slidepanelNext5.setVisibility(View.VISIBLE);
                                                                 slidePanelJourneyButton.setText("Show Route");
                                                                 slidePanelJourneyButton.setVisibility(View.VISIBLE);
                                                                 slidePanelJourneyButton.setOnClickListener(new View.OnClickListener() {
@@ -346,12 +353,16 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                                 });
                                                             } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())) {
                                                                 slidePanelJourneyButton.setVisibility(View.VISIBLE);
+                                                                slidepanelNext5.setVisibility(View.INVISIBLE);
+
 
 //                            String url = "http://13.59.24.178/getToiletByID.php/?toiletID=" + marker.getTitle();
 //                            Log.e("help", marker.toString());
 //                            example = new AsyncTaskRestClient().doInBackground(url);
                                                             } else {
                                                                 slidePanelJourneyButton.setVisibility(View.GONE);
+                                                                slidepanelNext5.setVisibility(View.INVISIBLE);
+
                                                                 Log.e("help", "Marker is not a train station or toilet");
                                                             }
                                                             slidepanelJourney.setText(example);
@@ -631,8 +642,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             }
         }
         if (list.size() == 0) {
-            list.add(-37.877848);
-            list.add(145.034677);
+            list.add(-37.932438);
+            list.add(145.082474);
         }
         return list;
     }
@@ -1224,14 +1235,14 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     }
 
     private ArrayList<JSONObject> configureDirections(JSONObject results) {
-        String arrivalTime;
-        String departureTime;
-        String distance;
-        String duration;
-        String endAddress;
-        String endLocation;
-        String startAddress;
-        String startLocation;
+//        String arrivalTime;
+//        String departureTime;
+//        String distance;
+//        String duration;
+//        String endAddress;
+//        String endLocation;
+//        String startAddress;
+//        String startLocation;
         Log.e("configureDirections","triggers");
 
         try {
@@ -1498,7 +1509,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         @Override
         protected Void doInBackground(Void... params) {
-            Log.e("UpdateChildEmergencyStatusFromServer", "doInBackground triggered");
+            Log.e("doInBackground", "UpdateChildEmergencyStatusFromServer");
             JSONResult = new JSONArray();
             try{
                 URL url = new URL(urls);
