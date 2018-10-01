@@ -174,18 +174,24 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     e.printStackTrace();
                 }
                 Address temp = destination.get(0);
-                Double templat = temp.getLatitude();
-                Double templon = temp.getLongitude();
-                LatLng templatlon = new LatLng(templat, templon);
-                mMapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(templatlon, 13));
+                if(temp != null) {
+                    Double templat = temp.getLatitude();
+                    Double templon = temp.getLongitude();
+                    LatLng templatlon = new LatLng(templat, templon);
+                    mMapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(templatlon, 13));
 
-                MarkerOptions markerOptions = new MarkerOptions();
-                IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-                Icon icon = iconFactory.fromResource(R.drawable.star);
-                markerOptions.icon(icon);
-                markerOptions.title(query);
-                markerOptions.position(templatlon);
-                mMapboxMap.addMarker(markerOptions);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+                    Icon icon = iconFactory.fromResource(R.drawable.star);
+                    markerOptions.icon(icon);
+                    markerOptions.title(query);
+                    markerOptions.position(templatlon);
+                    mMapboxMap.addMarker(markerOptions);
+                }   else {
+                    String toast = "Wrong Place, Please enter the correct place.";
+
+                    Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
+                }
                 return true;
             }
 
@@ -276,20 +282,24 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
 
+                Boolean isParent = mPreferences.getBoolean("isParent", false);
 
                 mMapboxMap = mapboxMap;
-                enableLocationPlugin();
-                mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
-
-//                mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
-                mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
-
-                Boolean isParent = mPreferences.getBoolean("isParent", false);
-                if (!isParent) {
+                if(!isParent) {
+                    enableLocationPlugin();
+//                    mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                     asyncAllMarkers(list.get(0),list.get(1));
                     updateChildLocationToServer();
+                }   else {
+
+                    asyncUpdateChildLocationFromServer(mMapboxMap);
+                    updateChildLocationFromServer(mMapboxMap);
+                    updateChildEmergencyFromServer();
                 }
- //               addUserLocation(mMapboxMap);
+
+                mMapboxMap.setStyleUrl("mapbox://styles/mikeds/cjlzs6p6c6qk62sqrz30jvhvq");
+
+//                addUserLocation(mMapboxMap);
                 toimarkershown = true;
                 stamarkershown = true;
 
@@ -298,12 +308,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 slidepanelJourney = (TextView) findViewById(R.id.sliderpanelJourneyTextView);
                 slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
                 slidePanelJourneyButton = (Button) findViewById(R.id.sliderpanelJourneyButton);
-
                 slidepanelNext5.setVisibility(View.INVISIBLE);
-
-                if(isParent == true){
-                    updateChildEmergencyFromServer();
-                }
 
                 //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
@@ -555,19 +560,26 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
     }
 
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        updateDrawerTitle();
+//        configureProfileImage();
+//        mMapView.onResume();
+//        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
+//            mEditor = mPreferences.edit();
+//            mEditor.putBoolean("firstTimeRun",false);
+//            mEditor.apply();
+//            MapActivity.this.recreate();
+//        }
+//        Log.e("help","onResume triggered");
+//    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        updateDrawerTitle();
-        configureProfileImage();
-
-        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
-            mEditor = mPreferences.edit();
-            mEditor.putBoolean("firstTimeRun",false);
-            mEditor.apply();
-            MapActivity.this.recreate();
-        }
-        Log.e("help","onResume triggered");
+        mMapView.onResume();
     }
 
     private void updateDrawerTitle() {
@@ -1070,6 +1082,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         final String urls = "http://13.59.24.178/getChildLocation.php?parentid=" + deviceID;
         final String example = "[]";
         JSONArray ja = null;
+        int emergencyStatus;
         JSONObject jo = null;
         String tempString = "";
 
@@ -1165,8 +1178,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             asyncUpdateChildLocationFromServer(m);
             updateChildLocationFromServer(m);
         }
-
-
     }
 
     public void getDirections (Double originLat, Double originLon, Double destLat, Double destLon) {
