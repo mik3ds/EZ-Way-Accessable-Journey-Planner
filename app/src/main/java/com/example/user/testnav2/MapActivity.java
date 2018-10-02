@@ -175,8 +175,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 {
                     e.printStackTrace();
                 }
-                Address temp = destination.get(0);
-                if(temp != null) {
+                if(destination.size() != 0) {
+                    Address temp = destination.get(0);
                     Double templat = temp.getLatitude();
                     Double templon = temp.getLongitude();
                     LatLng templatlon = new LatLng(templat, templon);
@@ -242,7 +242,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 if (toimarkershown && stamarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
-                    asyncStationMarkers(-37.932438,145.082474);
+                    asyncStationMarkers(lulat,lulon);
                     toimarkershown = false;
                     toast = "Toilets Disabled";
                 } else if (toimarkershown && !stamarkershown) {
@@ -251,7 +251,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     toimarkershown = false;
                     toast = "Toilets Disabled";
                 } else {
-                    asyncToiletMarkers(-37.932438,145.082474);
+                    asyncToiletMarkers(lulat,lulon);
                     toimarkershown = true;
                     toast = "Toilets Enabled";
                 }
@@ -264,7 +264,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 if (stamarkershown && toimarkershown) {
                     mMapboxMap.clear();
                     addUserLocation(mMapboxMap);
-                    asyncToiletMarkers(-37.932438,145.082474);
+                    asyncToiletMarkers(lulat,lulon);
                     stamarkershown = false;
                     toast = "Stations Disabled";
                 } else if (stamarkershown && !toimarkershown) {
@@ -273,7 +273,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     stamarkershown = false;
                     toast = "Stations Disabled";
                 } else {
-                    asyncStationMarkers(-37.932438,145.082474);
+                    asyncStationMarkers(lulat,lulon);
                     stamarkershown = true;
                     toast = "Stations Enabled";
                 }
