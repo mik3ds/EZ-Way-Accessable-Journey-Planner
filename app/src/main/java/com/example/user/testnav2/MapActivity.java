@@ -47,6 +47,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
@@ -131,9 +132,10 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private List<DirectionsRoute> currentRoute = new ArrayList<DirectionsRoute>();
 
     private PermissionsManager permissionsManager;
-    private LocationLayerPlugin locationPlugin;
+    private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
     private Location originLocation;
+
 
     List<android.location.Address> destination = null;
     private SlidingUpPanelLayout panel;
@@ -287,7 +289,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 mMapboxMap = mapboxMap;
                 if(!isParent) {
                     enableLocationPlugin();
-//                    mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+                    mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                     asyncAllMarkers(list.get(0),list.get(1));
                     updateChildLocationToServer();
                 }   else {
@@ -1331,11 +1333,14 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private void enableLocationPlugin() {
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            // Create an instance of LOST location engine
             initializeLocationEngine();
+            // Create an instance of the plugin. Adding in LocationLayerOptions is also an optional
+            // parameter
+            LocationLayerPlugin locationLayerPlugin = new LocationLayerPlugin(mMapView, mMapboxMap);
 
-            locationPlugin = new LocationLayerPlugin(mMapView, mMapboxMap, locationEngine);
-            locationPlugin.setRenderMode(RenderMode.COMPASS);
+            // Set the plugin's camera mode
+            locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
+            getLifecycle().addObserver(locationLayerPlugin);
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(this);
@@ -1364,6 +1369,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     }
 
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -1371,16 +1377,30 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-
+        Toast.makeText(this, R.string.user_location_permission_explanation, Toast.LENGTH_LONG).show();
     }
+
+
     @Override
     public void onPermissionResult(boolean granted) {
         if (granted) {
             enableLocationPlugin();
         } else {
+            Toast.makeText(this, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
             finish();
         }
     }
+
+    @SuppressWarnings( {"MissingPermission"})
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mMapView.onStart();
+        if (locationLayerPlugin != null) {
+            locationLayerPlugin.onStart();
+        }
+    }
+
 
     @Override
     @SuppressWarnings( {"MissingPermission"})
@@ -1397,40 +1417,43 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
     }
 
-    @Override
-    @SuppressWarnings( {"MissingPermission"})
-    protected void onStart() {
-        super.onStart();
-        if (locationEngine != null) {
-            locationEngine.requestLocationUpdates();
-        }
-        if (locationPlugin != null) {
-            locationPlugin.onStart();
-        }
-        mMapView.onStart();
-    }
+
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        if (locationEngine != null) {
+//            locationEngine.removeLocationUpdates();
+//        }
+//        if (locationPlugin != null) {
+//            locationPlugin.onStop();
+//        }
+//        mMapView.onStop();
+//    }
+
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (locationEngine != null) {
-            locationEngine.removeLocationUpdates();
-        }
-        if (locationPlugin != null) {
-            locationPlugin.onStop();
-        }
         mMapView.onStop();
+        if (locationLayerPlugin != null) {
+            locationLayerPlugin.onStart();
+        }
     }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        mMapView.onDestroy();
+//        if (locationEngine != null) {
+//            locationEngine.deactivate();
+//        }
+//    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
-        if (locationEngine != null) {
-            locationEngine.deactivate();
-        }
     }
-
     @Override
     public void onLowMemory() {
         super.onLowMemory();
