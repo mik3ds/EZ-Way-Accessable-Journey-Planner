@@ -1710,18 +1710,18 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     builder.append(inputString);
                 }
                 urlConnection.disconnect();
-                tempString = builder.toString();
-            } catch (IOException e) {
+                JSONArray ts = new JSONArray(builder.toString());
+                JSONObject jsono = ts.getJSONObject(0);
+                tempString = jsono.getString("emergency");
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
-            } finally
-            {
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void v) {
-            if(tempString.equals(1)){
+            if(tempString.equals("1")){
                 AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
                 builder.setTitle("Alert");
                 builder.setMessage("You child sends you an emergency notification.");

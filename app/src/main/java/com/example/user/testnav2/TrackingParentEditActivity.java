@@ -26,8 +26,6 @@ public class TrackingParentEditActivity extends AppCompatActivity {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mEditor = mPreferences.edit();
 
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         configureHomeButton2();
         configureTrackingElements();
     }

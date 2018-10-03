@@ -11,6 +11,7 @@
         android:layout_height="300dp"
         android:background="@drawable/backdrop"
         android:orientation="vertical">
+
     </LinearLayout>
 
 <android.support.v7.widget.CardView
@@ -27,7 +28,6 @@
 
 </android.support.v7.widget.CardView>
 
-
     <Button
         android:id="@+id/trackingParentButton"
         android:layout_width="wrap_content"
@@ -39,5 +39,14 @@
         tools:layout_editor_absoluteX="116dp"
         tools:layout_editor_absoluteY="184dp" />
 
+    <Button
+        android:id="@+id/trackingParentWipeSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="34dp"
+        android:text="Wipe Child Settings"
+        android:visibility="gone" />
 
 </RelativeLayout>
