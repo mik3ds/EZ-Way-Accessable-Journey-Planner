@@ -119,6 +119,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private static boolean toimarkershown = false;
     private static boolean stamarkershown = false;
 
+    private boolean isJourneyCurrentlyShowing;
+
     private TextView slidepanelTitle;
     private TextView slidepanelSubtitle;
     private TextView slidepanelJourney;
@@ -132,6 +134,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private Button slidePanelJourneyButton;
     private Button slidepanelbeginNavButton;
     private Button slidepanelHideRouteButton;
+    private Button slidepanelStepByStep;
 
     JSONObject currentChildLocation = null;
     String tempString = null;
@@ -162,7 +165,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         msearchview.bringToFront();
         msearchview.setSubmitButtonEnabled(true);
         Geocoder gc = new Geocoder(this);
-
+        isJourneyCurrentlyShowing = false;
         panel = findViewById(R.id.slidingPanelMapActivity);
         panel.setFadeOnClickListener(new View.OnClickListener() {
             @Override
@@ -219,6 +222,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         toggle.syncState();
 
         slidepanelJourneyText = findViewById(R.id.sliderpanelJourneyTextView);
+
+
 
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
@@ -325,12 +330,25 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 slidepanelDepartureTimeText = findViewById(R.id.sliderpanelDepartureTime);
                 slidepanelJourneyToText = findViewById(R.id.sliderpanelJourneyToText);
 
+                slidepanelStepByStep = findViewById(R.id.sliderpanelStepByStep);
+
                 slidepanelJourneyToText.setVisibility(View.INVISIBLE);
                 slidepanelArriveAtText.setVisibility(View.INVISIBLE);
                 slidepanelArriveTimeText.setVisibility(View.INVISIBLE);
                 slidepanelDepartAtText.setVisibility(View.INVISIBLE);
                 slidepanelDepartureTimeText.setVisibility(View.INVISIBLE);
                 slidepanelJourneyText.setVisibility(View.INVISIBLE);
+
+                LatLng tmpUser = new LatLng(lulat,lulon);
+                Address currentAddress = null;
+                try {
+                    currentAddress = gc.getFromLocation(tmpUser.getLatitude(),tmpUser.getLongitude(),1).get(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                slidepanelTitle.setText(currentAddress.getAddressLine(0));
+                slidepanelSubtitle.setText("");
 
                 //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
@@ -362,23 +380,21 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                                             currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
                                                                         }
                                                                         getDirections(loc.get(0),loc.get(1),destinationCoord.getLatitude(),destinationCoord.getLongitude());
-//                                                                        Point originPoint = Point.fromLngLat(originCoord.getLongitude(),originCoord.getLatitude());
-//                                                                        Point destinationPoint = Point.fromLngLat(destinationCoord.getLongitude(),destinationCoord.getLatitude());
-//                                                                        getRoute(originPoint,destinationPoint);
-                                                                    }
-                                                                });
-                                                                slidepanelbeginNavButton.setVisibility(View.VISIBLE);
-                                                                slidepanelbeginNavButton.setOnClickListener(new View.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(View view) {
-                                                                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                                                                                .directionsRoute(currentRoute.get(0))
-                                                                                .shouldSimulateRoute(true)
-                                                                                .build();
+                                                                        slidepanelbeginNavButton.setVisibility(View.VISIBLE);
+                                                                        slidepanelbeginNavButton.setOnClickListener(new View.OnClickListener() {
+                                                                            @Override
+                                                                            public void onClick(View view) {
+                                                                                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                                                                        .directionsRoute(currentRoute.get(0))
+                                                                                        .shouldSimulateRoute(true)
+                                                                                        .build();
 
-                                                                        NavigationLauncher.startNavigation(MapActivity.this,options);
+                                                                                NavigationLauncher.startNavigation(MapActivity.this,options);
+                                                                            }
+                                                                        });
                                                                     }
                                                                 });
+
                                                             } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())) {
                                                                 slidePanelJourneyButton.setVisibility(View.VISIBLE);
                                                                 slidepanelJourneyText.setVisibility(View.INVISIBLE);
@@ -625,7 +641,11 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 drawer.closeDrawer(GravityCompat.START);
-            } else {
+            } else if (panel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            } else if (isJourneyCurrentlyShowing) {
+                MapActivity.this.recreate();
+            }else {
                 super.onBackPressed();
             }
         }
@@ -923,8 +943,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 e.printStackTrace();
             }
 
-            Log.e("stationdata", stationdata.toString());
-
             JSONResult2 = new JSONArray();
             try{
                 URL url = new URL(url2);
@@ -942,8 +960,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.e("toiletdata", toiletdata.toString());
-
             return null;
         }
 
@@ -1286,7 +1302,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         String duration = "error";
         String endAddress = "error";
         String startAddress = "error";
-
+        isJourneyCurrentlyShowing = true;
         Log.e("writeJourneyInfo",legs.toString());
         try {
             arrivalTime = legs.getJSONObject("arrival_time").getString("text");
@@ -1315,6 +1331,27 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         slidepanelSubtitle.setText(endAddress);
         slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
 
+
+
+
+        slidepanelStepByStep.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JSONArray steps = null;
+                try {
+                    steps = legs.getJSONArray("steps");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                mEditor = mPreferences.edit();
+                mEditor.putString("instructions", steps.toString());
+                mEditor.apply();
+                startActivity(new Intent(MapActivity.this, StepByStepActivity.class));
+            }
+        });
+        slidepanelStepByStep.setVisibility(View.VISIBLE);
+
         slidepanelJourneyToText.setVisibility(View.VISIBLE);
 //        slidepanelJourneyText.setVisibility(View.VISIBLE);
         slidepanelArriveAtText.setVisibility(View.VISIBLE);
@@ -1336,7 +1373,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     Log.e("drawJourneyMarkers", "walking");
                 } else if (al.get(i).getString("travel_mode").equals("TRANSIT")) {
                     Log.e("drawJourneyMarkers", "transit");
-                    if (al.get(i).getString("html_instructions").contains("Train")) {
+                    if (al.get(i).getString("html_instructions").substring(0,5).contains("Train")) {
                         Icon icon = iconFactory.fromResource(R.drawable.train);
                         LatLng markerloc = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lat"),
                                 al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lng"));
@@ -1352,7 +1389,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                         markerOptions.position(markerloc2);
                         mMapboxMap.addMarker(markerOptions);
 
-                    } else if (al.get(i).getString("html_instructions").contains("Bus")) {
+                    } else if (al.get(i).getString("html_instructions").substring(0,3).contains("Bus")) {
                         Icon icon = iconFactory.fromResource(R.drawable.bus);
                         LatLng markerloc = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lat"),
                                 al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lng"));
@@ -1367,10 +1404,11 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                         markerOptions.icon(icon);
                         markerOptions.position(markerloc2);
                         mMapboxMap.addMarker(markerOptions);
-                    } else if (al.get(i).getString("html_instructions").contains("Tram")) {
+                    } else if (al.get(i).getString("html_instructions").substring(0,4).contains("Tram")) {
                         Icon icon = iconFactory.fromResource(R.drawable.tram);
                         LatLng markerloc = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lat"),
                                 al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lng"));
+
                         markerOptions.title(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getString("name"));
                         markerOptions.icon(icon);
                         markerOptions.position(markerloc);
