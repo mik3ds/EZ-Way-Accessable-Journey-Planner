@@ -22,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -43,6 +44,7 @@ import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -145,6 +147,9 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private NavigationMapRoute currentNavMap;
     private List<DirectionsRoute> currentRoute = new ArrayList<DirectionsRoute>();
 
+    private Double lulat;
+    private Double lulon;
+
     private PermissionsManager permissionsManager;
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
@@ -197,7 +202,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
                     MarkerOptions markerOptions = new MarkerOptions();
                     IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-                    Icon icon = iconFactory.fromResource(R.drawable.star);
+                    Icon icon = iconFactory.fromResource(R.drawable.placeholder);
                     markerOptions.icon(icon);
                     markerOptions.title(query);
                     markerOptions.position(templatlon);
@@ -238,9 +243,10 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         //change the title of navigation drawer to username
         updateDrawerTitle();
 
+
         ArrayList<Double> list = getLocation();
-        Double lulat = list.get(0);
-        Double lulon = list.get(1);
+        lulat = list.get(0);
+        lulon = list.get(1);
 
         //USER LOCATION
         final LatLng latLng = new LatLng(lulat, lulon);
@@ -248,58 +254,19 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         final IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
         final Icon trainIcon = iconFactory.fromResource(R.drawable.train);
         final Icon toiletIcon = iconFactory.fromResource(R.drawable.toilet);
+        final Icon childIcon = iconFactory.fromResource(R.drawable.star);
+        final Icon searchIcon = iconFactory.fromResource(R.drawable.placeholder);
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
-            public void removetoilets() {
 
-                String toast = "";
-                if (toimarkershown && stamarkershown) {
-                    mMapboxMap.clear();
-                    //addUserLocation(mMapboxMap);
-                    asyncStationMarkers(lulat,lulon);
-                    toimarkershown = false;
-                    toast = "Toilets Disabled";
-                } else if (toimarkershown && !stamarkershown) {
-                    mMapboxMap.clear();
-                    //addUserLocation(mMapboxMap);
-                    toimarkershown = false;
-                    toast = "Toilets Disabled";
-                } else {
-                    asyncToiletMarkers(lulat,lulon);
-                    toimarkershown = true;
-                    toast = "Toilets Enabled";
-                }
-                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
-            }
-
-            //Hide and show stations method
-            public void removestation() {
-                String toast = "";
-                if (stamarkershown && toimarkershown) {
-                    mMapboxMap.clear();
-                    //addUserLocation(mMapboxMap);
-                    asyncToiletMarkers(lulat,lulon);
-                    stamarkershown = false;
-                    toast = "Stations Disabled";
-                } else if (stamarkershown && !toimarkershown) {
-                    mMapboxMap.clear();
-                    //addUserLocation(mMapboxMap);
-                    stamarkershown = false;
-                    toast = "Stations Disabled";
-                } else {
-                    asyncStationMarkers(lulat,lulon);
-                    stamarkershown = true;
-                    toast = "Stations Enabled";
-                }
-                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
-            }
 
 
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
 
                 Boolean isParent = mPreferences.getBoolean("isParent", false);
+
 
                 mMapboxMap = mapboxMap;
                 if(!isParent) {
@@ -351,6 +318,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 slidepanelTitle.setText(currentAddress.getAddressLine(0));
                 slidepanelSubtitle.setText("");
 
+
                 //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
                                                         @Override
@@ -360,6 +328,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                             slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
                                                             slidepanelSubtitle.setText(marker.getSnippet());
                                                             slidepanelImage.setImageBitmap(marker.getIcon().getBitmap());
+                                                            enableJourneyRouteButton(marker);
 
                                                             //Create temporary train icon and compare
                                                             String example = "";
@@ -369,49 +338,24 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                             if (marker.getIcon().getBitmap().sameAs(trainIcon.getBitmap())) {
                                                                 slidePanelJourneyButton.setText("Show Route");
                                                                 slidePanelJourneyButton.setVisibility(View.VISIBLE);
-                                                                slidePanelJourneyButton.setOnClickListener(new View.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(View view) {
-                                                                        ArrayList<Double> loc = getLocation();
-                                                                        LatLng destinationCoord = new LatLng(marker.getPosition());
-                                                                        if (currentNavMap != null) {
-                                                                            Log.e("currentNavMap","routes have been removed");
-                                                                            currentNavMap.removeRoute();
-                                                                        } else {
-                                                                            currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
-                                                                        }
-                                                                        getDirections(loc.get(0),loc.get(1),destinationCoord.getLatitude(),destinationCoord.getLongitude());
-                                                                        slidepanelbeginNavButton.setVisibility(View.VISIBLE);
-                                                                        slidepanelbeginNavButton.setOnClickListener(new View.OnClickListener() {
-                                                                            @Override
-                                                                            public void onClick(View view) {
-                                                                                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                                                                                        .directionsRoute(currentRoute.get(0))
-                                                                                        .shouldSimulateRoute(true)
-                                                                                        .build();
-
-                                                                                NavigationLauncher.startNavigation(MapActivity.this,options);
-                                                                            }
-                                                                        });
-                                                                    }
-                                                                });
 
                                                             } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())) {
                                                                 slidePanelJourneyButton.setVisibility(View.VISIBLE);
                                                                 slidepanelJourneyText.setVisibility(View.INVISIBLE);
                                                                 slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
 
+                                                            } else if (marker.getIcon().getBitmap().sameAs(childIcon.getBitmap())) {
+                                                                slidePanelJourneyButton.setVisibility(View.VISIBLE);
 
-
-//                            String url = "http://13.59.24.178/getToiletByID.php/?toiletID=" + marker.getTitle();
-//                            Log.e("help", marker.toString());
-//                            example = new AsyncTaskRestClient().doInBackground(url);
+                                                            } else if (marker.getIcon().getBitmap().sameAs(searchIcon.getBitmap())) {
+                                                                slidePanelJourneyButton.setVisibility(View.VISIBLE);
                                                             } else {
-                                                                slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
-                                                                slidePanelJourneyButton.setVisibility(View.GONE);
-                                                                slidepanelJourneyText.setVisibility(View.INVISIBLE);
+                                                                    slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+                                                                    slidePanelJourneyButton.setVisibility(View.GONE);
+                                                                    slidepanelJourneyText.setVisibility(View.INVISIBLE);
 
-                                                                Log.e("help", "Marker is not a train station or toilet");
+                                                                    Log.e("help", "Marker is not a train station or toilet");
+
                                                             }
                                                             slidepanelJourney.setText(example);
 
@@ -435,15 +379,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                         } else if (itemID == R.id.nav_trackparent) {
                             startActivity(new Intent(MapActivity.this, TrackingParentActivity.class));
                         } else if (itemID == R.id.nav_station) {
-                            removestation();
                         } else if (itemID == R.id.nav_toilet) {
-                            removetoilets();
                         } else if (itemID == R.id.tutorial){
                             startActivity(new Intent(MapActivity.this, Tutorial1.class));
                         } else if (itemID == R.id.emergency){
                             if(!isParent) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
-                                builder.setMessage("Sure to send notification to parent?");
+                                builder.setMessage("Send notification to your parent?");
                                 builder.setTitle("Alert");
                                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                     @Override
@@ -480,6 +422,40 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 });
             }
         });
+    }
+
+    private void enableJourneyRouteButton(Marker m) {
+        slidePanelJourneyButton.setVisibility(View.VISIBLE);
+        slidePanelJourneyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<Double> loc = getLocation();
+                LatLng destinationCoord = new LatLng(m.getPosition());
+                if (currentNavMap != null) {
+                    Log.e("currentNavMap","routes have been removed");
+                    currentNavMap.removeRoute();
+                } else {
+                    currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
+                }
+                getDirections(loc.get(0),loc.get(1),destinationCoord.getLatitude(),destinationCoord.getLongitude());
+                slidepanelbeginNavButton.setVisibility(View.VISIBLE);
+                slidepanelbeginNavButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                .directionsRoute(currentRoute.get(0))
+                                .shouldSimulateRoute(true)
+                                .build();
+
+                        NavigationLauncher.startNavigation(MapActivity.this,options);
+                    }
+                });
+            }
+        });
+    }
+
+    private void disableJourneyRouteButton() {
+        slidePanelJourneyButton.setVisibility(View.INVISIBLE);
     }
 
 
@@ -616,27 +592,28 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//
-//        updateDrawerTitle();
-//        configureProfileImage();
-//        mMapView.onResume();
-//        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
-//            mEditor = mPreferences.edit();
-//            mEditor.putBoolean("firstTimeRun",false);
-//            mEditor.apply();
-//            MapActivity.this.recreate();
-//        }
-//        Log.e("help","onResume triggered");
-//    }
-
     @Override
     protected void onResume() {
         super.onResume();
+
+        updateDrawerTitle();
+        configureProfileImage();
         mMapView.onResume();
+        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
+            mEditor = mPreferences.edit();
+            mEditor.putBoolean("firstTimeRun",false);
+            mEditor.apply();
+            MapActivity.this.recreate();
+        }
+        Log.e("help","onResume triggered");
     }
+
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        mMapView.onResume();
+//    }
 
     private void updateDrawerTitle() {
 
@@ -662,26 +639,81 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 super.onBackPressed();
             }
         }
-        @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-            // Inflate the menu; this adds items to the action bar if it is present.
-            return false;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater mi = new MenuInflater(this);
+        mi.inflate(R.menu.main3, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_stations) {
+            removestations(mMapboxMap);
+            return true;
+        } else if (id == R.id.action_toilets) {
+            removetoilets(mMapboxMap);
+            return true;
         }
 
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            // Handle action bar item clicks here. The action bar will
-            // automatically handle clicks on the Home/Up button, so long
-            // as you specify a parent activity in AndroidManifest.xml.
-            int id = item.getItemId();
+        return super.onOptionsItemSelected(item);
+    }
 
-            //noinspection SimplifiableIfStatement
-            if (id == R.id.action_settings) {
-                return true;
-            }
+    //Hide and show stations method
+    public void removestations(MapboxMap m) {
+        String toast = "";
 
-            return super.onOptionsItemSelected(item);
+        if (stamarkershown && toimarkershown) {
+            m.clear();
+            //addUserLocation(mMapboxMap);
+            asyncToiletMarkers(lulat,lulon);
+            stamarkershown = false;
+            toast = "Stations Disabled";
+        } else if (stamarkershown && !toimarkershown) {
+            m.clear();
+            //addUserLocation(mMapboxMap);
+            stamarkershown = false;
+            toast = "Stations Disabled";
+        } else {
+            asyncStationMarkers(lulat,lulon);
+            stamarkershown = true;
+            toast = "Stations Enabled";
         }
+        Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
+    }
+
+    public void removetoilets(MapboxMap m) {
+
+        String toast = "";
+        if (toimarkershown && stamarkershown) {
+            m.clear();
+            //addUserLocation(mMapboxMap);
+            asyncStationMarkers(lulat,lulon);
+            toimarkershown = false;
+            toast = "Toilets Disabled";
+        } else if (toimarkershown && !stamarkershown) {
+            m.clear();
+            //addUserLocation(mMapboxMap);
+            toimarkershown = false;
+            toast = "Toilets Disabled";
+        } else {
+            asyncToiletMarkers(lulat,lulon);
+            toimarkershown = true;
+            toast = "Toilets Enabled";
+        }
+        Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
+    }
+
+
+
+
+
 
         @Override
         public boolean onNavigationItemSelected(MenuItem item) {
@@ -1328,13 +1360,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.e("endAddress",endAddress);
+        Log.e("startAddress",startAddress);
 
 
         String example = "Arrival Time: " + arrivalTime + ". Departure Time: " + departureTime + ". Distance: " + distance + ". Duration" + duration;
         example += ". Start Location: " + startAddress + ". End Location: " + endAddress ;
 
-        startAddress = startAddress.substring(0,startAddress.lastIndexOf(","));
-        endAddress = endAddress.substring(0,endAddress.lastIndexOf(","));
 
         Log.e("writeJourneyInfo",example);
 
@@ -1361,7 +1393,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 mEditor = mPreferences.edit();
                 mEditor.putString("instructions", steps.toString());
                 mEditor.apply();
-                startActivity(new Intent(MapActivity.this, StepByStepActivity.class));
+                startActivity(new Intent(MapActivity.this, StepByStep2Activity.class));
             }
         });
         slidepanelStepByStep.setVisibility(View.VISIBLE);
@@ -1775,7 +1807,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         protected void emergencyUpdateOff() {
             String parentid = DeviceIDGenerator.getID(MapActivity.this);
-            urls = "http://13.59.24.178/emergencyOff.php?childID=" + parentid;
+            urls = "http://13.59.24.178/emergencyOff.php?parentID=" + parentid;
             execute();
         }
 

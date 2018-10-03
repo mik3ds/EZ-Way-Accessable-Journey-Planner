@@ -12,8 +12,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
-
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ezway"
@@ -52,7 +50,8 @@
         <activity android:name=".TrackingChildActivity" />
         <activity android:name=".TrackingChildEditActivity" />
         <activity android:name=".TrackingParentActivity" />
-        <activity android:name=".StepByStepActivity"></activity>
+        <activity android:name=".StepByStepActivity" />
+        <activity android:name=".StepByStep2Activity"></activity>
     </application>
 
 </manifest>

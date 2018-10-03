@@ -92,11 +92,12 @@
             android:id="@+id/sliderpanelNavButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/sliderpanelJourneyButton"
-            android:layout_marginEnd="43dp"
-            android:visibility="invisible"
-            android:text="Begin Navigation" />
+            android:layout_marginBottom="45dp"
+            android:layout_marginEnd="27dp"
+            android:text="Begin Navigation"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/sliderpanelHideRouteButton"
@@ -109,9 +110,8 @@
             android:id="@+id/sliderpanelJourneyToText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/sliderpanelTitleTextView"
-            android:layout_marginEnd="-57dp"
-            android:layout_toStartOf="@+id/sliderpanelJourneyButton"
+            android:layout_alignBottom="@+id/sliderpanelImageView1"
+            android:layout_alignStart="@+id/sliderpanelTitleTextView"
             android:text="to"
             android:visibility="invisible" />
 
@@ -147,8 +147,8 @@
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/sliderpanelJourneyTextView"
             android:layout_centerVertical="true"
-            android:visibility="gone"
-            android:text="Step by Step" />
+            android:text="Step by Step"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
