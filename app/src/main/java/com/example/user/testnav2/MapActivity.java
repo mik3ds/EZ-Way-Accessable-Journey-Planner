@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -34,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mapbox.api.directions.v5.DirectionsCriteria;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
@@ -100,6 +102,7 @@ import com.mapbox.android.core.permissions.PermissionsManager;
 
 
 import static com.example.user.testnav2.R.id.emergency;
+import static com.example.user.testnav2.R.id.sliderpanelJourneyTextView;
 import static com.example.user.testnav2.R.id.sliderpanelTitleTextView;
 
 public class MapActivity extends AppCompatActivity    implements NavigationView.OnNavigationItemSelectedListener, LocationEngineListener, PermissionsListener {
@@ -115,14 +118,21 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     LocationManager locationManager;
     private static boolean toimarkershown = false;
     private static boolean stamarkershown = false;
+
     private TextView slidepanelTitle;
     private TextView slidepanelSubtitle;
     private TextView slidepanelJourney;
+    private TextView slidepanelJourneyText;
+    private TextView slidepanelJourneyToText;
+    private TextView slidepanelArriveAtText;
+    private TextView slidepanelArriveTimeText;
+    private TextView slidepanelDepartAtText;
+    private TextView slidepanelDepartureTimeText;
     private ImageView slidepanelImage;
-    private ImageView slidepanelNext5;
     private Button slidePanelJourneyButton;
     private Button slidepanelbeginNavButton;
     private Button slidepanelHideRouteButton;
+
     JSONObject currentChildLocation = null;
     String tempString = null;
     private JSONArray JSONResult;
@@ -135,7 +145,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
     private Location originLocation;
-
 
     List<android.location.Address> destination = null;
     private SlidingUpPanelLayout panel;
@@ -209,7 +218,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        slidepanelNext5 = findViewById(R.id.imageNext5);
+        slidepanelJourneyText = findViewById(R.id.sliderpanelJourneyTextView);
 
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
@@ -305,18 +314,31 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 toimarkershown = true;
                 stamarkershown = true;
 
-                slidepanelTitle = (TextView) findViewById(sliderpanelTitleTextView);
-                slidepanelSubtitle = (TextView) findViewById(R.id.sliderpanelSubtitleTextView);
-                slidepanelJourney = (TextView) findViewById(R.id.sliderpanelJourneyTextView);
-                slidepanelImage = (ImageView) findViewById(R.id.sliderpanelImageView1);
-                slidePanelJourneyButton = (Button) findViewById(R.id.sliderpanelJourneyButton);
-                slidepanelNext5.setVisibility(View.INVISIBLE);
+                slidepanelTitle = findViewById(sliderpanelTitleTextView);
+                slidepanelSubtitle = findViewById(R.id.sliderpanelSubtitleTextView);
+                slidepanelJourney = findViewById(R.id.sliderpanelJourneyTextView);
+                slidepanelImage = findViewById(R.id.sliderpanelImageView1);
+                slidePanelJourneyButton = findViewById(R.id.sliderpanelJourneyButton);
+                slidepanelArriveAtText = findViewById(R.id.sliderPanelArriveAtText);
+                slidepanelArriveTimeText = findViewById(R.id.sliderpanelArrivalTime);
+                slidepanelDepartAtText = findViewById(R.id.sliderPanelDepartAtText);
+                slidepanelDepartureTimeText = findViewById(R.id.sliderpanelDepartureTime);
+                slidepanelJourneyToText = findViewById(R.id.sliderpanelJourneyToText);
+
+                slidepanelJourneyToText.setVisibility(View.INVISIBLE);
+                slidepanelArriveAtText.setVisibility(View.INVISIBLE);
+                slidepanelArriveTimeText.setVisibility(View.INVISIBLE);
+                slidepanelDepartAtText.setVisibility(View.INVISIBLE);
+                slidepanelDepartureTimeText.setVisibility(View.INVISIBLE);
+                slidepanelJourneyText.setVisibility(View.INVISIBLE);
 
                 //Set up marker button
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
                                                         @Override
                                                         public boolean onMarkerClick(@NonNull Marker marker) {
                                                             slidepanelTitle.setText(marker.getTitle());
+                                                            Log.e("helpp","triggers");
+                                                            slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
                                                             slidepanelSubtitle.setText(marker.getSnippet());
                                                             slidepanelImage.setImageBitmap(marker.getIcon().getBitmap());
 
@@ -326,7 +348,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                             String stationName = marker.getTitle();
                                                             stationName = stationName.replace(footer, "");
                                                             if (marker.getIcon().getBitmap().sameAs(trainIcon.getBitmap())) {
-                                                                slidepanelNext5.setVisibility(View.VISIBLE);
                                                                 slidePanelJourneyButton.setText("Show Route");
                                                                 slidePanelJourneyButton.setVisibility(View.VISIBLE);
                                                                 slidePanelJourneyButton.setOnClickListener(new View.OnClickListener() {
@@ -360,15 +381,18 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                                                                 });
                                                             } else if (marker.getIcon().getBitmap().sameAs(toiletIcon.getBitmap())) {
                                                                 slidePanelJourneyButton.setVisibility(View.VISIBLE);
-                                                                slidepanelNext5.setVisibility(View.INVISIBLE);
+                                                                slidepanelJourneyText.setVisibility(View.INVISIBLE);
+                                                                slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+
 
 
 //                            String url = "http://13.59.24.178/getToiletByID.php/?toiletID=" + marker.getTitle();
 //                            Log.e("help", marker.toString());
 //                            example = new AsyncTaskRestClient().doInBackground(url);
                                                             } else {
+                                                                slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
                                                                 slidePanelJourneyButton.setVisibility(View.GONE);
-                                                                slidepanelNext5.setVisibility(View.INVISIBLE);
+                                                                slidepanelJourneyText.setVisibility(View.INVISIBLE);
 
                                                                 Log.e("help", "Marker is not a train station or toilet");
                                                             }
@@ -482,6 +506,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         nrb.accessToken(Mapbox.getAccessToken());
         nrb.origin(oPoint);
         nrb.destination(dPoint);
+        nrb.profile(DirectionsCriteria.PROFILE_WALKING);
 
 
         Log.e("getSingleRoute","trigggered2");
@@ -656,8 +681,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             }
         }
         if (list.size() == 0) {
-            list.add(-37.932438);
-            list.add(145.082474);
+            list.add(-37.87700);
+            list.add(145.04426);
         }
         return list;
     }
@@ -1236,6 +1261,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             ArrayList<JSONObject> al = configureDirections(directionResults);
             assert al != null;
             getManyRoutes(al);
+
+            //hide all markers
+            //only show relevant train markers
+            //New Code 1/10/2018
+            mMapboxMap.clear();
+
+            drawJourneyMarkers(al);
             if (currentNavMap != null) {
                 currentNavMap.removeRoute();
             } else {
@@ -1244,6 +1276,123 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             if (currentRoute.size()> 0) {
                 currentNavMap.addRoutes(currentRoute);
             }
+        }
+    }
+
+    private void writeJourneyInformation(JSONObject legs) {
+        String arrivalTime = "error";
+        String departureTime = "error";
+        String distance = "error";
+        String duration = "error";
+        String endAddress = "error";
+        String startAddress = "error";
+
+        Log.e("writeJourneyInfo",legs.toString());
+        try {
+            arrivalTime = legs.getJSONObject("arrival_time").getString("text");
+            departureTime = legs.getJSONObject("departure_time").getString("text");
+            distance = legs.getJSONObject("distance").getString("text");
+            duration = legs.getJSONObject("duration").getString("text");
+            endAddress = legs.getString("end_address");
+            startAddress = legs.getString("start_address");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        String example = "Arrival Time: " + arrivalTime + ". Departure Time: " + departureTime + ". Distance: " + distance + ". Duration" + duration;
+        example += ". Start Location: " + startAddress + ". End Location: " + endAddress ;
+
+        startAddress = startAddress.substring(0,startAddress.lastIndexOf(","));
+        endAddress = endAddress.substring(0,endAddress.lastIndexOf(","));
+
+        Log.e("writeJourneyInfo",example);
+
+//        slidepanelJourneyText.setText(example);
+        slidepanelArriveTimeText.setText(arrivalTime);
+        slidepanelDepartureTimeText.setText(departureTime);
+        slidepanelTitle.setText(startAddress);
+        slidepanelSubtitle.setText(endAddress);
+        slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
+
+        slidepanelJourneyToText.setVisibility(View.VISIBLE);
+//        slidepanelJourneyText.setVisibility(View.VISIBLE);
+        slidepanelArriveAtText.setVisibility(View.VISIBLE);
+        slidepanelArriveTimeText.setVisibility(View.VISIBLE);
+        slidepanelDepartAtText.setVisibility(View.VISIBLE);
+        slidepanelDepartureTimeText.setVisibility(View.VISIBLE);
+
+    }
+
+    private void drawJourneyMarkers(ArrayList<JSONObject> al) {
+        int i = 0;
+        final int size = al.size();
+        MarkerOptions markerOptions = new MarkerOptions();
+        IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+
+        while (i<al.size()) {
+            try {
+                if (al.get(i).getString("travel_mode").equals("WALKING")) {
+                    Log.e("drawJourneyMarkers", "walking");
+                } else if (al.get(i).getString("travel_mode").equals("TRANSIT")) {
+                    Log.e("drawJourneyMarkers", "transit");
+                    if (al.get(i).getString("html_instructions").contains("Train")) {
+                        Icon icon = iconFactory.fromResource(R.drawable.train);
+                        LatLng markerloc = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lat"),
+                                al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lng"));
+                        markerOptions.title(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getString("name"));
+                        markerOptions.icon(icon);
+                        markerOptions.position(markerloc);
+                        mMapboxMap.addMarker(markerOptions);
+
+                        LatLng markerloc2 = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getJSONObject("location").getDouble("lat"),
+                                al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getJSONObject("location").getDouble("lng"));
+                        markerOptions.title(al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getString("name"));
+                        markerOptions.icon(icon);
+                        markerOptions.position(markerloc2);
+                        mMapboxMap.addMarker(markerOptions);
+
+                    } else if (al.get(i).getString("html_instructions").contains("Bus")) {
+                        Icon icon = iconFactory.fromResource(R.drawable.bus);
+                        LatLng markerloc = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lat"),
+                                al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lng"));
+                        markerOptions.title(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getString("name"));
+                        markerOptions.icon(icon);
+                        markerOptions.position(markerloc);
+                        mMapboxMap.addMarker(markerOptions);
+
+                        LatLng markerloc2 = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getJSONObject("location").getDouble("lat"),
+                                al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getJSONObject("location").getDouble("lng"));
+                        markerOptions.title(al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getString("name"));
+                        markerOptions.icon(icon);
+                        markerOptions.position(markerloc2);
+                        mMapboxMap.addMarker(markerOptions);
+                    } else if (al.get(i).getString("html_instructions").contains("Tram")) {
+                        Icon icon = iconFactory.fromResource(R.drawable.tram);
+                        LatLng markerloc = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lat"),
+                                al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getJSONObject("location").getDouble("lng"));
+                        markerOptions.title(al.get(i).getJSONObject("transit_details").getJSONObject("arrival_stop").getString("name"));
+                        markerOptions.icon(icon);
+                        markerOptions.position(markerloc);
+                        mMapboxMap.addMarker(markerOptions);
+
+                        LatLng markerloc2 = new LatLng(al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getJSONObject("location").getDouble("lat"),
+                                al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getJSONObject("location").getDouble("lng"));
+                        markerOptions.title(al.get(i).getJSONObject("transit_details").getJSONObject("departure_stop").getString("name"));
+                        markerOptions.icon(icon);
+                        markerOptions.position(markerloc2);
+                        mMapboxMap.addMarker(markerOptions);
+                    } else {
+
+                    }
+
+                } else {
+
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            i++;
         }
     }
 
@@ -1265,6 +1414,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             JSONObject theRoute = routes.getJSONObject(0);
             JSONObject legs = theRoute.getJSONArray("legs").getJSONObject(0);
 
+            writeJourneyInformation(legs);
 //            arrivalTime = legs.getJSONObject("arrival_time").getString("text");
 //            departureTime = legs.getJSONObject("departure_time").getString("text");
 //            distance = legs.getJSONObject("distance").getString("text");
@@ -1333,10 +1483,11 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private void enableLocationPlugin() {
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            // Create an instance of LOST location engine
             initializeLocationEngine();
             // Create an instance of the plugin. Adding in LocationLayerOptions is also an optional
             // parameter
-            LocationLayerPlugin locationLayerPlugin = new LocationLayerPlugin(mMapView, mMapboxMap);
+            locationLayerPlugin = new LocationLayerPlugin(mMapView, mMapboxMap);
 
             // Set the plugin's camera mode
             locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
@@ -1367,7 +1518,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         mMapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(location.getLatitude(), location.getLongitude()), 13));
     }
-
 
 
     @Override
@@ -1453,7 +1603,11 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     protected void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
+        if (locationEngine != null) {
+            locationEngine.deactivate();
     }
+}
+
     @Override
     public void onLowMemory() {
         super.onLowMemory();

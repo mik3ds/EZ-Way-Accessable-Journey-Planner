@@ -21,114 +21,123 @@
 
     </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="360dp"
-        android:orientation="vertical">
+        android:layout_height="360dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+    <TextView
+        android:id="@+id/sliderpanelDepartureTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/sliderPanelDepartAtText"
+        android:layout_centerHorizontal="true"
+        android:text="Departure Time" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+    <ImageView
+        android:id="@+id/sliderpanelImageView1"
+        android:layout_width="90dp"
+        android:layout_height="70dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="right"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp" />
 
-                <TextView
-                    android:id="@+id/sliderpanelTitleTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+    <TextView
+        android:id="@+id/sliderpanelTitleTextView"
+        android:layout_height="wrap_content"
+        android:layout_width="250dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="41dp"
+        android:layout_marginTop="18dp"
+        android:text="TitleText"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/sliderpanelSubtitleTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="20dp"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="182dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/sliderpanelImageView1"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:paddingRight="5dp"
-                    android:paddingTop="5dp"
-                    android:layout_gravity="right" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1" >
-            <TextView
-                android:id="@+id/sliderpanelJourneyTextView"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:text=""/>
-            <Button
-                android:id="@+id/sliderpanelJourneyButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:visibility="gone"/>
-
-        </LinearLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <Button
-                android:id="@+id/sliderpanelNavButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Begin Journey"
-                />
+    <TextView
+        android:id="@+id/sliderpanelSubtitleTextView"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/sliderpanelTitleTextView"
+        android:layout_marginTop="87dp"
+        android:text="SubtitleText"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""/>
+    <TextView
+        android:id="@+id/sliderpanelJourneyTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sliderpanelSubtitleTextView"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:text="Journey Details" />
 
-            <Button
-                android:id="@+id/sliderpanelHideRouteButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hide Routes"
-                android:visibility="gone"/>
+    <Button
+        android:id="@+id/sliderpanelJourneyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="34dp"
+        android:layout_marginStart="57dp"
+        android:text="Show Route" />
 
-            <ImageView
-                android:id="@+id/imageNext5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="15dp"
-                app:srcCompat="@drawable/table1" />
+    <Button
+        android:id="@+id/sliderpanelNavButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/sliderpanelJourneyButton"
+        android:layout_marginEnd="43dp"
+        android:text="Begin Journey" />
 
-        </RelativeLayout>
-    </LinearLayout>
+    <Button
+        android:id="@+id/sliderpanelHideRouteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hide Routes"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/sliderpanelJourneyToText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/sliderpanelTitleTextView"
+        android:layout_below="@+id/sliderpanelTitleTextView"
+        android:layout_marginEnd="-57dp"
+        android:visibility="invisible"
+        android:text="to" />
+
+    <TextView
+        android:id="@+id/sliderpanelArrivalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/sliderPanelArriveAtText"
+        android:layout_centerHorizontal="true"
+        android:text="Arrival Time" />
+
+    <TextView
+        android:id="@+id/sliderPanelDepartAtText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/sliderpanelTitleTextView"
+        android:layout_marginTop="158dp"
+        android:text="Leave at" />
+
+    <TextView
+        android:id="@+id/sliderPanelArriveAtText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/sliderpanelTitleTextView"
+        android:layout_marginBottom="135dp"
+        android:text="Arrive at" />
+    </RelativeLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
