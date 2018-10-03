@@ -147,6 +147,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private NavigationMapRoute currentNavMap;
     private List<DirectionsRoute> currentRoute = new ArrayList<DirectionsRoute>();
 
+
     private Double lulat;
     private Double lulon;
 
@@ -158,6 +159,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     List<android.location.Address> destination = null;
     private SlidingUpPanelLayout panel;
     String childEmergencyStatus = "0";
+    private LatLng childLatLng;
 
 
     @Override
@@ -237,7 +239,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         String location = "";
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
+        mEditor = mPreferences.edit();
         configureProfileImage();
 
         //change the title of navigation drawer to username
@@ -599,12 +601,12 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         updateDrawerTitle();
         configureProfileImage();
         mMapView.onResume();
-        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
-            mEditor = mPreferences.edit();
-            mEditor.putBoolean("firstTimeRun",false);
-            mEditor.apply();
-            MapActivity.this.recreate();
-        }
+//        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
+//            mEditor = mPreferences.edit();
+//            mEditor.putBoolean("firstTimeRun",false);
+//            mEditor.apply();
+//            MapActivity.this.recreate();
+//        }
         Log.e("help","onResume triggered");
     }
 
@@ -1240,33 +1242,16 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         markerOptions.setIcon(icon);
         markerOptions.setTitle(currentChildLocation.getString("name"));
         markerOptions.setSnippet(currentChildLocation.getString("details"));
-        LatLng childLatLng = new LatLng(currentChildLocation.getDouble("childLat"),currentChildLocation.getDouble("childLon"));
+        childLatLng = new LatLng(currentChildLocation.getDouble("childLat"),currentChildLocation.getDouble("childLon"));
         markerOptions.position(childLatLng);
         mapboxMap.addMarker(markerOptions);
-        //mapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(childLatLng, 15));
+        if (mPreferences.getBoolean("firstTimeRun",false)) {
+            mapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(childLatLng,13));
+            mEditor.putBoolean("firstTimeRun",false);
+            mEditor.apply();
+        }
         mapboxMap.moveCamera(CameraUpdateFactory.newLatLng(childLatLng));
 
-    }
-
-    public void addUserLocation(MapboxMap m){
-        Log.e("addUserLocation","happened");
-        ArrayList<Double> list = new ArrayList();
-        list = getLocation();
-        MarkerOptions markerOptions = new MarkerOptions();
-        IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
-        Icon icon = iconFactory.fromResource(R.drawable.star);
-        latitude = list.get(0);
-        longitude = list.get(1);
-        LatLng userloc = new LatLng(latitude, longitude);
-        markerOptions.title("User location");
-        markerOptions.icon(icon);
-        markerOptions.position(userloc);
-        m.addMarker(markerOptions);
-
-        if (mPreferences.getBoolean("isParent",false)) {
-            asyncUpdateChildLocationFromServer(m);
-            updateChildLocationFromServer(m);
-        }
     }
 
     public void getDirections (Double originLat, Double originLon, Double destLat, Double destLon) {

@@ -53,6 +53,9 @@ public class TrackingParentActivity extends AppCompatActivity {
         wipeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mEditor = mPreferences.edit();
+                mEditor.putBoolean("isParent",false);
+                mEditor.apply();
                 asyncTrackingOff();
             }
         });
