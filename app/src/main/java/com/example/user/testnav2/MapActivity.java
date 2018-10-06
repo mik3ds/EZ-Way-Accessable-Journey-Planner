@@ -381,8 +381,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                             startActivity(new Intent(MapActivity.this, TrackingChildActivity.class));
                         } else if (itemID == R.id.nav_trackparent) {
                             startActivity(new Intent(MapActivity.this, TrackingParentActivity.class));
-                        } else if (itemID == R.id.nav_station) {
-                        } else if (itemID == R.id.nav_toilet) {
                         } else if (itemID == R.id.tutorial){
                             startActivity(new Intent(MapActivity.this, Tutorial1.class));
                         } else if (itemID == R.id.emergency){

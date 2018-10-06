@@ -6,31 +6,36 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_profile"
-            android:title="Profile" />
+            android:title="Profile"
+            android:icon="@drawable/ic_menu_gallery"/>
         <item
             android:id="@+id/nav_trackchild"
-            android:title="Tracking Settings (Child)" />
+            android:title="Tracking Settings (Child)"
+            android:icon="@drawable/ic_menu_manage"/>
         <item
             android:id="@+id/nav_trackparent"
-            android:title="Tracking Settings (Parent)" />
+            android:title="Tracking Settings (Parent)"
+            android:icon="@drawable/ic_menu_manage"/>
         <!--<item
             android:id="@+id/nav_myplaces"
             android:title="My Places" />-->
 
-        <item
-            android:id="@+id/nav_station"
-            android:title="Toggle Station Markers" />
-        <item
-            android:id="@+id/nav_toilet"
-            android:title="Toggle Toilet Markers" />
+        <!--<item-->
+            <!--android:id="@+id/nav_station"-->
+            <!--android:title="Toggle Station Markers" />-->
+        <!--<item-->
+            <!--android:id="@+id/nav_toilet"-->
+            <!--android:title="Toggle Toilet Markers" />-->
 
         <item
             android:id="@+id/tutorial"
-            android:title="Tutorial" />
+            android:title="Tutorial"
+            android:icon="@drawable/ic_menu_slideshow"/>
 
         <item
             android:id="@+id/emergency"
-            android:title="Emergency Contact" />
+            android:title="Emergency Contact"
+            android:icon="@drawable/ic_menu_share"/>
 
 
 
