@@ -469,48 +469,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
     // https://www.mapbox.com/help/android-navigation-sdk/
     //Method logic from here
-    private void getAndDisplaySingleRoute(Point oPoint, Point dPoint) {
-        Log.e("getRoute method","is happening");
-
-        NavigationRoute.Builder nrb = NavigationRoute.builder(MapActivity.this);
-        nrb.accessToken(Mapbox.getAccessToken());
-        nrb.origin(oPoint);
-        nrb.destination(dPoint);
-        nrb.build().getRoute(new Callback<DirectionsResponse>() {
-            @Override
-            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-                Log.e("getRoute method","onResponse method is happening");
-
-                if (response.body() == null) {
-                    Log.e("getRoute method", "No routes found, make sure you set the right user and access token.");
-                    return;
-                } else if (response.body().routes().size() < 1) {
-                    Log.e("getRoute method", "No routes found");
-                    return;
-                }
-                Log.e("getRoute method",response.toString());
-                currentRoute.clear();
-
-                currentRoute.add(response.body().routes().get(0));
-
-                if (currentNavMap != null) {
-                    currentNavMap.removeRoute();
-                } else {
-                    currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
-                }
-                mMapboxMap.deselectMarkers();
-                panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                currentNavMap.addRoute(currentRoute.get(0));
-            }
-
-            @Override
-            public void onFailure(Call<DirectionsResponse> call, Throwable t) {
-                Log.e("getAndDisplaySingleRout",t.toString());
-
-            }
-        });
-    }
-
     private void getSingleRoute(Double originLat, Double originLon, Double destLat, Double destLon) {
         Log.e("getSingleRoute","trigggered1");
         Point oPoint = Point.fromLngLat(originLon,originLat);
@@ -611,12 +569,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_stations) {
             removestations(mMapboxMap);
             return true;
@@ -624,23 +577,19 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             removetoilets(mMapboxMap);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     //Hide and show stations method
     public void removestations(MapboxMap m) {
         String toast = "";
-
         if (stamarkershown && toimarkershown) {
             m.clear();
-            //addUserLocation(mMapboxMap);
             asyncToiletMarkers(lulat,lulon);
             stamarkershown = false;
             toast = "Stations Disabled";
         } else if (stamarkershown && !toimarkershown) {
             m.clear();
-            //addUserLocation(mMapboxMap);
             stamarkershown = false;
             toast = "Stations Disabled";
         } else {
@@ -656,13 +605,11 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         String toast = "";
         if (toimarkershown && stamarkershown) {
             m.clear();
-            //addUserLocation(mMapboxMap);
             asyncStationMarkers(lulat,lulon);
             toimarkershown = false;
             toast = "Toilets Disabled";
         } else if (toimarkershown && !stamarkershown) {
             m.clear();
-            //addUserLocation(mMapboxMap);
             toimarkershown = false;
             toast = "Toilets Disabled";
         } else {
@@ -672,8 +619,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
         Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
     }
-
-
 
         @Override
         public boolean onNavigationItemSelected(MenuItem item) {
@@ -1229,6 +1174,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             dLat = destLat;
             dLon = destLon;
             execute();
+
         }
 
         @Override
@@ -1248,6 +1194,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 }
                 urlConnection.disconnect();
                 tempString = builder.toString();
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1278,6 +1226,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             } else {
                 currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
             }
+            Log.e("important","size check triggered");
             if (currentRoute.size()> 0) {
                 currentNavMap.addRoutes(currentRoute);
                 Log.e("important","routes have been added to the map from currentRoute");
