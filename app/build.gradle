@@ -29,6 +29,7 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.github.apl-devs:appintro:v4.2.3'

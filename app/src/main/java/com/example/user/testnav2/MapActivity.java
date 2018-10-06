@@ -149,7 +149,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private JSONObject directionResults;
     private NavigationMapRoute currentNavMap;
     private List<DirectionsRoute> currentRoute = new ArrayList<DirectionsRoute>();
-
+    private Marker searchlocation = null;
 
     private Double lulat;
     private Double lulon;
@@ -205,17 +205,20 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     Double templon = temp.getLongitude();
                     LatLng templatlon = new LatLng(templat, templon);
                     mMapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(templatlon, 13));
-
+                    mMapboxMap.getMarkers();
+                    if(searchlocation != null){
+                        mMapboxMap.removeMarker(searchlocation);
+                    }
                     MarkerOptions markerOptions = new MarkerOptions();
                     IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
                     Icon icon = iconFactory.fromResource(R.drawable.placeholder);
                     markerOptions.icon(icon);
                     markerOptions.title(query);
                     markerOptions.position(templatlon);
-                    mMapboxMap.addMarker(markerOptions);
+                    searchlocation = mMapboxMap.addMarker(markerOptions);
+
                 }   else {
                     String toast = "Wrong Place, Please enter the correct place.";
-
                     Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
                 }
                 return true;
@@ -234,8 +237,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         toggle.syncState();
 
         slidepanelJourneyText = findViewById(R.id.sliderpanelJourneyTextView);
-
-
 
         mMapView = (MapView) findViewById(R.id.mapquestMapView);
         mMapView.onCreate(savedInstanceState);
