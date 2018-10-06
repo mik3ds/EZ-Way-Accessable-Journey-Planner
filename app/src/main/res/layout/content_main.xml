@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginBottom="45dp"
+            android:layout_marginBottom="34dp"
             android:layout_marginEnd="27dp"
             android:text="Begin Navigation"
             android:visibility="invisible" />
@@ -111,8 +111,8 @@
             android:id="@+id/sliderpanelJourneyToText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/sliderpanelImageView1"
             android:layout_alignStart="@+id/sliderpanelTitleTextView"
+            android:layout_marginTop="60dp"
             android:text="to"
             android:visibility="invisible" />
 
@@ -157,7 +157,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:text="&gt;"
+            android:text="&lt;"
             android:visibility="invisible" />
     </RelativeLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

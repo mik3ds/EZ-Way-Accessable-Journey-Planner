@@ -446,7 +446,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
                 }
                 getDirections(loc.get(0),loc.get(1),destinationCoord.getLatitude(),destinationCoord.getLongitude());
-                slidepanelbeginNavButton.setVisibility(View.VISIBLE);
                 slidepanelbeginNavButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -470,7 +469,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     // https://www.mapbox.com/help/android-navigation-sdk/
     //Method logic from here
     private void getSingleRoute(Double originLat, Double originLon, Double destLat, Double destLon) {
-        Log.e("getSingleRoute","trigggered1");
+        Log.e("important","singleRoute");
         Point oPoint = Point.fromLngLat(originLon,originLat);
         Point dPoint = Point.fromLngLat(destLon,destLat);
         NavigationRoute.Builder nrb = NavigationRoute.builder(MapActivity.this);
@@ -478,10 +477,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         nrb.origin(oPoint);
         nrb.destination(dPoint);
         nrb.profile(DirectionsCriteria.PROFILE_WALKING);
-
-
-        Log.e("getSingleRoute","trigggered2");
-
         nrb.build().getRoute(new Callback<DirectionsResponse>() {
             @Override
             public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
@@ -489,17 +484,15 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 if (currentNavMap == null) {
                     currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
                 }
-
                 if (response.body() == null) {
                     return;
                 } else if (response.body().routes().size() < 1) {
                     return;
                 }
-                Log.e("getSingleRoute","trigggered3");
                 DirectionsRoute dr;
                 dr = response.body().routes().get(0);
                 currentRoute.add(dr);
-                Log.e("important","added to currentRoute");
+                currentNavMap.addRoutes(currentRoute);
             }
 
             @Override
@@ -1209,6 +1202,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            slidepanelbeginNavButton.setVisibility(View.VISIBLE);
 
             ArrayList<JSONObject> al = configureDirections(directionResults);
             assert al != null;
@@ -1227,10 +1221,10 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
             }
             Log.e("important","size check triggered");
-            if (currentRoute.size()> 0) {
-                currentNavMap.addRoutes(currentRoute);
-                Log.e("important","routes have been added to the map from currentRoute");
-            }
+//            if (currentRoute.size()> 0) {
+//                currentNavMap.addRoutes(currentRoute);
+//                Log.e("important","routes have been added to the map from currentRoute");
+//            }
         }
     }
 
@@ -1416,12 +1410,12 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     }
 
     private void getManyRoutes(ArrayList<JSONObject> aList) {
+        Log.e("important", "getManyRoutes triggers");
         int i = 0;
         final int size = aList.size();
         while (i<aList.size()) {
             try {
                 if (aList.get(i).getString("travel_mode").equals("WALKING")) {
-                    Log.e("aList", "triggers");
 
                     getSingleRoute(aList.get(i).getJSONObject("start_location").getDouble("lat"),
                             aList.get(i).getJSONObject("start_location").getDouble("lng"),
