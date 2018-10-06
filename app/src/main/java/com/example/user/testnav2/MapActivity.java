@@ -334,6 +334,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
                                                             //Create temporary train icon and compare
                                                             String example = "";
+
                                                             String footer = " Train Station";
                                                             String stationName = marker.getTitle();
                                                             stationName = stationName.replace(footer, "");
@@ -601,12 +602,12 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         updateDrawerTitle();
         configureProfileImage();
         mMapView.onResume();
-//        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
-//            mEditor = mPreferences.edit();
-//            mEditor.putBoolean("firstTimeRun",false);
-//            mEditor.apply();
-//            MapActivity.this.recreate();
-//        }
+        if (mPreferences.getBoolean("isParent",false) && mPreferences.getBoolean("firstTimeRun",false)) {
+            mEditor = mPreferences.edit();
+            mEditor.putBoolean("firstTimeRun",false);
+            mEditor.apply();
+            MapActivity.this.recreate();
+        }
         Log.e("help","onResume triggered");
     }
 

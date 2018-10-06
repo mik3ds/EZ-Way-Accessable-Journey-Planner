@@ -1,9 +1,11 @@
 package com.example.user.testnav2;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,6 +36,8 @@ public class TrackingParentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracking_parent);
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         wipeButton = findViewById(R.id.trackingParentWipeSettings);
 
@@ -77,7 +81,7 @@ public class TrackingParentActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            String tempstring;
+            String tempstring = "";
             try{
                 URL url = new URL(urls);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -89,13 +93,13 @@ public class TrackingParentActivity extends AppCompatActivity {
                 while ((inputString = bufferedReader.readLine()) != null) {
                     builder.append(inputString);
                 }
+                Log.e("builder",builder.toString());
                 urlConnection.disconnect();
                 tempstring = builder.toString();
-                configureTrackingStatus();
-            } catch (IOException | ExecutionException | InterruptedException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.e("doInBackground","finishes");
+            Log.e("doInBackground",tempstring);
             return null;
         }
 
@@ -106,7 +110,22 @@ public class TrackingParentActivity extends AppCompatActivity {
             mEditor = mPreferences.edit();
             mEditor.putBoolean("isParent", false);
             mEditor.apply();
-            finish();
+
+            TextView trackingDisplay = (TextView) findViewById(R.id.trackingParentStatusText);
+            trackingDisplay.setText("You are not currently paired");
+            trackingDisplay.setTextColor(getResources().getColor(R.color.red));
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(TrackingParentActivity.this);
+            builder.setMessage("Please restart the app for changes to take effect");
+            builder.setTitle("Paired Child Successfully Removed");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.create().show();
+
         }
     }
 
