@@ -75,7 +75,9 @@ import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -138,6 +140,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private Button slidepanelbeginNavButton;
     private Button slidepanelHideRouteButton;
     private Button slidepanelStepByStep;
+    private Button slidepanelExitRoute;
 
     JSONObject currentChildLocation = null;
     String tempString = null;
@@ -183,6 +186,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         });
 
         slidepanelbeginNavButton = findViewById(R.id.sliderpanelNavButton);
+        slidepanelExitRoute = findViewById(R.id.sliderpanelExitRoute);
         slidepanelHideRouteButton = findViewById(R.id.sliderpanelHideRouteButton);
 
 
@@ -325,10 +329,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 mMapboxMap.setOnMarkerClickListener(new com.mapbox.mapboxsdk.maps.MapboxMap.OnMarkerClickListener() {
                                                         @Override
                                                         public boolean onMarkerClick(@NonNull Marker marker) {
-                                                            slidepanelTitle.setText(marker.getTitle());
+                                                            if (!isJourneyCurrentlyShowing) {
+                                                                slidepanelTitle.setText(marker.getTitle());
+                                                                slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+                                                                slidepanelSubtitle.setText(marker.getSnippet());
+                                                            }
                                                             Log.e("helpp","triggers");
-                                                            slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
-                                                            slidepanelSubtitle.setText(marker.getSnippet());
+
                                                             slidepanelImage.setImageBitmap(marker.getIcon().getBitmap());
                                                             enableJourneyRouteButton(marker);
 
@@ -534,6 +541,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 DirectionsRoute dr;
                 dr = response.body().routes().get(0);
                 currentRoute.add(dr);
+                Log.e("important","added to currentRoute");
             }
 
             @Override
@@ -541,44 +549,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 Log.e("getSingleRoute",t.toString());
             }
         });
-    }
-
-    private void displayRoutes() {
-        if (currentNavMap != null) {
-            currentNavMap.removeRoute();
-        } else {
-            currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
-        }
-        mMapboxMap.deselectMarkers();
-        panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        int i = 0;
-        Log.e("displayRoutescurrenRout",currentRoute.toString());
-        while (currentRoute.size() > i) {
-            currentNavMap.addRoute(currentRoute.get(i));
-            i++;
-        }
-    }
-
-    private void displayRoute() {
-        Log.e("displayRoutecurrentrout","1");
-
-        if (currentNavMap != null) {
-            currentNavMap.removeRoute();
-        } else {
-            currentNavMap = new NavigationMapRoute(null,mMapView,mMapboxMap,R.style.NavigationMapRoute);
-        }
-        Log.e("displayRoutecurrentrout","2");
-
-        mMapboxMap.deselectMarkers();
-//        panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        Log.e("displayRoutecurrentrout","3");
-        Log.e("currentRoute",currentRoute.toString());
-
-        int i = 0;
-        currentNavMap.addRoute(currentRoute.get(i));
-        Log.e("displayRoutecurrentrout","4");
-
-
     }
 
     private void configureProfileImage() {
@@ -609,22 +579,13 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         Log.e("help","onResume triggered");
     }
 
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        mMapView.onResume();
-//    }
-
     private void updateDrawerTitle() {
 
         String tempTitle = mPreferences.getString(getString(R.string.username), "Guest");
-
         NavigationView nv = findViewById(R.id.nav_view1);
         View hv = nv.getHeaderView(0);
         TextView tv = (TextView) hv.findViewById(R.id.drawer_title);
         tv.setText(tempTitle);
-
     }
 
     @Override
@@ -640,6 +601,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 super.onBackPressed();
             }
         }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater mi = new MenuInflater(this);
@@ -713,14 +675,10 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
 
 
-
-
-
         @Override
         public boolean onNavigationItemSelected(MenuItem item) {
             // Handle navigation view item clicks here.
             int id = item.getItemId();
-
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             drawer.closeDrawer(GravityCompat.START);
             return true;
@@ -1306,6 +1264,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
             ArrayList<JSONObject> al = configureDirections(directionResults);
             assert al != null;
+            Log.e("important",al.toString());
             getManyRoutes(al);
 
             //hide all markers
@@ -1321,6 +1280,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             }
             if (currentRoute.size()> 0) {
                 currentNavMap.addRoutes(currentRoute);
+                Log.e("important","routes have been added to the map from currentRoute");
             }
         }
     }
@@ -1330,13 +1290,25 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         String departureTime = "error";
         String distance = "error";
         String duration = "error";
-        String endAddress = "error";
-        String startAddress = "error";
+        String endAddress = "error,";
+        String startAddress = "error,";
         isJourneyCurrentlyShowing = true;
         Log.e("writeJourneyInfo",legs.toString());
         try {
             arrivalTime = legs.getJSONObject("arrival_time").getString("text");
             departureTime = legs.getJSONObject("departure_time").getString("text");
+        } catch (JSONException e) {
+            Calendar cal = Calendar.getInstance(Locale.getDefault());
+            try {
+                arrivalTime = legs.getJSONArray("steps").getJSONObject(0).getJSONObject("duration").getString("text");
+            } catch (JSONException ef) {
+                ef.printStackTrace();
+                arrivalTime = "error";
+            }
+            departureTime = "Now";
+            e.printStackTrace();
+        }
+        try {
             distance = legs.getJSONObject("distance").getString("text");
             duration = legs.getJSONObject("duration").getString("text");
             endAddress = legs.getString("end_address");
@@ -1352,15 +1324,22 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         example += ". Start Location: " + startAddress + ". End Location: " + endAddress ;
 
 
-        Log.e("writeJourneyInfo",example);
+        startAddress = startAddress.substring(0,startAddress.lastIndexOf(","));
+        endAddress = endAddress.substring(0,endAddress.lastIndexOf(","));
 
-//        slidepanelJourneyText.setText(example);
+        slidepanelExitRoute.setVisibility(View.VISIBLE);
         slidepanelArriveTimeText.setText(arrivalTime);
         slidepanelDepartureTimeText.setText(departureTime);
         slidepanelTitle.setText(startAddress);
         slidepanelSubtitle.setText(endAddress);
         slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
 
+        slidepanelExitRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MapActivity.this.recreate();
+            }
+        });
 
 
 
@@ -1465,60 +1444,22 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     }
 
     private ArrayList<JSONObject> configureDirections(JSONObject results) {
-//        String arrivalTime;
-//        String departureTime;
-//        String distance;
-//        String duration;
-//        String endAddress;
-//        String endLocation;
-//        String startAddress;
-//        String startLocation;
-        Log.e("configureDirections","triggers");
 
         try {
             JSONArray routes = results.getJSONArray("routes");
-            Log.e("results",results.toString());
-            Log.e("routes",routes.toString());
             JSONObject theRoute = routes.getJSONObject(0);
             JSONObject legs = theRoute.getJSONArray("legs").getJSONObject(0);
-
             writeJourneyInformation(legs);
-//            arrivalTime = legs.getJSONObject("arrival_time").getString("text");
-//            departureTime = legs.getJSONObject("departure_time").getString("text");
-//            distance = legs.getJSONObject("distance").getString("text");
-//            duration = legs.getJSONObject("duration").getString("text");
-//            endAddress = legs.getString("end_address");
-//            endLocation = legs.getJSONObject("end_location").getString("lat") + " , " + legs.getJSONObject("end_location").getString("lng");
-//            startAddress = legs.getString("start_address");
-//            startLocation = legs.getJSONObject("start_location").getString("lat") + " , " + legs.getJSONObject("end_location").getString("lng");
-//
-//            String example = "Arrival Time: " + arrivalTime + ". Departure Time: " + departureTime + ". Distance: " + distance + ". Duration" + duration;
-//            example += ". Start Location: " + startAddress + startLocation +  ". End Location: " + endAddress + endLocation;
-
             JSONArray steps = legs.getJSONArray("steps");
             ArrayList<JSONObject> aList = new ArrayList<>();
             int i = 0;
-
-            Log.e("Line 1137","triggered");
             while (i<steps.length()) {
                 aList.add(steps.getJSONObject(i));
                 i++;
             }
-            Log.e("line 1142","triggered");
             i = 0;
-            Log.e("travelmode",aList.get(i).getString("travel_mode"));
-            Log.e("aList size", String.valueOf(aList.size()));
-            Log.e("aList",aList.get(0).getString("travel_mode"));
-
             //aList current holds each step of the journey as an entry of JSONObject
-
             return aList;
-//            displayRoute();
-
-
-//            TextView tv = findViewById(R.id.textView1);
-//            tv.setText(example);
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1528,7 +1469,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private void getManyRoutes(ArrayList<JSONObject> aList) {
         int i = 0;
         final int size = aList.size();
-
         while (i<aList.size()) {
             try {
                 if (aList.get(i).getString("travel_mode").equals("WALKING")) {
@@ -1544,7 +1484,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             }
             i++;
         }
-
     }
 
     @SuppressWarnings( {"MissingPermission"})
@@ -1635,20 +1574,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         }
     }
 
-
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        if (locationEngine != null) {
-//            locationEngine.removeLocationUpdates();
-//        }
-//        if (locationPlugin != null) {
-//            locationPlugin.onStop();
-//        }
-//        mMapView.onStop();
-//    }
-
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -1657,15 +1582,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             locationLayerPlugin.onStart();
         }
     }
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        mMapView.onDestroy();
-//        if (locationEngine != null) {
-//            locationEngine.deactivate();
-//        }
-//    }
 
     @Override
     protected void onDestroy() {
@@ -1695,7 +1611,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     }
 
     //update child emergency status from server
-
     public class updateEmergenceFromServer extends AsyncTask<Void,Void,Void> {
 
         private WeakReference<MapActivity> activityWeakReference;
@@ -1805,7 +1720,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
                 StringBuilder builder = new StringBuilder();
-
                 String inputString;
                 while ((inputString = bufferedReader.readLine()) != null) {
                     builder.append(inputString);
@@ -1814,8 +1728,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 tempString = builder.toString();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally
-            {
             }
             return null;
         }
@@ -1825,7 +1737,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             super.onPostExecute(v);
         }
     }
-
 
     //Update child emergency status on to server
     public void asyncUpdateEmergencyOn() {
@@ -1866,8 +1777,6 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 tempString = builder.toString();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally
-            {
             }
             return null;
         }

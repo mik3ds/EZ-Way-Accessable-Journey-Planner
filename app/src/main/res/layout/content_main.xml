@@ -51,8 +51,8 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="41dp"
-            android:layout_marginTop="18dp"
-            android:text="TitleText"
+            android:layout_marginTop="13dp"
+            android:text=""
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -63,6 +63,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignStart="@+id/sliderpanelTitleTextView"
             android:layout_marginTop="87dp"
+            android:layout_marginEnd="41dp"
             android:text="SubtitleText"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -150,5 +151,13 @@
             android:text="Step by Step"
             android:visibility="gone"/>
 
+        <Button
+            android:id="@+id/sliderpanelExitRoute"
+            android:layout_width="37dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:text="&gt;"
+            android:visibility="invisible" />
     </RelativeLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
