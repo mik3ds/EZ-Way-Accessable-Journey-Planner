@@ -7,6 +7,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.ListView;
 
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,8 +43,28 @@ public class stepByStep3 extends Activity{
         SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         JSONArray ja = new JSONArray(mPreferences.getString("instructions","[]"));
         int i = 0;
+        StepInfo tempStep;
         while (i<ja.length()) {
-            StepInfo tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.ic_arrow_back_white);
+            if (ja.getJSONObject(i).getString("travel_mode").equals("WALKING")) {
+                tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_wheelchair);
+
+            } else if (ja.getJSONObject(i).getString("travel_mode").equals("TRANSIT")) {
+                String s = ja.getJSONObject(i).getString("html_instructions").substring(0,5);
+                if (s.contains("Train")) {
+                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_train);
+
+                } else if (s.contains("Tram")) {
+                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_tram);
+
+                } else if (s.contains("Bus")) {
+                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_bus);
+
+                } else {
+                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.ic_arrow_back_white);
+                }
+            } else {
+                tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.ic_arrow_back_white);
+            }
             i++;
             infolist.add(tempStep);
         }
