@@ -51,7 +51,8 @@
         <activity android:name=".TrackingChildEditActivity" />
         <activity android:name=".TrackingParentActivity" />
         <activity android:name=".StepByStepActivity" />
-        <activity android:name=".StepByStep2Activity"></activity>
+        <activity android:name=".stepByStep3" />
+        <activity android:name=".StepByStep2Activity"/>
     </application>
 
 </manifest>

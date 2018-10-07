@@ -1300,7 +1300,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 mEditor = mPreferences.edit();
                 mEditor.putString("instructions", steps.toString());
                 mEditor.apply();
-                startActivity(new Intent(MapActivity.this, StepByStep2Activity.class));
+                startActivity(new Intent(MapActivity.this, stepByStep3.class));
             }
         });
         slidepanelStepByStep.setVisibility(View.VISIBLE);
