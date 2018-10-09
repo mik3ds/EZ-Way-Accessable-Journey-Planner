@@ -1,6 +1,10 @@
 package com.example.user.testnav2;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +22,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
@@ -179,6 +184,9 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         setSupportActionBar(toolbar);
         android.support.v7.widget.SearchView msearchview = (android.support.v7.widget.SearchView) findViewById(R.id.searchEditText);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+
+
         msearchview.bringToFront();
         msearchview.setSubmitButtonEnabled(true);
         msearchview.setIconifiedByDefault(false);
@@ -197,6 +205,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         slidepanelbeginNavButton = findViewById(R.id.sliderpanelNavButton);
         slidepanelExitRoute = findViewById(R.id.sliderpanelExitRoute);
         slidepanelHideRouteButton = findViewById(R.id.sliderpanelHideRouteButton);
+
 
 
         msearchview.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
@@ -1625,6 +1634,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         @Override
         protected void onPostExecute(Void v) {
             if(tempString.equals("1")){
+                //Pop-up alert
                 AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
                 builder.setTitle("Alert");
                 builder.setMessage("You child sends you an emergency notification.");
@@ -1641,6 +1651,23 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 });
                 AlertDialog ad = builder.create();
                 ad.show();
+
+                //System Notification
+                NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                NotificationChannel channelbody = new NotificationChannel("channel","Notification",NotificationManager.IMPORTANCE_DEFAULT);
+                notificationManager.createNotificationChannel(channelbody);
+                NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(MapActivity.this);
+                notiBuilder.setChannelId("channel");
+                notiBuilder.setContentTitle("EZ Way Notification");
+                notiBuilder.setContentText("Your child sent you a notification.");
+                notiBuilder.setDefaults(NotificationCompat.DEFAULT_ALL);
+                notiBuilder.setAutoCancel(true);
+
+                notiBuilder.setSmallIcon(R.drawable.round_icon_bus);
+                Notification notification=notiBuilder.build();
+                notiBuilder.setContentIntent(PendingIntent.getActivity(MapActivity.this,0x102,new Intent(MapActivity.this,MapActivity.class),0));
+                notificationManager.notify(0x101,notification);
+
             }
         }
     }
