@@ -84,7 +84,7 @@
         android:layout_marginBottom="60dp"
         android:layout_marginEnd="74dp"
         android:background="@android:color/holo_blue_dark"
-        android:text="Home"
+        android:text="Back"
         android:textColor="@android:color/background_light"
         android:textStyle="bold" />
 

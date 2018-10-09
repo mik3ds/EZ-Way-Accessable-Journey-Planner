@@ -1,7 +1,10 @@
 package com.example.user.testnav2;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -58,7 +61,20 @@ public class TrackingParentEditActivity extends AppCompatActivity {
                 }
 
                 if (temp.equals("[]")) {
-                    tv.setText("Error");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(TrackingParentEditActivity.this);
+                    builder.setTitle("Pair failed");
+                    builder.setMessage("Wrong child name or wrong pair code, please try again.");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            TrackingParentEditActivity.this.recreate();
+                            codeEntry.getText().clear();
+                            nameEntry.getText().clear();
+                        }
+                    });
+                    AlertDialog ad = builder.create();
+                    ad.show();
                 } else {
                     try {
                         JSONArray ja = new JSONArray(temp);
@@ -76,7 +92,18 @@ public class TrackingParentEditActivity extends AppCompatActivity {
                             mEditor.putBoolean("firstTimeRun",true);
                             mEditor.apply();
                         }
-                        tv.setText("success!");
+                        AlertDialog.Builder builder = new AlertDialog.Builder(TrackingParentEditActivity.this);
+                        builder.setTitle("Pair Success");
+                        builder.setMessage("You are paired with your child.");
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                startActivity(new Intent(TrackingParentEditActivity.this, MapActivity.class));
+                            }
+                        });
+                        AlertDialog ad = builder.create();
+                        ad.show();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

@@ -24,7 +24,7 @@
             android:id="@+id/searchEditText"
             android:layout_gravity="center"
 
-            android:hint="Search here"/>
+            android:queryHint="Search here"/>
 
     </android.support.design.widget.AppBarLayout>
 

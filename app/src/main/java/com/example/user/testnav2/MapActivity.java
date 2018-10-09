@@ -19,6 +19,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.TypedValue;
@@ -32,6 +33,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -107,6 +109,7 @@ import com.mapbox.android.core.permissions.PermissionsManager;
 
 
 import static com.example.user.testnav2.R.id.emergency;
+import static com.example.user.testnav2.R.id.mapquestMapView;
 import static com.example.user.testnav2.R.id.sliderpanelJourneyTextView;
 import static com.example.user.testnav2.R.id.sliderpanelTitleTextView;
 
@@ -154,6 +157,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
     private Double lulat;
     private Double lulon;
 
+
+
     private PermissionsManager permissionsManager;
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
@@ -173,8 +178,12 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         android.support.v7.widget.SearchView msearchview = (android.support.v7.widget.SearchView) findViewById(R.id.searchEditText);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         msearchview.bringToFront();
         msearchview.setSubmitButtonEnabled(true);
+        msearchview.setIconifiedByDefault(false);
+        msearchview.setQueryHint("Search...");
+//        msearchview.setSuggestionsAdapter(CursorAdapter Adapter);
         Geocoder gc = new Geocoder(this);
         isJourneyCurrentlyShowing = false;
         panel = findViewById(R.id.slidingPanelMapActivity);
@@ -216,9 +225,28 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                     markerOptions.title(query);
                     markerOptions.position(templatlon);
                     searchlocation = mMapboxMap.addMarker(markerOptions);
+                    mMapboxMap.selectMarker(searchlocation);
 
+
+                    slidepanelTitle.setText(searchlocation.getTitle());
+                    slidepanelSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+                    slidepanelImage.setImageBitmap(searchlocation.getIcon().getBitmap());
+                    enableJourneyRouteButton(searchlocation);
+
+                    //Create temporary train icon and compare
+                    String example = "";
+                    String footer = " Train Station";
+                    String stationName = searchlocation.getTitle();
+                    stationName = stationName.replace(footer, "");
+                    slidePanelJourneyButton.setVisibility(View.VISIBLE);
+                    slidepanelJourney.setText(example);
+
+
+
+                    imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
                 }   else {
                     String toast = "Wrong Place, Please enter the correct place.";
+                    imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
                     Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
                 }
                 return true;
