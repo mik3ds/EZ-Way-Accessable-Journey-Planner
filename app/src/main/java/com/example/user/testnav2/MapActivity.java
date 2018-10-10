@@ -355,11 +355,12 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
                 Address currentAddress = null;
                 try {
                     currentAddress = gc.getFromLocation(tmpUser.getLatitude(),tmpUser.getLongitude(),1).get(0);
+                    slidepanelTitle.setText(currentAddress.getAddressLine(0));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                slidepanelTitle.setText(currentAddress.getAddressLine(0));
+//                slidepanelTitle.setText(currentAddress.getAddressLine(0));
                 slidepanelSubtitle.setText("");
 
 
@@ -681,8 +682,8 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
             }
         }
         if (list.size() == 0) {
-            list.add(-37.87700);
-            list.add(145.04426);
+            list.add(-37.876458);
+            list.add(145.044603);
         }
         return list;
     }
