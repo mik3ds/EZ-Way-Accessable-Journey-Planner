@@ -189,7 +189,7 @@ public class MapActivity extends AppCompatActivity    implements NavigationView.
 
         msearchview.bringToFront();
         msearchview.setSubmitButtonEnabled(true);
-        msearchview.setIconifiedByDefault(false);
+//        msearchview.setIconifiedByDefault(false);
         msearchview.setQueryHint("Search...");
 //        msearchview.setSuggestionsAdapter(CursorAdapter Adapter);
         Geocoder gc = new Geocoder(this);
