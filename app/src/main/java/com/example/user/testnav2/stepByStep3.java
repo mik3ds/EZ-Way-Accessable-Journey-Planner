@@ -46,26 +46,33 @@ public class stepByStep3 extends Activity{
         StepInfo tempStep;
         while (i<ja.length()) {
             if (ja.getJSONObject(i).getString("travel_mode").equals("WALKING")) {
-                tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_wheelchair);
+                tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_wheelchair,
+                        ja.getJSONObject(i).getJSONObject("duration").getString("text"));
 
             } else if (ja.getJSONObject(i).getString("travel_mode").equals("TRANSIT")) {
                 String s = ja.getJSONObject(i).getString("html_instructions").substring(0,5);
                 if (s.contains("Train")) {
-                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_train);
+                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_train,
+                            ja.getJSONObject(i).getJSONObject("duration").getString("text"));
 
                 } else if (s.contains("Tram")) {
-                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_tram);
+                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_tram,
+                            ja.getJSONObject(i).getJSONObject("duration").getString("text"));
 
                 } else if (s.contains("Bus")) {
-                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_bus);
+                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.round_icon_bus,
+                            ja.getJSONObject(i).getJSONObject("duration").getString("text"));
 
                 } else {
-                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.ic_arrow_back_white);
+                    tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.ic_arrow_back_white,
+                            ja.getJSONObject(i).getJSONObject("duration").getString("text"));
                 }
             } else {
-                tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.ic_arrow_back_white);
+                tempStep = new StepInfo(ja.getJSONObject(i).getString("html_instructions"), R.drawable.ic_arrow_back_white,
+                        ja.getJSONObject(i).getJSONObject("duration").getString("text"));
             }
             i++;
+            Log.e("important",tempStep.getTime());
             infolist.add(tempStep);
         }
     }

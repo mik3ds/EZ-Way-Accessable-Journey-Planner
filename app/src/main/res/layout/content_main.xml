@@ -25,7 +25,14 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="360dp">
-
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="205dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:alpha="0.5"
+            app:srcCompat="@drawable/backdrop" />
         <TextView
             android:id="@+id/sliderpanelDepartureTime"
             android:layout_width="wrap_content"
@@ -76,7 +83,7 @@
             android:layout_alignBottom="@+id/sliderpanelSubtitleTextView"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="16dp"
-            android:text="Journey Details" />
+            android:text="Details" />
 
         <Button
             android:id="@+id/sliderpanelJourneyButton"
@@ -148,7 +155,7 @@
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/sliderpanelJourneyTextView"
             android:layout_centerVertical="true"
-            android:text="Step by Step"
+            android:text="Journey Details"
             android:visibility="gone"/>
 
         <Button

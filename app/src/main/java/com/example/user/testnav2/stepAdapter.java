@@ -31,8 +31,10 @@ public class stepAdapter extends ArrayAdapter{
         View view = LayoutInflater.from(getContext()).inflate(resourceid, null);
         ImageView stepinfoimage = (ImageView) view.findViewById(R.id.infoimage);
         TextView textview = (TextView) view.findViewById(R.id.info);
+        TextView textview2 = (TextView) view.findViewById(R.id.infotime);
         stepinfoimage.setImageResource(stepinfo.getImageId());
         textview.setText(stepinfo.getName());
+        textview2.setText(stepinfo.getTime());
         return view;
     }
 }
