@@ -1,55 +1,5 @@
 # FIT5120 EasyWay Android Application
 
-## Installation Instructions
-
-### Create and set up a Web Server using Ubuntu Linux 14.05.5 and Apache
-
-
-For the demo we have created an Amazon EC2 Virtual Machine instance. SSH into the machine (  ssh -i "awsmachinekeypair.pem" hostname  ). When connected, run:
-
-
-  sudo upgrade
-  
-  sudo apt-get install apache2
-  
-  sudo apt-get install mysql
-  
-
-Only allow incoming traffic to the web server through ssh http connections.
-Copy the Web Server PHP scripts to the public web server directory. (Default Apache2 location is /var/www/html)
-
-
-### Create and set up a remote MySQL Database
-
-
-For the demo we have created an Amazon RDS MySql database.
-Only allow incoming network traffic from the Web Server public IP address.
-
-
-SSH into the Web Server.
-Connect to MySQL database.
-
-
-   mysql -u"root" -h -password --local-infile; //Where root is the MySQL user previously set as the admin account
-   
-
-Run MySQL create table scripts.
-
-
-Insert Data Sets into 'stations' and 'toilets' databases, where "records.csv" is the Data Set to be uploaded.
-
-   
-   LOAD DATA LOCAL INFILE 'records.csv' INTO TABLE stations FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'; //Where records.csv is the data required to be stored in the server db.
-
-
-### Start Apache:
-
-  $ sudo /etc/init.d/apache2 start
- 
-   
-### Install .apk on Android compatible hardware(SDK min v17) and run.
-
-
 ## Basic Functions
 
 ### Map
