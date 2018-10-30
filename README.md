@@ -3,7 +3,7 @@
 ## Basic Functions
 
 ### Map
-Map that shows user location, nearby Public Transport options, and other points of interest like accessable toilets and myki topup machines. 
+Map that shows user location, nearby Public Transport options, and nearby accessable toilets. 
 
 ### Parent Tracking
 #### Setup
